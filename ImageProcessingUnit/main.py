@@ -114,13 +114,13 @@ torch.cuda.empty_cache()
 
 # Initializing model and setting it for inference
 with torch.no_grad():
-    weights, imgsz = options['weights'], options['img-size']
+    weights, img_size = options['weights'], options['img-size']
     set_logging()
     device = select_device(options['device'])
     use_half_precision = device.type != 'cpu'
     model = attempt_load(weights, map_location=device)  # load FP32 model
     stride = int(model.stride.max())  # model stride
-    imgsz = check_img_size(imgsz, s=stride)  # check img_size
+    img_size = check_img_size(img_size, s=stride)  # check img_size
     if use_half_precision:
         model.half()
 
@@ -128,7 +128,7 @@ with torch.no_grad():
     colors = [[random.randint(0, 255) for _ in range(3)] for _ in names]
     if device.type != 'cpu':
         print(model)
-        model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))
+        model(torch.zeros(1, 3, img_size, img_size).to(device).type_as(next(model.parameters())))
 
     classes = None
     if options['classes']:
@@ -147,7 +147,7 @@ with torch.no_grad():
             break
 
         count +=1
-        img = adjust_image_to_desired_shape(frame, imgsz, stride=stride)[0]
+        img = adjust_image_to_desired_shape(frame, img_size, stride=stride)[0]
         img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
         img = np.ascontiguousarray(img)
         img = torch.from_numpy(img).to(device)
@@ -159,25 +159,25 @@ with torch.no_grad():
 
         # Inference
         t1 = time_synchronized()
-        pred = model(img, augment= False)[0]        
-        pred = non_max_suppression(pred, options['conf-thres'], options['iou-thres'], classes= classes, agnostic= False)
+        detection_results = model(img, augment= False)[0]        
+        detection_results = non_max_suppression(detection_results, options['conf-thres'], options['iou-thres'], classes= classes, agnostic= False)
         t2 = time_synchronized()
 
         # Plotting the detections
-        for i, det in enumerate(pred):
-            s = f"{img.shape[2]}x{img.shape[3]} "  # print string
+        for i, det in enumerate(detection_results):
+            detection_string = f"{img.shape[2]}x{img.shape[3]} "  # print string
 
-            gn = torch.tensor(frame.shape)[[1, 0, 1, 0]]
+            img_shape_dimensions = torch.tensor(frame.shape)[[1, 0, 1, 0]]
             if len(det):
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], frame.shape).round()
 
-                for c in det[:, -1].unique():
-                    n = (det[:, -1] == c).sum()  # detections per class
-                    s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
+                for class_index in det[:, -1].unique():
+                    number_of_detections = (det[:, -1] == class_index).sum()  # detections per class
+                    detection_string += f"{number_of_detections} {names[int(class_index)]}{'s' * (number_of_detections > 1)}, "  # add to string
 
-                for *xyxy, conf, cls in reversed(det):
-                    label = f'{names[int(cls)]} {conf:.2f}'
-                    plot_one_box(xyxy, frame, label=label, color=colors[int(cls)], line_thickness=3, center_points=center_points_current_frame, name=names[int(cls)])
+                for *xyxy, conf, class_id in reversed(det):
+                    label = f'{names[int(class_id )]} {conf:.2f}'
+                    plot_one_box(xyxy, frame, label=label, color=colors[int(class_id )], line_thickness=3, center_points=center_points_current_frame, name=names[int(class_id )])
                 
                 # Tracking objects
                 if count <= 1:
