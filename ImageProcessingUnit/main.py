@@ -102,13 +102,13 @@ else:   # realtime
     video = cv2.VideoCapture(0)
     video.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
-# General information
-center_points_current_frame = [] # sense-eye
-center_points_previous_frame = []# sense-eye
+# Object-related information
 count = 0
 object_exists = False
-track_id = 0 #sense eye
-tracking_objects = {}
+center_points_current_frame = []
+center_points_previous_frame = []
+track_id = 0
+tracking_objects = {}   # will contain 'object_id' - unique index of object, and 'pt' - coordinates of its center point
 
 torch.cuda.empty_cache()
 
@@ -187,11 +187,13 @@ with torch.no_grad():
                 else:
                     update_tracking(tracking_objects, center_points_current_frame, track_id)
 
-                for object_id, pt in tracking_objects.items():
+                # Draw the center point and label for each object
+                for pt in tracking_objects.items():
                     cv2.circle(frame, pt, 5, (0, 0, 255), -1)
 
-                    # Add the label of index of each player
-                    # cv2.putText(frame, str(object_id), (pt[0], pt[1] - 7), 0, 1, (0, 0, 255), 2)
+                    circle_coordinates_label = "(" + str(pt[0]) + ", " + str(pt[1]) + ")"
+                    fontScale = 0.5
+                    cv2.putText(frame, circle_coordinates_label, (pt[0], pt[1] - 7), 0, fontScale, (0, 0, 255), 2)
 
                 # Output the result
                 if MODE == 'video':
