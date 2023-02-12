@@ -1,18 +1,22 @@
+import sys
 import argparse
 import math
 import time
-from pathlib import Path
 import cv2
 import torch
 import numpy as np
 import torch.backends.cudnn as cudnn
 from numpy import random
+from pathlib import Path
 
-from models.experimental import attempt_load
-from utils.datasets import LoadStreams, LoadImages
-from utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, apply_classifier, scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path
-from utils.plots import plot_one_box
-from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
+APPEND_PATH = 'yolov7'
+sys.path.append(APPEND_PATH)
+
+from yolov7.models.experimental import attempt_load
+from yolov7.utils.datasets import LoadStreams, LoadImages
+from yolov7.utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, apply_classifier, scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path
+from yolov7.utils.plots import plot_one_box
+from yolov7.utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 
 from IPython.display import display, Javascript, Image
 from base64 import b64decode, b64encode
@@ -55,9 +59,9 @@ def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scale
 
 classes_to_filter = ['bench','train', 'car', 'bicycle', 'truck', 'baseball glove', 'tennis racket', 'boat'] #You can give list of classes to filter by name, Be happy you don't have to put class number. ['train','person' ]
 
-opt  = {   
-    "weights": "weights/yolov7.pt", # Path to weights file default weights are for nano model
-    "yaml"   : "data/coco.yaml",
+opt = {   
+    "weights": APPEND_PATH + "/weights/yolov7.pt", # Path to weights file default weights are for nano model
+    "yaml"   : APPEND_PATH + "/data/coco.yaml",
     "img-size": 640, # default image size
     "conf-thres": 0.25, # confidence threshold for inference.
     "iou-thres" : 0.45, # NMS IoU threshold for inference.
