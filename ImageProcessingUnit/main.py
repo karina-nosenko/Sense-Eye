@@ -52,9 +52,8 @@ def adjust_image_to_desired_shape(img, new_shape=(640, 640), color=(114, 114, 11
     return img, ratio, (width_padding, height_padding)
 
 
-def update_tracking(tracking_objects, center_points_current_frame, center_points_previous_frame, track_id):
+def update_tracking(tracking_objects, center_points_current_frame, track_id):
     tracking_objects_copy = tracking_objects.copy()
-    center_points_current_frame_copy = center_points_current_frame.copy()
     
     for object_id, pt2 in tracking_objects_copy.items():
         object_exists = False
@@ -118,11 +117,11 @@ with torch.no_grad():
     weights, imgsz = options['weights'], options['img-size']
     set_logging()
     device = select_device(options['device'])
-    half = device.type != 'cpu'
+    use_half_precision = device.type != 'cpu'
     model = attempt_load(weights, map_location=device)  # load FP32 model
     stride = int(model.stride.max())  # model stride
     imgsz = check_img_size(imgsz, s=stride)  # check img_size
-    if half:
+    if use_half_precision:
         model.half()
 
     names = model.module.names if hasattr(model, 'module') else model.names
@@ -152,7 +151,7 @@ with torch.no_grad():
         img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
         img = np.ascontiguousarray(img)
         img = torch.from_numpy(img).to(device)
-        img = img.half() if half else img.float()  # uint8 to fp16/32
+        img = img.half() if use_half_precision else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
 
         if img.ndimension() == 3:
@@ -164,6 +163,7 @@ with torch.no_grad():
         pred = non_max_suppression(pred, options['conf-thres'], options['iou-thres'], classes= classes, agnostic= False)
         t2 = time_synchronized()
 
+        # Plotting the detections
         for i, det in enumerate(pred):
             s = f"{img.shape[2]}x{img.shape[3]} "  # print string
 
@@ -179,12 +179,13 @@ with torch.no_grad():
                     label = f'{names[int(cls)]} {conf:.2f}'
                     plot_one_box(xyxy, frame, label=label, color=colors[int(cls)], line_thickness=3, center_points=center_points_current_frame, name=names[int(cls)])
                 
+                # Tracking objects
                 if count <= 1:
                     for pt in center_points_current_frame:
                         tracking_objects[track_id] = pt
                         track_id += 1
                 else:
-                    update_tracking(tracking_objects, center_points_current_frame, center_points_previous_frame, track_id)
+                    update_tracking(tracking_objects, center_points_current_frame, track_id)
 
                 for object_id, pt in tracking_objects.items():
                     cv2.circle(frame, pt, 5, (0, 0, 255), -1)
