@@ -7,9 +7,11 @@ import cv2
 import torch
 import numpy as np
 import torch.backends.cudnn as cudnn
+import itertools
 from numpy import random
 from pathlib import Path
 
+MODE = 'realtime'   # realtime/video
 APPEND_PATH = 'yolov7'
 sys.path.append(APPEND_PATH)
 
@@ -63,26 +65,28 @@ opt  = {
     "classes" : classes_to_filter  # list of classes to filter or None
 }
 
-#give the full path to video, your video will be in the Yolov7 folder
-video_path = APPEND_PATH + '/videos/soccer_video.mp4'
-
 # Initializing video object
-video = cv2.VideoCapture(video_path)
+if (MODE == 'video'):
+    video_path = APPEND_PATH + '/videos/soccer_video.mp4'   # the full path to video
+    video = cv2.VideoCapture(video_path)
+    fps = video.get(cv2.CAP_PROP_FPS)
+    w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+    h = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    nframes = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+    
+    # Initialzing object for writing video output
+    output = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'DIVX'), fps , (w,h))
+else:   # realtime
+    video = cv2.VideoCapture(0)
+    video.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
-#Video information
-fps = video.get(cv2.CAP_PROP_FPS)
-w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-h = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-nframes = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+# General information
 center_points_current_frame = [] # sense-eye
 center_points_previous_frame = []# sense-eye
 count = 0
 object_exists = False
 track_id = 0 #sense eye
 tracking_objects = {}
-
-# Initialzing object for writing video output
-output = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'DIVX'),fps , (w,h))
 
 torch.cuda.empty_cache()
 
@@ -113,12 +117,13 @@ with torch.no_grad():
   if classes:  
     classes = [i for i in range(len(names)) if i not in classes]
 
-  for j in range(nframes):
-      ret, img0 = video.read()
+  range = range(nframes) if (MODE == 'video') else itertools.count()
+  for j in range:
+      ret, frame = video.read()
       
       if ret:
         count +=1
-        img = letterbox(img0, imgsz, stride=stride)[0]
+        img = letterbox(frame, imgsz, stride=stride)[0]
         img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
         img = np.ascontiguousarray(img)
         img = torch.from_numpy(img).to(device)
@@ -138,9 +143,9 @@ with torch.no_grad():
           s = ''
           s += '%gx%g ' % img.shape[2:]  # print string
           
-          gn = torch.tensor(img0.shape)[[1, 0, 1, 0]]
+          gn = torch.tensor(frame.shape)[[1, 0, 1, 0]]
           if len(det):
-            det[:, :4] = scale_coords(img.shape[2:], det[:, :4], img0.shape).round()
+            det[:, :4] = scale_coords(img.shape[2:], det[:, :4], frame.shape).round()
 
             for c in det[:, -1].unique():
               n = (det[:, -1] == c).sum()  # detections per class
@@ -148,7 +153,7 @@ with torch.no_grad():
 
             for *xyxy, conf, cls in reversed(det):
               label = f'{names[int(cls)]} {conf:.2f}'
-              plot_one_box(xyxy, img0, label=label, color=colors[int(cls)], line_thickness=3,center_points=center_points_current_frame,name=names[int(cls)])
+              plot_one_box(xyxy, frame, label=label, color=colors[int(cls)], line_thickness=3,center_points=center_points_current_frame,name=names[int(cls)])
             if count<=1:
               for pt in center_points_current_frame:
                 for pt2 in center_points_previous_frame:
@@ -177,14 +182,20 @@ with torch.no_grad():
               track_id += 1
 
           for object_id, pt in tracking_objects.items():
-            cv2.circle(img0, pt, 5,(0,0,255),-1)
-            cv2.putText(img0,str(object_id), (pt[0], pt[1]-7),0,1,(0,0,255),2)
+            cv2.circle(frame, pt, 5,(0,0,255),-1)
+            cv2.putText(frame, str(object_id), (pt[0], pt[1]-7),0,1,(0,0,255),2)
 
-        print(f"{j+1}/{nframes} frames processed")
-        output.write(img0)
-        center_points_previous_frame = center_points_current_frame.copy()
+        if MODE == 'video':
+            print(f"{j+1}/{nframes} frames processed")
+            output.write(frame)
+            center_points_previous_frame = center_points_current_frame.copy()
+        else:
+            cv2.imshow("Frame", frame)
+            key = cv2.waitKey(1)
+            if key == 27:
+                break
       else:
         break
     
-output.release()
+output.release() if (MODE == video) else cv2.destroyAllWindows()
 video.release()
