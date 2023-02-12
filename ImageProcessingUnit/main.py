@@ -53,12 +53,12 @@ def adjust_image_to_desired_shape(img, new_shape=(640, 640), color=(114, 114, 11
 
 classes_to_filter = ['bench','train', 'car', 'bicycle', 'truck', 'baseball glove', 'tennis racket', 'boat'] #You can give list of classes to filter by name, Be happy you don't have to put class number. ['train','person' ]
 
-opt  = {
-    "weights": APPEND_PATH + "/weights/yolov7.pt", # Path to weights file default weights are for nano model
-    "yaml"   : APPEND_PATH + "/data/coco.yaml",
+options  = {
+    "weights": APPEND_PATH + "/weights/yolov7.pt", # path to weights file, default weights are for nano model
+    "yaml"   : APPEND_PATH + "/data/coco.yaml", # path to yaml file
     "img-size": 640, # default image size
-    "conf-thres": 0.25, # confidence threshold for inference.
-    "iou-thres" : 0.45, # NMS IoU threshold for inference.
+    "conf-thres": 0.25, # confidence threshold for inference
+    "iou-thres" : 0.45, # NMS IoU threshold for inference
     "device" : '0',  # device to run our model i.e. 0 or 0,1,2,3 or cpu
     "classes" : classes_to_filter  # list of classes to filter or None
 }
@@ -67,7 +67,7 @@ opt  = {
 if (MODE == 'video'):
     video_path = APPEND_PATH + '/videos/soccer_video.mp4'   # the full path to video
     video = cv2.VideoCapture(video_path)
-    fps = video.get(cv2.CAP_PROP_FPS)
+    fps = video.get(cv2.CAP_PROP_FPS)   # frames per second
     w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     nframes = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -90,9 +90,9 @@ torch.cuda.empty_cache()
 
 # Initializing model and setting it for inference
 with torch.no_grad():
-  weights, imgsz = opt['weights'], opt['img-size']
+  weights, imgsz = options['weights'], options['img-size']
   set_logging()
-  device = select_device(opt['device'])
+  device = select_device(options['device'])
   half = device.type != 'cpu'
   model = attempt_load(weights, map_location=device)  # load FP32 model
   stride = int(model.stride.max())  # model stride
@@ -107,9 +107,9 @@ with torch.no_grad():
     model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))
 
   classes = None
-  if opt['classes']:
+  if options['classes']:
     classes = []
-    for class_name in opt['classes']:
+    for class_name in options['classes']:
       classes.append(names.index(class_name))
       
   if classes:  
@@ -135,7 +135,7 @@ with torch.no_grad():
         t1 = time_synchronized()
         pred = model(img, augment= False)[0]
         
-        pred = non_max_suppression(pred, opt['conf-thres'], opt['iou-thres'], classes= classes, agnostic= False)
+        pred = non_max_suppression(pred, options['conf-thres'], options['iou-thres'], classes= classes, agnostic= False)
         t2 = time_synchronized()
         for i, det in enumerate(pred):
           s = ''
