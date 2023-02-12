@@ -130,12 +130,12 @@ with torch.no_grad():
         print(model)
         model(torch.zeros(1, 3, img_size, img_size).to(device).type_as(next(model.parameters())))
 
+    # determine the classes to exclude from detection
     classes = None
     if options['classes']:
         classes = []
         for class_name in options['classes']:
-            classes.append(names.index(class_name))
-        
+            classes.append(names.index(class_name))      
     if classes:  
         classes = [i for i in range(len(names)) if i not in classes]
 
@@ -189,8 +189,11 @@ with torch.no_grad():
 
                 for object_id, pt in tracking_objects.items():
                     cv2.circle(frame, pt, 5, (0, 0, 255), -1)
-                    cv2.putText(frame, str(object_id), (pt[0], pt[1] - 7), 0, 1, (0, 0, 255), 2)
 
+                    # Add the label of index of each player
+                    # cv2.putText(frame, str(object_id), (pt[0], pt[1] - 7), 0, 1, (0, 0, 255), 2)
+
+                # Output the result
                 if MODE == 'video':
                     print(f"{j+1}/{nframes} frames processed")
                     output.write(frame)
