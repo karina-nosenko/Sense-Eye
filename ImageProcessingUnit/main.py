@@ -51,6 +51,31 @@ def adjust_image_to_desired_shape(img, new_shape=(640, 640), color=(114, 114, 11
     img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
     return img, ratio, (width_padding, height_padding)
 
+
+def update_tracking(tracking_objects, center_points_current_frame, center_points_previous_frame, track_id):
+    tracking_objects_copy = tracking_objects.copy()
+    center_points_current_frame_copy = center_points_current_frame.copy()
+    
+    for object_id, pt2 in tracking_objects_copy.items():
+        object_exists = False
+        for pt in center_points_current_frame:
+            distance = math.hypot(pt2[0]-pt[0], pt2[1]-pt[1])
+            if distance < 52:
+                tracking_objects[object_id] = pt
+                object_exists = True
+                center_points_current_frame.remove(pt)
+                continue
+
+        if not object_exists:
+            tracking_objects.pop(object_id)
+
+    for pt in center_points_current_frame:
+        tracking_objects[track_id] = pt
+        track_id += 1
+
+    return tracking_objects
+
+
 classes_to_filter = ['bench','train', 'car', 'bicycle', 'truck', 'baseball glove', 'tennis racket', 'boat'] #You can give list of classes to filter by name, Be happy you don't have to put class number. ['train','person' ]
 
 options  = {
@@ -119,81 +144,61 @@ with torch.no_grad():
     for j in range:
         ret, frame = video.read()
         
-        if ret:
-            count +=1
-            img = adjust_image_to_desired_shape(frame, imgsz, stride=stride)[0]
-            img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
-            img = np.ascontiguousarray(img)
-            img = torch.from_numpy(img).to(device)
-            img = img.half() if half else img.float()  # uint8 to fp16/32
-            img /= 255.0  # 0 - 255 to 0.0 - 1.0
-
-            if img.ndimension() == 3:
-                img = img.unsqueeze(0)
-
-            # Inference
-            t1 = time_synchronized()
-            pred = model(img, augment= False)[0]
-            
-            pred = non_max_suppression(pred, options['conf-thres'], options['iou-thres'], classes= classes, agnostic= False)
-            t2 = time_synchronized()
-            for i, det in enumerate(pred):
-                s = ''
-                s += '%gx%g ' % img.shape[2:]  # print string
-                
-                gn = torch.tensor(frame.shape)[[1, 0, 1, 0]]
-                if len(det):
-                    det[:, :4] = scale_coords(img.shape[2:], det[:, :4], frame.shape).round()
-
-                    for c in det[:, -1].unique():
-                        n = (det[:, -1] == c).sum()  # detections per class
-                        s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
-
-                    for *xyxy, conf, cls in reversed(det):
-                        label = f'{names[int(cls)]} {conf:.2f}'
-                        plot_one_box(xyxy, frame, label=label, color=colors[int(cls)], line_thickness=3,center_points=center_points_current_frame,name=names[int(cls)])
-                    if count<=1:
-                        for pt in center_points_current_frame:
-                            for pt2 in center_points_previous_frame:
-                                distance = math.hypot(pt2[0]-pt[0], pt2[1]-pt[1])
-                                if distance < 52:
-                                    tracking_objects[track_id] = pt
-                                    track_id += 1
-                    else:
-                        tracking_objects_copy = tracking_objects.copy()
-                        center_points_current_frame_copy = center_points_current_frame.copy()
-                        for object_id, pt2 in tracking_objects_copy.items():
-                            object_exists = False
-                            for pt in center_points_current_frame:
-                                distance = math.hypot(pt2[0]-pt[0], pt2[1]-pt[1])
-                                if distance < 52:
-                                    tracking_objects[object_id] = pt
-                                    object_exists = True
-                                    center_points_current_frame.remove(pt)
-                                    continue
-
-                            if not object_exists:
-                                tracking_objects.pop(object_id)
-
-                        for pt in center_points_current_frame:
-                            tracking_objects[track_id] = pt
-                            track_id += 1
-
-                    for object_id, pt in tracking_objects.items():
-                        cv2.circle(frame, pt, 5,(0,0,255),-1)
-                        cv2.putText(frame, str(object_id), (pt[0], pt[1]-7),0,1,(0,0,255),2)
-
-            if MODE == 'video':
-                print(f"{j+1}/{nframes} frames processed")
-                output.write(frame)
-                center_points_previous_frame = center_points_current_frame.copy()
-            else:
-                cv2.imshow("Frame", frame)
-                key = cv2.waitKey(1)
-                if key == 27:
-                    break
-        else:
+        if not ret:
             break
+
+        count +=1
+        img = adjust_image_to_desired_shape(frame, imgsz, stride=stride)[0]
+        img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
+        img = np.ascontiguousarray(img)
+        img = torch.from_numpy(img).to(device)
+        img = img.half() if half else img.float()  # uint8 to fp16/32
+        img /= 255.0  # 0 - 255 to 0.0 - 1.0
+
+        if img.ndimension() == 3:
+            img = img.unsqueeze(0)
+
+        # Inference
+        t1 = time_synchronized()
+        pred = model(img, augment= False)[0]        
+        pred = non_max_suppression(pred, options['conf-thres'], options['iou-thres'], classes= classes, agnostic= False)
+        t2 = time_synchronized()
+
+        for i, det in enumerate(pred):
+            s = f"{img.shape[2]}x{img.shape[3]} "  # print string
+
+            gn = torch.tensor(frame.shape)[[1, 0, 1, 0]]
+            if len(det):
+                det[:, :4] = scale_coords(img.shape[2:], det[:, :4], frame.shape).round()
+
+                for c in det[:, -1].unique():
+                    n = (det[:, -1] == c).sum()  # detections per class
+                    s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
+
+                for *xyxy, conf, cls in reversed(det):
+                    label = f'{names[int(cls)]} {conf:.2f}'
+                    plot_one_box(xyxy, frame, label=label, color=colors[int(cls)], line_thickness=3, center_points=center_points_current_frame, name=names[int(cls)])
+                
+                if count <= 1:
+                    for pt in center_points_current_frame:
+                        tracking_objects[track_id] = pt
+                        track_id += 1
+                else:
+                    update_tracking(tracking_objects, center_points_current_frame, center_points_previous_frame, track_id)
+
+                for object_id, pt in tracking_objects.items():
+                    cv2.circle(frame, pt, 5, (0, 0, 255), -1)
+                    cv2.putText(frame, str(object_id), (pt[0], pt[1] - 7), 0, 1, (0, 0, 255), 2)
+
+                if MODE == 'video':
+                    print(f"{j+1}/{nframes} frames processed")
+                    output.write(frame)
+                    center_points_previous_frame = center_points_current_frame.copy()
+                else:
+                    cv2.imshow("Frame", frame)
+                    key = cv2.waitKey(1)
+                    if key == 27:
+                        break
     
 output.release() if (MODE == video) else cv2.destroyAllWindows()
 video.release()
