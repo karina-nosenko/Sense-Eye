@@ -2,20 +2,22 @@ import sys
 import argparse
 import math
 import time
-from pathlib import Path
+import importlib
 import cv2
 import torch
 import numpy as np
 import torch.backends.cudnn as cudnn
 from numpy import random
+from pathlib import Path
 
-sys.path.append('ImageProcessingUnit')
+APPEND_PATH = 'yolov7'
+sys.path.append(APPEND_PATH)
 
-from ImageProcessingUnit.models.experimental import attempt_load
-from ImageProcessingUnit.utils.datasets import LoadStreams, LoadImages
-from ImageProcessingUnit.utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, apply_classifier, scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path
-from ImageProcessingUnit.utils.plots import plot_one_box
-from ImageProcessingUnit.utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
+from yolov7.models.experimental import attempt_load
+from yolov7.utils.datasets import LoadStreams, LoadImages
+from yolov7.utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, apply_classifier, scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path
+from yolov7.utils.plots import plot_one_box
+from yolov7.utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 
 def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True, stride=32):
     # Resize and pad image while meeting stride-multiple constraints
@@ -52,8 +54,8 @@ def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scale
 classes_to_filter = ['bench','train', 'car', 'bicycle', 'truck', 'baseball glove', 'tennis racket', 'boat'] #You can give list of classes to filter by name, Be happy you don't have to put class number. ['train','person' ]
 
 opt  = {
-    "weights": "ImageProcessingUnit/weights/yolov7.pt", # Path to weights file default weights are for nano model
-    "yaml"   : "ImageProcessingUnit/data/coco.yaml",
+    "weights": APPEND_PATH + "/weights/yolov7.pt", # Path to weights file default weights are for nano model
+    "yaml"   : APPEND_PATH + "/data/coco.yaml",
     "img-size": 640, # default image size
     "conf-thres": 0.25, # confidence threshold for inference.
     "iou-thres" : 0.45, # NMS IoU threshold for inference.
@@ -62,7 +64,7 @@ opt  = {
 }
 
 #give the full path to video, your video will be in the Yolov7 folder
-video_path = 'ImageProcessingUnit/videos/soccer_video.mp4'
+video_path = APPEND_PATH + '/videos/soccer_video.mp4'
 
 # Initializing video object
 video = cv2.VideoCapture(video_path)
