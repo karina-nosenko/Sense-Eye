@@ -8,7 +8,7 @@ import itertools
 from numpy import random
 
 MODE = 'realtime'   # realtime/video
-CAMERA_INDEX = 4 # 0-webcamera, 4-external camera. Relevant for realtime only.
+CAMERA_INDEX = 1 # Relevant for realtime only. 0-webcam, 4/0 - camera
 APPEND_PATH = 'yolov7'
 sys.path.append(APPEND_PATH)
 
