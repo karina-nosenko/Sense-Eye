@@ -8,6 +8,7 @@ import itertools
 from numpy import random
 
 MODE = 'realtime'   # realtime/video
+CAMERA_INDEX = 4 # 0-webcamera, 4-external camera. Relevant for realtime only.
 APPEND_PATH = 'yolov7'
 sys.path.append(APPEND_PATH)
 
@@ -99,7 +100,7 @@ if (MODE == 'video'):
     # Initialzing object for writing video output
     output = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'DIVX'), fps , (w,h))
 else:   # realtime
-    video = cv2.VideoCapture(0)
+    video = cv2.VideoCapture(CAMERA_INDEX)
     video.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
 # Object-related information
