@@ -7,7 +7,7 @@ import torch.backends.cudnn as cudnn
 import itertools
 from numpy import random
 
-MODE = 'video'   # realtime/video
+MODE = 'realtime'   # realtime/video
 APPEND_PATH = 'yolov7'
 sys.path.append(APPEND_PATH)
 
@@ -188,7 +188,7 @@ with torch.no_grad():
                     update_tracking(tracking_objects, center_points_current_frame, track_id)
 
                 # Draw the center point and label for each object
-                for pt in tracking_objects.items():
+                for pt in tracking_objects.values():
                     cv2.circle(frame, pt, 5, (0, 0, 255), -1)
 
                     circle_coordinates_label = "(" + str(pt[0]) + ", " + str(pt[1]) + ")"
