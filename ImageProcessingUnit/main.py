@@ -52,30 +52,6 @@ def adjust_image_to_desired_shape(img, new_shape=(640, 640), color=(114, 114, 11
     img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
     return img, ratio, (width_padding, height_padding)
 
-
-def update_tracking(tracking_objects, center_points_current_frame, track_id):
-    tracking_objects_copy = tracking_objects.copy()
-    
-    for object_id, pt2 in tracking_objects_copy.items():
-        object_exists = False
-        for pt in center_points_current_frame:
-            distance = math.hypot(pt2[0]-pt[0], pt2[1]-pt[1])
-            if distance < 52:
-                tracking_objects[object_id] = pt
-                object_exists = True
-                center_points_current_frame.remove(pt)
-                continue
-
-        if not object_exists:
-            tracking_objects.pop(object_id)
-
-    for pt in center_points_current_frame:
-        tracking_objects[track_id] = pt
-        track_id += 1
-
-    return tracking_objects
-
-
 classes_to_filter = ['bench','train', 'car', 'bicycle', 'truck', 'baseball glove', 'tennis racket', 'boat'] #You can give list of classes to filter by name, Be happy you don't have to put class number. ['train','person' ]
 
 options  = {
@@ -102,14 +78,6 @@ if (MODE == 'video'):
 else:   # realtime
     video = cv2.VideoCapture(CAMERA_INDEX)
     video.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-
-# Object-related information
-count = 0
-object_exists = False
-center_points_current_frame = []
-center_points_previous_frame = []
-track_id = 0
-tracking_objects = {}   # will contain 'object_id' - unique index of object, and 'pt' - coordinates of its center point
 
 torch.cuda.empty_cache()
 
@@ -147,7 +115,6 @@ with torch.no_grad():
         if not ret:
             break
 
-        count +=1
         img = adjust_image_to_desired_shape(frame, img_size, stride=stride)[0]
         img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
         img = np.ascontiguousarray(img)
@@ -173,30 +140,6 @@ with torch.no_grad():
                 for class_index in det[:, -1].unique():
                     number_of_detections = (det[:, -1] == class_index).sum()  # detections per class
 
-                # # Draw the class name label
-                # for *xyxy, conf, class_id in reversed(det):
-                #     class_name = names[int(class_id)]
-                #     text_coordinates = (xyxy[0], xyxy[1] - 10)
-                #     cv2.putText(frame, class_name, tuple(map(int, text_coordinates)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-                
-                # # Tracking objects
-                # if count <= 1:
-                #     for pt in center_points_current_frame:
-                #         tracking_objects[track_id] = pt
-                #         track_id += 1
-                # else:
-                #     update_tracking(tracking_objects, center_points_current_frame, track_id)
-
-                # # Draw the center point and label for each object
-                # for pt in tracking_objects.values():
-                #     # Center point
-                #     cv2.circle(frame, pt, 3, (0, 0, 255), -1)
-
-                #     # Center point coordinates
-                #     circle_coordinates_label = "(" + str(pt[0]) + ", " + str(pt[1]) + ")"
-                #     fontScale = 0.5
-                #     cv2.putText(frame, circle_coordinates_label, (pt[0], pt[1] - 7), 0, fontScale, (0, 0, 255), 2)
-
                 # Draw the class name label and center point for each object
                 for *xyxy, conf, class_id in reversed(det): 
                     center_point = ((xyxy[0] + xyxy[2]) // 2, (xyxy[1] + xyxy[3]) // 2)
@@ -214,7 +157,6 @@ with torch.no_grad():
                 if MODE == 'video':
                     print(f"{j+1}/{nframes} frames processed")
                     output.write(frame)
-                    center_points_previous_frame = center_points_current_frame.copy()
                 else:
                     cv2.imshow("Frame", frame)
                     key = cv2.waitKey(1)
