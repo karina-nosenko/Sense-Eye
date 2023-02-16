@@ -1,7 +1,3 @@
-# General view
-* Output center points with coordinates for ball
-* Output the 'object class name' and 'precision value' in small near the coordinates
-
 # For each player detect the direction of movement
 * Explore whether 'optical flow' is useful
 * If not - detect it by comparing center point from the current and previous frame
@@ -11,3 +7,5 @@
 
 # Detect the coordinates of the gates and field
 * Check whether yolov7 knows to detect conuses
+
+# Recommendations
