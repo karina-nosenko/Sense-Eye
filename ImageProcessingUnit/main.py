@@ -7,7 +7,7 @@ import torch.backends.cudnn as cudnn
 import itertools
 from numpy import random
 
-MODE = 'realtime'   # realtime/video
+MODE = 'video'   # realtime/video
 CAMERA_INDEX = 1 # Relevant for realtime only. 0-webcam, 4/0 - camera
 APPEND_PATH = 'yolov7'
 sys.path.append(APPEND_PATH)
@@ -166,35 +166,49 @@ with torch.no_grad():
 
         # Plotting the detections
         for i, det in enumerate(detection_results):
-            detection_string = f"{img.shape[2]}x{img.shape[3]} "  # print string
-
             img_shape_dimensions = torch.tensor(frame.shape)[[1, 0, 1, 0]]
             if len(det):
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], frame.shape).round()
 
                 for class_index in det[:, -1].unique():
                     number_of_detections = (det[:, -1] == class_index).sum()  # detections per class
-                    detection_string += f"{number_of_detections} {names[int(class_index)]}{'s' * (number_of_detections > 1)}, "  # add to string
 
-                for *xyxy, conf, class_id in reversed(det):
-                    label = f'{names[int(class_id )]} {conf:.2f}'
-                    plot_one_box(xyxy, frame, label=label, color=colors[int(class_id )], line_thickness=3, center_points=center_points_current_frame, name=names[int(class_id )])
+                # # Draw the class name label
+                # for *xyxy, conf, class_id in reversed(det):
+                #     class_name = names[int(class_id)]
+                #     text_coordinates = (xyxy[0], xyxy[1] - 10)
+                #     cv2.putText(frame, class_name, tuple(map(int, text_coordinates)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
                 
-                # Tracking objects
-                if count <= 1:
-                    for pt in center_points_current_frame:
-                        tracking_objects[track_id] = pt
-                        track_id += 1
-                else:
-                    update_tracking(tracking_objects, center_points_current_frame, track_id)
+                # # Tracking objects
+                # if count <= 1:
+                #     for pt in center_points_current_frame:
+                #         tracking_objects[track_id] = pt
+                #         track_id += 1
+                # else:
+                #     update_tracking(tracking_objects, center_points_current_frame, track_id)
 
-                # Draw the center point and label for each object
-                for pt in tracking_objects.values():
-                    cv2.circle(frame, pt, 5, (0, 0, 255), -1)
+                # # Draw the center point and label for each object
+                # for pt in tracking_objects.values():
+                #     # Center point
+                #     cv2.circle(frame, pt, 3, (0, 0, 255), -1)
 
-                    circle_coordinates_label = "(" + str(pt[0]) + ", " + str(pt[1]) + ")"
-                    fontScale = 0.5
-                    cv2.putText(frame, circle_coordinates_label, (pt[0], pt[1] - 7), 0, fontScale, (0, 0, 255), 2)
+                #     # Center point coordinates
+                #     circle_coordinates_label = "(" + str(pt[0]) + ", " + str(pt[1]) + ")"
+                #     fontScale = 0.5
+                #     cv2.putText(frame, circle_coordinates_label, (pt[0], pt[1] - 7), 0, fontScale, (0, 0, 255), 2)
+
+                # Draw the class name label and center point for each object
+                for *xyxy, conf, class_id in reversed(det): 
+                    center_point = ((xyxy[0] + xyxy[2]) // 2, (xyxy[1] + xyxy[3]) // 2)
+
+                    # Class name and center point coordinates label
+                    center_point_coordinates_label = f"({center_point[0]}, {center_point[1]})"
+                    class_name_label = names[int(class_id)]
+                    text_label = f'{class_name_label} {center_point_coordinates_label}'
+                    cv2.putText(frame, text_label, tuple(map(int, (center_point[0], center_point[1] - 10))), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+                    # Center point circle
+                    cv2.circle(frame, tuple(map(int, center_point)), 3, (0, 0, 255), -1)
 
                 # Output the result
                 if MODE == 'video':
