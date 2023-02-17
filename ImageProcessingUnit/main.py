@@ -9,8 +9,8 @@ import numpy as np
 from scipy.spatial import distance
 from numpy import random
 
-MODE = 'video'   # realtime/video
-CAMERA_INDEX = 1 # Relevant for realtime only. 0-webcam, 4/0 - camera
+MODE = 'realtime'   # realtime/video
+CAMERA_INDEX = 0 # Relevant for realtime only. 0-webcam, 4/0 - camera
 APPEND_PATH = 'yolov7'
 sys.path.append(APPEND_PATH)
 
