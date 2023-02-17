@@ -5,7 +5,6 @@
 # For each player detect its id
 * Image processing for the color of the cap
 
-# Detect the coordinates of the gates and field
-* Check whether yolov7 knows to detect conuses
+# Detect the coordinates of the gates
 
 # Recommendations
