@@ -1,8 +1,13 @@
 const { Router } = require('express');
 const { modeController } = require('../controllers/modeController');
 
-const userRouter = new Router();
+const modeRouter = new Router();
 
-userRouter.post('/', usersController.addUser); 
+modeRouter.post('/singlePlayerMode', modeController.singlePlayerMode);
+modeRouter.post('/sameTeamModeA', modeController.sameTeamModeA);
+modeRouter.post('/sameTeamModeB', modeController.sameTeamModeB);
+modeRouter.post('/differentTeamsModeA', modeController.differentTeamsModeA);
+modeRouter.post('/differentTeamsModeB', modeController.differentTeamsModeB);
+modeRouter.post('/fullGameMode', modeController.fullGameMode);
 
-module.exports = { userRouter };
+module.exports = { modeRouter };
