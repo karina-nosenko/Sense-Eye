@@ -8,3 +8,7 @@
 # Detect the coordinates of the gates
 
 # Recommendations
+* Finish the recommendations
+* Add validations for input parameters
+* Integrate the iot api
+* Add route that checks player close to goal
