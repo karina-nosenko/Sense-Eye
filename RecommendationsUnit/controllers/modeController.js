@@ -1,5 +1,5 @@
-const { MAX_goal_PASSING_DISTANCE,
-        MIN_goal_PASSING_DISTANCE,
+const { MAX_GOAL_PASSING_DISTANCE,
+        MIN_GOAL_PASSING_DISTANCE,
         MAX_TEAMMATE_PASSING_DISTANCE,
         MIN_TEAMMATE_PASSING_DISTANCE,
         MAX_OPPONENT_DISTANCE } = require('../constants');
@@ -23,6 +23,11 @@ const getTeammate = (ballHolder, players) => {
     return 1;
 }
 
+const getTeammates = (ballHolder, players) => {
+    // TODO
+    return 1;
+}
+
 const calculateEuclideanDistance = (ballHolder, teammate) => {
     // TODO
     return 1;
@@ -31,6 +36,16 @@ const calculateEuclideanDistance = (ballHolder, teammate) => {
 const pathToGoalIsFree = (ballHolder, teammate, goals) => {
     // TODO
     return 1;
+}
+
+const goalInSightRange = (sightDirection, goals) => {
+    // TODO
+    return true;
+}
+
+const teammateInSightRange = (sightDirection, teammate) => {
+    // TODO
+    return true;
 }
 
 const recommendMovingAwayFromGoal = (res, player, goal) => {
@@ -58,14 +73,19 @@ const recommendKeepTheBall = (res) => {
     res.status(200).json({ "success": "recommendKeepTheBall" });
 }
 
+const sortByDistance = (teammatesDistance) => {
+    // TODO
+    return teammatesDistance;
+}
+
 exports.modeController = {
     singlePlayerMode(req, res) {
         const { body } = req;
 
         const goalDistance = calculateDistanceToGoal(body.players[0], body.goals[0]);
-        if (goalDistance <= MIN_goal_PASSING_DISTANCE) {
+        if (goalDistance <= MIN_GOAL_PASSING_DISTANCE) {
             recommendMovingAwayFromGoal(res, body.players[0], body.goals[0]);
-        } else if (goalDistance >= MAX_goal_PASSING_DISTANCE) {
+        } else if (goalDistance >= MAX_GOAL_PASSING_DISTANCE) {
             recommendMovingTowardsGoal(res, body.players[0], body.goals[0]);
         } else {
             recommendDirectShotOnGoal(res, body.players[0], body.goals[0]);
@@ -74,12 +94,12 @@ exports.modeController = {
     sameTeamModeA(req, res) {
         const { body } = req;
 
-        ballHolder = getPlayerWithBall(body.players);
-        teammate = getTeammate(ballHolder, body.players);
-        teammateDistance = calculateEuclideanDistance(ballHolder, teammate);
-        goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
+        const ballHolder = getPlayerWithBall(body.players);
+        const teammate = getTeammate(ballHolder, body.players);
+        const teammateDistance = calculateEuclideanDistance(ballHolder, teammate);
+        const goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
 
-        if (isBetween(goalDistance, MIN_goal_PASSING_DISTANCE, MAX_goal_PASSING_DISTANCE) &&
+        if (isBetween(goalDistance, MIN_GOAL_PASSING_DISTANCE, MAX_GOAL_PASSING_DISTANCE) &&
             pathToGoalIsFree(ballHolder, teammate, body.goals)) {
             recommendDirectShotOnGoal(res, body.players[0], body.goals[0]);
         } else if (isBetween(teammateDistance, MIN_TEAMMATE_PASSING_DISTANCE, MAX_TEAMMATE_PASSING_DISTANCE)) {
@@ -91,21 +111,39 @@ exports.modeController = {
     sameTeamModeB(req, res) {
         const { body } = req;
 
-        res.status(200).json({ "success": "success" });
+        const ballHolder = getPlayerWithBall(body.players);
+        const teammates = getTeammates(ballHolder, body.players);
+        const teammatesDistance = calculateEuclideanDistance(ballHolder, teammates);
+        const goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
+
+        if (isBetween(goalDistance, MIN_GOAL_PASSING_DISTANCE, MAX_GOAL_PASSING_DISTANCE) &&
+            pathToGoalIsFree(ballHolder, teammates, body.goals) &&
+            goalInSightRange(ballHolder.sightDirection, body.goals)) {
+            recommendDirectShotOnGoal(res, body.players[0], body.goals[0]);
+        } else {
+            sortedTeammates = sortByDistance(teammatesDistance)
+            sortedTeammates.forEach(teammate => {
+                if (teammateInSightRange(ballHolder.sightDirection, teammate)) {
+                    recommendPassToTeammate(res, ballHolder, teammate);
+                }
+            });
+        }
+
+        recommendKeepTheBall(res);
     },
     differentTeamsModeA(req, res) {
         const { body } = req;
 
-        res.status(200).json({ "success": "success" });
+        res.status(200).json({ "success": "not implemented." });
     },
     differentTeamsModeB(req, res) {
         const { body } = req;
 
-        res.status(200).json({ "success": "success" });
+        res.status(200).json({ "success": "not implemented." });
     },
     fullGameMode(req, res) {
         const { body } = req;
 
-        res.status(200).json({ "success": "success" });
+        res.status(200).json({ "success": "not implemented." });
     },
 }
