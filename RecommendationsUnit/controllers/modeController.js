@@ -14,8 +14,8 @@ const calculateEuclideanDistance = (x1, y1, x2, y2) => {
 
 const calculateDistanceToGoal = (player, goals) => {
     const goalIndex = player.team;
-    const goalCenterX= (goals[goalIndex].x1 + goals[goalIndex].x2)/2;
-    const goalCenterY= (goals[goalIndex].y1 + goals[goalIndex].y2)/2;
+    const goalCenterX = (goals[goalIndex].x1 + goals[goalIndex].x2)/2;
+    const goalCenterY = (goals[goalIndex].y1 + goals[goalIndex].y2)/2;
     return calculateEuclideanDistance(goalCenterX, goalCenterY, player.x, player.y);
 }
 
