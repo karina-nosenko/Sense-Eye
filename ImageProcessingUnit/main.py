@@ -56,6 +56,9 @@ def adjust_image_to_desired_shape(img, new_shape=(640, 640), color=(114, 114, 11
 
 
 def find_nearest_player_to_the_ball(ball_center_point, all_detections):
+    if not ball_center_point:
+        return None
+
     min_distance_to_ball = float('inf')   # positive infinity
     nearest_player_center_point = None
     for *xyxy, confidence_score, class_id in reversed(all_detections):
@@ -168,11 +171,23 @@ with torch.no_grad():
             if len(det):
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], frame.shape).round()
 
-                # Detect the player with the ball 
+                # Detect the player with the ball - the player whose coordinates are
+                # the nearest to the found ball.
+                ball_found_in_current_frame = False
                 for *xyxy, confidence_score, class_id in reversed(det):
                     if (names[int(class_id)] == 'sports ball'):
+                        ball_found_in_current_frame = True
                         center_point = ((xyxy[0] + xyxy[2]) // 2, (xyxy[1] + xyxy[3]) // 2)
                         nearest_player_to_the_ball = find_nearest_player_to_the_ball(center_point, det)
+                        if nearest_player_to_the_ball:
+                            player_with_the_ball_center_point = ((nearest_player_to_the_ball[0] + nearest_player_to_the_ball[2]) // 2, (nearest_player_to_the_ball[1] + nearest_player_to_the_ball[3]) // 2)
+                
+                # If the ball was not found in the current frame - the 'player with the ball'
+                # will be the player whose coordinates are the nearest to the 'player with the ball'
+                # in the previous frame.
+                if not ball_found_in_current_frame:
+                    for *xyxy, confidence_score, class_id in reversed(det):
+                        nearest_player_to_the_ball = find_nearest_player_to_the_ball(player_with_the_ball_center_point, det)
                         if nearest_player_to_the_ball:
                             player_with_the_ball_center_point = ((nearest_player_to_the_ball[0] + nearest_player_to_the_ball[2]) // 2, (nearest_player_to_the_ball[1] + nearest_player_to_the_ball[3]) // 2)
 
@@ -185,7 +200,13 @@ with torch.no_grad():
                     class_name_label = names[int(class_id)]
                     text_label = f'{class_name_label} {center_point_coordinates_label}'
 
-                    text_color = (255, 255, 0) if center_point == player_with_the_ball_center_point else (0, 0, 255)
+                    if center_point == player_with_the_ball_center_point:
+                        text_color = (255, 255, 0) # blue for player with the ball
+                    elif class_name_label == 'sports ball':
+                        text_color = (0, 255, 0) # green for ball
+                    else:
+                        text_color = (0, 0, 255) # red for rest of the players
+
                     cv2.putText(frame, text_label, tuple(map(int, (center_point[0], center_point[1] - 10))), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 2)
 
                     # Center point circle
