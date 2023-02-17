@@ -5,6 +5,8 @@ import torch
 import numpy as np
 import torch.backends.cudnn as cudnn
 import itertools
+import numpy as np
+from scipy.spatial import distance
 from numpy import random
 
 MODE = 'video'   # realtime/video
@@ -52,7 +54,34 @@ def adjust_image_to_desired_shape(img, new_shape=(640, 640), color=(114, 114, 11
     img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
     return img, ratio, (width_padding, height_padding)
 
-classes_to_filter = ['bench','train', 'car', 'bicycle', 'truck', 'baseball glove', 'tennis racket', 'boat'] #You can give list of classes to filter by name, Be happy you don't have to put class number. ['train','person' ]
+
+def find_nearest_player_to_the_ball(ball_center_point, all_detections):
+    min_distance_to_ball = float('inf')   # positive infinity
+    nearest_player_center_point = None
+    for *xyxy, confidence_score, class_id in reversed(all_detections):
+        if names[int(class_id)] == 'person':
+            player_center_point = ((xyxy[0] + xyxy[2]) // 2, (xyxy[1] + xyxy[3]) // 2)
+            ball_coordinates_np = np.array([ball_center_point[0].cpu(), ball_center_point[1].cpu()])
+            player_coordinates_np = np.array([player_center_point[0].cpu(),player_center_point[1].cpu()])
+            euclidean_distance = distance.euclidean(ball_coordinates_np, player_coordinates_np)
+
+            if euclidean_distance < min_distance_to_ball:
+                min_distance_to_ball = euclidean_distance
+                nearest_player_center_point = xyxy
+    
+    return nearest_player_center_point if min_distance_to_ball != float('inf') else None
+
+
+# Now it'll recognize only: 'person', 'sports ball'
+classes_to_filter = [ 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
+         'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
+         'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee',
+         'skis', 'snowboard', 'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard',
+         'tennis racket', 'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
+         'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch',
+         'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone',
+         'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear',
+         'hair drier', 'toothbrush' ]
 
 options  = {
     "weights": APPEND_PATH + "/weights/yolov7.pt", # path to weights file, default weights are for nano model
@@ -66,7 +95,7 @@ options  = {
 
 # Initializing video object
 if (MODE == 'video'):
-    video_path = APPEND_PATH + '/videos/soccer_video.mp4'   # the full path to video
+    video_path = APPEND_PATH + '/videos/soccer_video_top.mp4'   # the full path to video
     video = cv2.VideoCapture(video_path)
     fps = video.get(cv2.CAP_PROP_FPS)   # frames per second
     w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -83,6 +112,7 @@ torch.cuda.empty_cache()
 
 # Initializing model and setting it for inference
 with torch.no_grad():
+    player_with_the_ball_center_point = None
     weights, img_size = options['weights'], options['img-size']
     set_logging()
     device = select_device(options['device'])
@@ -99,7 +129,7 @@ with torch.no_grad():
         print(model)
         model(torch.zeros(1, 3, img_size, img_size).to(device).type_as(next(model.parameters())))
 
-    # determine the classes to exclude from detection
+    # determine the classes to include in the detection
     classes = None
     if options['classes']:
         classes = []
@@ -122,6 +152,7 @@ with torch.no_grad():
         img = img.half() if use_half_precision else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
 
+        # Add a forth dimention to the image object - batch_size=1
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
 
@@ -137,18 +168,25 @@ with torch.no_grad():
             if len(det):
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], frame.shape).round()
 
-                for class_index in det[:, -1].unique():
-                    number_of_detections = (det[:, -1] == class_index).sum()  # detections per class
+                # Detect the player with the ball 
+                for *xyxy, confidence_score, class_id in reversed(det):
+                    if (names[int(class_id)] == 'sports ball'):
+                        center_point = ((xyxy[0] + xyxy[2]) // 2, (xyxy[1] + xyxy[3]) // 2)
+                        nearest_player_to_the_ball = find_nearest_player_to_the_ball(center_point, det)
+                        if nearest_player_to_the_ball:
+                            player_with_the_ball_center_point = ((nearest_player_to_the_ball[0] + nearest_player_to_the_ball[2]) // 2, (nearest_player_to_the_ball[1] + nearest_player_to_the_ball[3]) // 2)
 
                 # Draw the class name label and center point for each object
-                for *xyxy, conf, class_id in reversed(det): 
+                for *xyxy, confidence_score, class_id in reversed(det):
                     center_point = ((xyxy[0] + xyxy[2]) // 2, (xyxy[1] + xyxy[3]) // 2)
 
                     # Class name and center point coordinates label
                     center_point_coordinates_label = f"({center_point[0]}, {center_point[1]})"
                     class_name_label = names[int(class_id)]
                     text_label = f'{class_name_label} {center_point_coordinates_label}'
-                    cv2.putText(frame, text_label, tuple(map(int, (center_point[0], center_point[1] - 10))), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+                    text_color = (255, 255, 0) if center_point == player_with_the_ball_center_point else (0, 0, 255)
+                    cv2.putText(frame, text_label, tuple(map(int, (center_point[0], center_point[1] - 10))), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 2)
 
                     # Center point circle
                     cv2.circle(frame, tuple(map(int, center_point)), 3, (0, 0, 255), -1)
