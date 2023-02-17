@@ -33,7 +33,7 @@ const getTeammates = (ballHolder, players) => {
     return 1;
 }
 
-const calculateEuclideanDistanceBetweenPlayers = (player1, player2) => {
+const calculateDistanceBetweenPlayers = (player1, player2) => {
     return calculateEuclideanDistance(player1.x, player1.y, player2.x, player2.y)
 }
 
@@ -109,7 +109,7 @@ exports.modeController = {
         }
 
         const teammate = getTeammate(ballHolder, body.players);
-        const teammateDistance = calculateEuclideanDistanceBetweenPlayers(ballHolder, teammate);
+        const teammateDistance = calculateDistanceBetweenPlayers(ballHolder, teammate);
         const goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
 
         if (isBetween(goalDistance, MIN_GOAL_PASSING_DISTANCE, MAX_GOAL_PASSING_DISTANCE) &&
@@ -130,7 +130,7 @@ exports.modeController = {
         }
 
         const teammates = getTeammates(ballHolder, body.players);
-        const teammatesDistance = calculateEuclideanDistanceBetweenPlayers(ballHolder, teammates);
+        const teammatesDistance = calculateDistanceBetweenPlayers(ballHolder, teammates);
         const goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
 
         if (isBetween(goalDistance, MIN_GOAL_PASSING_DISTANCE, MAX_GOAL_PASSING_DISTANCE) &&
