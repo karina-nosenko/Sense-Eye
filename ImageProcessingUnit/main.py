@@ -98,7 +98,7 @@ options  = {
 
 # Initializing video object
 if (MODE == 'video'):
-    video_path = APPEND_PATH + '/videos/soccer_video_top.mp4'   # the full path to video
+    video_path = APPEND_PATH + '/videos/soccer_video.mp4'   # the full path to video
     video = cv2.VideoCapture(video_path)
     fps = video.get(cv2.CAP_PROP_FPS)   # frames per second
     w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -197,16 +197,17 @@ with torch.no_grad():
 
                     # Class name and center point coordinates label
                     center_point_coordinates_label = f"({center_point[0]}, {center_point[1]})"
-                    class_name_label = names[int(class_id)]
-                    text_label = f'{class_name_label} {center_point_coordinates_label}'
+                    class_name_label = names[int(class_id)]  
 
                     if center_point == player_with_the_ball_center_point:
                         text_color = (255, 255, 0) # blue for player with the ball
                     elif class_name_label == 'sports ball':
                         text_color = (0, 255, 0) # green for ball
+                        class_name_label = 'ball'
                     else:
                         text_color = (0, 0, 255) # red for rest of the players
 
+                    text_label = f'{class_name_label} {center_point_coordinates_label}'
                     cv2.putText(frame, text_label, tuple(map(int, (center_point[0], center_point[1] - 10))), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 2)
 
                     # Center point circle
