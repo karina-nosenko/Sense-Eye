@@ -75,25 +75,16 @@ def find_nearest_player_to_the_ball(ball_center_point, all_detections):
     return nearest_player_center_point if min_distance_to_ball != float('inf') else None
 
 
-# Now it'll recognize only: 'person', 'sports ball'
-classes_to_filter = [ 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
-         'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
-         'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee',
-         'skis', 'snowboard', 'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard',
-         'tennis racket', 'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
-         'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch',
-         'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone',
-         'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear',
-         'hair drier', 'toothbrush' ]
+classes_to_detect = [ 'person', 'sports ball' ]
 
 options  = {
     "weights": APPEND_PATH + "/weights/yolov7.pt", # path to weights file, default weights are for nano model
-    "yaml"   : APPEND_PATH + "/data/coco.yaml", # path to yaml file
+    "yaml"   : APPEND_PATH + "/data/coco.yaml", # path to yaml file (contains all the class names)
     "img-size": 640, # default image size
     "conf-thres": 0.25, # confidence threshold for inference
     "iou-thres" : 0.45, # NMS IoU threshold for inference
     "device" : '0',  # device to run our model i.e. 0 or 0,1,2,3 or cpu
-    "classes" : classes_to_filter  # list of classes to filter or None
+    "classes" : classes_to_detect  # list of classes to filter or None
 }
 
 # Initializing video object
@@ -132,14 +123,10 @@ with torch.no_grad():
         print(model)
         model(torch.zeros(1, 3, img_size, img_size).to(device).type_as(next(model.parameters())))
 
-    # determine the classes to include in the detection
-    classes = None
-    if options['classes']:
-        classes = []
-        for class_name in options['classes']:
-            classes.append(names.index(class_name))      
-    if classes:  
-        classes = [i for i in range(len(names)) if i not in classes]
+    # Convert class names to class indexes
+    classes = []
+    for class_name in options['classes']:
+        classes.append(names.index(class_name))
 
     range = range(nframes) if (MODE == 'video') else itertools.count()
     for j in range:
