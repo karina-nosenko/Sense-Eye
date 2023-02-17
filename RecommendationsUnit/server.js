@@ -22,3 +22,8 @@ app.use('*', (req, res) => {
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 });
+
+process.on('SIGINT', () => {
+    console.log('Shutting down server...');
+    process.exit(0);
+  });

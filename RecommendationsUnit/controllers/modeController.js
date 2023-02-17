@@ -20,13 +20,7 @@ const calculateDistanceToGoal = (player, goals) => {
 }
 
 const getPlayerWithBall = (players) => {
-    players.forEach(player => {
-        if (player.holdsBall) {
-            return player;
-        }
-    });
-
-    return null;
+    return players.find(player => player.holdsBall) || null;
 }
 
 const getTeammate = (ballHolder, players) => {
@@ -40,7 +34,7 @@ const getTeammates = (ballHolder, players) => {
 }
 
 const calculateEuclideanDistanceBetweenPlayers = (player1, player2) => {
-    return calculateEuclideanDistance(player1.x, player1.y, player2.x, plplayer2ayer.y)
+    return calculateEuclideanDistance(player1.x, player1.y, player2.x, player2.y)
 }
 
 const pathToGoalIsFree = (ballHolder, teammate, goals) => {
@@ -99,11 +93,11 @@ exports.modeController = {
 
         const goalDistance = calculateDistanceToGoal(body.players[0], body.goals);
         if (goalDistance <= MIN_GOAL_PASSING_DISTANCE) {
-            recommendMovingAwayFromGoal(res, body.players[0], body.goals[0]);
+            return recommendMovingAwayFromGoal(res, body.players[0], body.goals[0]);
         } else if (goalDistance >= MAX_GOAL_PASSING_DISTANCE) {
-            recommendMovingTowardsGoal(res, body.players[0], body.goals[0]);
+            return recommendMovingTowardsGoal(res, body.players[0], body.goals[0]);
         } else {
-            recommendDirectShotOnGoal(res, body.players[0], body.goals[0]);
+            return recommendDirectShotOnGoal(res, body.players[0], body.goals[0]);
         } 
     },
     sameTeamModeA(req, res) {
@@ -111,7 +105,7 @@ exports.modeController = {
 
         const ballHolder = getPlayerWithBall(body.players);
         if (!ballHolder) {
-            doNothing(res);    // No player with ball
+            return doNothing(res);    // No player with ball
         }
 
         const teammate = getTeammate(ballHolder, body.players);
@@ -120,11 +114,11 @@ exports.modeController = {
 
         if (isBetween(goalDistance, MIN_GOAL_PASSING_DISTANCE, MAX_GOAL_PASSING_DISTANCE) &&
             pathToGoalIsFree(ballHolder, teammate, body.goals)) {
-            recommendDirectShotOnGoal(res, body.players[0], body.goals[0]);
+            return recommendDirectShotOnGoal(res, body.players[0], body.goals[0]);
         } else if (isBetween(teammateDistance, MIN_TEAMMATE_PASSING_DISTANCE, MAX_TEAMMATE_PASSING_DISTANCE)) {
-            recommendPassToTeammate(res, ballHolder, teammate);
+            return recommendPassToTeammate(res, ballHolder, teammate);
         } else {
-            recommendKeepTheBall(res);
+            return recommendKeepTheBall(res);
         }
     },
     sameTeamModeB(req, res) {
@@ -132,7 +126,7 @@ exports.modeController = {
 
         const ballHolder = getPlayerWithBall(body.players);
         if (!ballHolder) {
-            doNothing(res);    // No player with ball
+            return doNothing(res);    // No player with ball
         }
 
         const teammates = getTeammates(ballHolder, body.players);
@@ -142,17 +136,17 @@ exports.modeController = {
         if (isBetween(goalDistance, MIN_GOAL_PASSING_DISTANCE, MAX_GOAL_PASSING_DISTANCE) &&
             pathToGoalIsFree(ballHolder, teammates, body.goals) &&
             goalInSightRange(ballHolder.sightDirection, body.goals)) {
-            recommendDirectShotOnGoal(res, body.players[0], body.goals[0]);
+            return recommendDirectShotOnGoal(res, body.players[0], body.goals[0]);
         } else {
             sortedTeammates = sortByDistance(teammatesDistance)
             sortedTeammates.forEach(teammate => {
                 if (teammateInSightRange(ballHolder.sightDirection, teammate)) {
-                    recommendPassToTeammate(res, ballHolder, teammate);
+                    return recommendPassToTeammate(res, ballHolder, teammate);
                 }
             });
         }
 
-        recommendKeepTheBall(res);
+        return recommendKeepTheBall(res);
     },
     differentTeamsModeA(req, res) {
         const { body } = req;
