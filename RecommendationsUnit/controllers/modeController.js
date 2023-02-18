@@ -23,21 +23,15 @@ const getPlayerWithBall = (players) => {
     return players.find(player => player.holdsBall) || null;
 }
 
-const getTeammate = (ballHolder, players) => {
-    // TODO
-    return 1;
-}
-
 const getTeammates = (ballHolder, players) => {
-    // TODO
-    return 1;
+    return players.filter(player => player.id != ballHolder.id);
 }
 
 const calculateDistanceBetweenPlayers = (player1, player2) => {
     return calculateEuclideanDistance(player1.x, player1.y, player2.x, player2.y)
 }
 
-const pathToGoalIsFree = (ballHolder, teammate, goals) => {
+const pathToGoalIsFree = (ballHolder, teammates, goals) => {
     // TODO
     return 1;
 }
@@ -108,15 +102,15 @@ exports.modeController = {
             return doNothing(res);    // No player with ball
         }
 
-        const teammate = getTeammate(ballHolder, body.players);
-        const teammateDistance = calculateDistanceBetweenPlayers(ballHolder, teammate);
+        const teammates = getTeammates(ballHolder, body.players);   
+        const teammateDistance = calculateDistanceBetweenPlayers(ballHolder, teammates[0]);
         const goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
 
         if (isBetween(goalDistance, MIN_GOAL_PASSING_DISTANCE, MAX_GOAL_PASSING_DISTANCE) &&
-            pathToGoalIsFree(ballHolder, teammate, body.goals)) {
+            pathToGoalIsFree(ballHolder, teammates, body.goals)) {
             return recommendDirectShotOnGoal(res, body.players[0], body.goals[0]);
         } else if (isBetween(teammateDistance, MIN_TEAMMATE_PASSING_DISTANCE, MAX_TEAMMATE_PASSING_DISTANCE)) {
-            return recommendPassToTeammate(res, ballHolder, teammate);
+            return recommendPassToTeammate(res, ballHolder, teammates[0]);
         } else {
             return recommendKeepTheBall(res);
         }

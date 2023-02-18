@@ -138,7 +138,7 @@ with torch.no_grad():
     range = range(nframes) if (MODE == 'video') else itertools.count()
     for j in range:
         ret, frame = video.read()
-        frame = rescale_frame(frame, scale=2)
+        frame = rescale_frame(frame, scale=2)   # define frame size
         
         if not ret:
             break
