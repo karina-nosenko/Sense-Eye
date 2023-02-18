@@ -19,6 +19,12 @@ from yolov7.utils.general import check_img_size, non_max_suppression, scale_coor
 from yolov7.utils.plots import plot_one_box
 from yolov7.utils.torch_utils import select_device, time_synchronized
 
+def rescale_frame(frame, scale):    # works for image, video, live video
+    width = int(frame.shape[1] * scale)
+    height = int(frame.shape[0] * scale)
+    dimensions = (width, height)
+    return cv2.resize(frame, dimensions, interpolation=cv2.INTER_AREA)
+
 def adjust_image_to_desired_shape(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True, stride=32):
     # Resize and pad image while meeting stride-multiple constraints
     shape = img.shape[:2]  # current shape [height, width]
@@ -101,6 +107,7 @@ if (MODE == 'video'):
 else:   # realtime
     video = cv2.VideoCapture(CAMERA_INDEX)
     video.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+    video.set(3, 1440)
 
 torch.cuda.empty_cache()
 
@@ -131,6 +138,7 @@ with torch.no_grad():
     range = range(nframes) if (MODE == 'video') else itertools.count()
     for j in range:
         ret, frame = video.read()
+        frame = rescale_frame(frame, scale=2)
         
         if not ret:
             break
