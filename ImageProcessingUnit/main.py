@@ -107,7 +107,8 @@ if (MODE == 'video'):
 else:   # realtime
     video = cv2.VideoCapture(CAMERA_INDEX)
     video.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-    video.set(3, 1440)
+    video.set(3, 3840)  # width (max - 3840)
+    video.set(4, 2160)  # height (max - 2160)
 
 torch.cuda.empty_cache()
 
@@ -138,7 +139,7 @@ with torch.no_grad():
     range = range(nframes) if (MODE == 'video') else itertools.count()
     for j in range:
         ret, frame = video.read()
-        frame = rescale_frame(frame, scale=2)   # define frame size
+        #frame = rescale_frame(frame, scale=1.5)   # define frame size
         
         if not ret:
             break
@@ -213,7 +214,7 @@ with torch.no_grad():
                     print(f"{j+1}/{nframes} frames processed")
                     output.write(frame)
                 else:
-                    cv2.imshow("Frame", frame)
+                    cv2.imshow("Frame", rescale_frame(frame, scale=0.6667))
                     key = cv2.waitKey(1)
                     if key == 27:
                         break
