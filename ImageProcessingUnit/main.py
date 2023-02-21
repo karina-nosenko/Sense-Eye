@@ -8,6 +8,9 @@ import itertools
 import numpy as np
 from scipy.spatial import distance
 from numpy import random
+import os
+import colors_detection as cd
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 MODE = 'realtime'   # realtime/video
 CAMERA_INDEX = 0 # Relevant for realtime only. 0-webcam, 4/0 - camera
@@ -89,7 +92,7 @@ options  = {
     "img-size": 640, # default image size
     "conf-thres": 0.25, # confidence threshold for inference
     "iou-thres" : 0.45, # NMS IoU threshold for inference
-    "device" : '0',  # device to run our model i.e. 0 or 0,1,2,3 or cpu
+    "device" : 'cpu',  # device to run our model i.e. 0 or 0,1,2,3 or cpu
     "classes" : classes_to_detect  # list of classes to filter or None
 }
 
@@ -143,6 +146,8 @@ with torch.no_grad():
         
         if not ret:
             break
+
+        cd.colorsDetections(frame, video)
 
         img = adjust_image_to_desired_shape(frame, img_size, stride=stride)[0]
         img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
