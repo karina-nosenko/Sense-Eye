@@ -129,7 +129,7 @@ def detect_objects(frame, player_with_the_ball_center_point, img_size, device, u
                 else:
                     text_color = (0, 0, 255) # red for rest of the players
 
-                text_label = f'{class_name_label} {center_point_coordinates_label}'
+                text_label = f'{class_name_label} {center_point_coordinates_label} {confidence_score}'
                 cv2.putText(frame, text_label, tuple(map(int, (center_point[0], center_point[1] - 10))), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 2)
 
                 # Center point circle

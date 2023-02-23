@@ -27,7 +27,7 @@ def initialize_capture():
     return capture
 
 def initialize_output(capture):
-    fps = capture.get(cv2.CAP_PROP_FPS)
+    fps = int(capture.get(cv2.CAP_PROP_FPS))
     w = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
     return cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'DIVX'), fps , (w,h))
@@ -51,7 +51,7 @@ with torch.no_grad():
         if not ret:
             break
 
-        detect_colors(frame, capture)
+        # detect_colors(frame, capture)
         detect_objects(frame, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes)
 
         # Output the result
