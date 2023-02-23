@@ -12,9 +12,10 @@ import os
 import colors_detection as cd
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
-MODE = 'realtime'   # realtime/video
+MODE = 'video'   # realtime/video
 CAMERA_INDEX = 0 # Relevant for realtime only. 0-webcam, 4/0 - camera
 APPEND_PATH = 'yolov7'
+VIDEO_PATH = APPEND_PATH + '/videos/single_player_blue.mp4'
 sys.path.append(APPEND_PATH)
 
 from yolov7.models.experimental import attempt_load
@@ -98,7 +99,7 @@ options  = {
 
 # Initializing video object
 if (MODE == 'video'):
-    video_path = APPEND_PATH + '/videos/soccer_video.mp4'   # the full path to video
+    video_path = VIDEO_PATH   # the full path to video
     video = cv2.VideoCapture(video_path)
     fps = video.get(cv2.CAP_PROP_FPS)   # frames per second
     w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
