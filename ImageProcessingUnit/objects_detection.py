@@ -91,13 +91,13 @@ def detect_objects(frame, player_with_the_ball_center_point, img_size, device, u
     # Inference
     t1 = time_synchronized()
     detection_results = model(img, augment= False)[0]        
-    detection_results = non_max_suppression(detection_results, options['conf-thres'], options['iou-thres'], classes=classes, agnostic= False)
+    person_detection_results = non_max_suppression(detection_results, options['class-person']['conf-thres'], options['iou-thres'], classes=names.index(options['class-person']['class-name']), agnostic = False)
+    ball_detection_results = non_max_suppression(detection_results, options['class-ball']['conf-thres'], options['iou-thres'], classes=names.index(options['class-ball']['class-name']), agnostic = False)
+    all_detections = [torch.cat((person_detection_results[0], ball_detection_results[0]))]
     t2 = time_synchronized()
 
-    print(detection_results)
-
     # Plotting the detections
-    for detection in detection_results:
+    for detection in all_detections:
         if not len(detection):
             continue
 
@@ -113,7 +113,7 @@ def detect_objects(frame, player_with_the_ball_center_point, img_size, device, u
 
             # Assign color based on object class
             class_name = names[int(class_id)]
-            if center_x == player_with_the_ball_center_point[0] and center_y == player_with_the_ball_center_point[1]:
+            if player_with_the_ball_center_point and center_x == player_with_the_ball_center_point[0] and center_y == player_with_the_ball_center_point[1]:
                 text_color = (255, 255, 0)  # blue for player with the ball
             elif class_name == 'sports ball':
                 text_color = (0, 255, 0)  # green for ball
