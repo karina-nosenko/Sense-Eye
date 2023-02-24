@@ -1,6 +1,5 @@
 # For each player detect the direction of movement
-* Explore whether 'optical flow' is useful
-* If not - detect it by comparing center point from the current and previous frame
+* Output the motion angles
 
 # For each player detect its id
 * Image processing for the color of the cap
