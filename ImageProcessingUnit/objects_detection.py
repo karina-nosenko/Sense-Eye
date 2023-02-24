@@ -94,6 +94,8 @@ def detect_objects(frame, player_with_the_ball_center_point, img_size, device, u
     detection_results = non_max_suppression(detection_results, options['conf-thres'], options['iou-thres'], classes=classes, agnostic= False)
     t2 = time_synchronized()
 
+    print(detection_results)
+
     # Plotting the detections
     for detection in detection_results:
         if not len(detection):
@@ -102,7 +104,7 @@ def detect_objects(frame, player_with_the_ball_center_point, img_size, device, u
         # Scale box coordinates to the size of current frame
         detection[:, :4] = scale_coords(img.shape[2:], detection[:, :4], frame.shape).round()
    
-        player_with_the_ball_center_point = _detect_player_with_the_ball(detection, names)
+        player_with_the_ball_center_point = _detect_player_with_the_ball(detection, names, player_with_the_ball_center_point)     
 
         # Draw the class name label and center point for each object
         for i, (x1, y1, x2, y2, confidence_score, class_id) in enumerate(detection):
@@ -125,6 +127,8 @@ def detect_objects(frame, player_with_the_ball_center_point, img_size, device, u
 
             # Draw center point circle on the frame
             cv2.circle(frame, (center_x, center_y), 3, (0, 0, 255), -1)
+
+    return player_with_the_ball_center_point
 
 
 def _find_nearest_player_to_the_ball(ball_center_point, all_detections, names):
@@ -152,17 +156,16 @@ def _find_nearest_player_to_the_ball(ball_center_point, all_detections, names):
     return nearest_player_center_point if min_distance_to_ball != float('inf') else None
 
 
-def _detect_player_with_the_ball(detection, names):
+def _detect_player_with_the_ball(detection, names, player_with_the_ball_center_point):
     # Detect the player with the ball - the player whose coordinates are
     # the nearest to the found ball.
     ball_found_in_current_frame = False
+    nearest_player_to_the_ball = None
     for *xyxy, confidence_score, class_id in reversed(detection):
         if (names[int(class_id)] == 'sports ball'):
             ball_found_in_current_frame = True
             center_point = ((xyxy[0] + xyxy[2]) // 2, (xyxy[1] + xyxy[3]) // 2)
             nearest_player_to_the_ball = _find_nearest_player_to_the_ball(center_point, detection, names)
-            if nearest_player_to_the_ball:
-                player_with_the_ball_center_point = ((nearest_player_to_the_ball[0] + nearest_player_to_the_ball[2]) // 2, (nearest_player_to_the_ball[1] + nearest_player_to_the_ball[3]) // 2)
     
     # If the ball was not found in the current frame - the 'player with the ball'
     # will be the player whose coordinates are the nearest to the 'player with the ball'
@@ -170,7 +173,10 @@ def _detect_player_with_the_ball(detection, names):
     if not ball_found_in_current_frame:
         for *xyxy, confidence_score, class_id in reversed(detection):
             nearest_player_to_the_ball = _find_nearest_player_to_the_ball(player_with_the_ball_center_point, detection, names)
-            if nearest_player_to_the_ball:
-                player_with_the_ball_center_point = ((nearest_player_to_the_ball[0] + nearest_player_to_the_ball[2]) // 2, (nearest_player_to_the_ball[1] + nearest_player_to_the_ball[3]) // 2)
+
+    if nearest_player_to_the_ball:
+        player_with_the_ball_center_point = ((nearest_player_to_the_ball[0] + nearest_player_to_the_ball[2]) // 2, (nearest_player_to_the_ball[1] + nearest_player_to_the_ball[3]) // 2)
+
+    return player_with_the_ball_center_point
 
 

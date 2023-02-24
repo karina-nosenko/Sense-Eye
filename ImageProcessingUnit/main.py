@@ -52,7 +52,7 @@ with torch.no_grad():
             break
 
         # detect_colors(frame, capture)
-        detect_objects(frame, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes)
+        player_with_the_ball_center_point = detect_objects(frame, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes)
 
         # Output the result
         if MODE == 'video':
