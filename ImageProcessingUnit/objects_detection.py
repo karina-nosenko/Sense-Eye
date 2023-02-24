@@ -1,11 +1,12 @@
 import cv2
+import math
 import torch
 import numpy as np
 from scipy.spatial import distance
 from scipy.spatial.distance import cdist
+from yolov7.models.experimental import attempt_load
 from yolov7.utils.general import non_max_suppression, scale_coords, check_img_size
 from yolov7.utils.torch_utils import time_synchronized, select_device
-from yolov7.models.experimental import attempt_load
 
 from configs import options
 from image_functions import adjust_image_to_desired_shape
@@ -208,9 +209,15 @@ def _detect_players_moving_direction(prev_players_center_points, curr_players):
     
     closest_indices = list(np.append(closest_indices, indices_to_add).astype(int))
 
-    print(prev_players_center_points)
-    print(curr_players_center_points)
-    print(closest_indices)
+    # Calculate the motion angles of each player
+    angles = []
+    for i, curr_player in enumerate(curr_players_center_points):
+        prev_player = prev_players_center_points[closest_indices[i]]
+        delta_x = curr_player[0] - prev_player[0]
+        delta_y = curr_player[1] - prev_player[1]
+        angle_in_radians = math.atan2(delta_y, delta_x)
+        angle_in_degrees = math.degrees(angle_in_radians)
+        angles.append(angle_in_degrees)
 
     return curr_players_center_points
 
