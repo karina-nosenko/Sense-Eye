@@ -2,6 +2,7 @@ import cv2
 import torch
 import numpy as np
 from scipy.spatial import distance
+from scipy.spatial.distance import cdist
 from yolov7.utils.general import non_max_suppression, scale_coords, check_img_size
 from yolov7.utils.torch_utils import time_synchronized, select_device
 from yolov7.models.experimental import attempt_load
@@ -51,7 +52,7 @@ def initialize_player_detection_model():
     return weights, img_size, device, use_half_precision, model, stride, names, classes
 
 
-def detect_objects(frame, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes):
+def detect_objects(frame, prev_person_center_points, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes):
     """
     Detects objects in a frame using a PyTorch model.
 
@@ -103,8 +104,9 @@ def detect_objects(frame, player_with_the_ball_center_point, img_size, device, u
 
         # Scale box coordinates to the size of current frame
         detection[:, :4] = scale_coords(img.shape[2:], detection[:, :4], frame.shape).round()
-   
-        player_with_the_ball_center_point = _detect_player_with_the_ball(detection, names, player_with_the_ball_center_point)     
+    
+        player_with_the_ball_center_point = _detect_player_with_the_ball(detection, names, player_with_the_ball_center_point)
+        prev_person_center_points = _detect_players_moving_direction(prev_person_center_points, person_detection_results)
 
         # Draw the class name label and center point for each object
         for i, (x1, y1, x2, y2, confidence_score, class_id) in enumerate(detection):
@@ -128,7 +130,7 @@ def detect_objects(frame, player_with_the_ball_center_point, img_size, device, u
             # Draw center point circle on the frame
             cv2.circle(frame, (center_x, center_y), 3, (0, 0, 255), -1)
 
-    return player_with_the_ball_center_point
+    return player_with_the_ball_center_point, prev_person_center_points
 
 
 def _find_nearest_player_to_the_ball(ball_center_point, all_detections, names):
@@ -178,5 +180,42 @@ def _detect_player_with_the_ball(detection, names, player_with_the_ball_center_p
         player_with_the_ball_center_point = ((nearest_player_to_the_ball[0] + nearest_player_to_the_ball[2]) // 2, (nearest_player_to_the_ball[1] + nearest_player_to_the_ball[3]) // 2)
 
     return player_with_the_ball_center_point
+
+
+def _detect_players_moving_direction(prev_players_center_points, curr_players):
+    # Calculate center points of current person objects
+    curr_players_xyxy = curr_players[0][:,:4]
+    curr_players_center_points = [[((bbox[0]+bbox[2])//2), ((bbox[1]+bbox[3])//2)] for bbox in curr_players_xyxy.cpu().numpy()]
+
+    # It's the first frame
+    if prev_players_center_points is None:
+        return curr_players_center_points
+    
+    # If no players detected - assume the missing players are in the same coordinates
+    if not len(curr_players_center_points):
+        return prev_players_center_points
+
+    # Find the index of the closest point in the first vector for each point in the second vector
+    closest_indices = np.argmin(cdist(prev_players_center_points, curr_players_center_points), axis=0)
+    
+    # If detected less players than in the previous frame - assume the missing players are in the same coordinates
+    indices_to_add = []
+    if len(prev_players_center_points) > len(curr_players_center_points):
+        for i in range(len(prev_players_center_points)):
+            if i not in closest_indices:
+                curr_players_center_points.append(prev_players_center_points[i])
+                indices_to_add.append(i)
+    
+    closest_indices = list(np.append(closest_indices, indices_to_add).astype(int))
+
+    print(prev_players_center_points)
+    print(curr_players_center_points)
+    print(closest_indices)
+
+    return curr_players_center_points
+
+
+
+
 
 
