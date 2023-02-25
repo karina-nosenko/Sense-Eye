@@ -107,7 +107,7 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
         detection[:, :4] = scale_coords(img.shape[2:], detection[:, :4], frame.shape).round()
     
         player_with_the_ball_center_point = _detect_player_with_the_ball(detection, names, player_with_the_ball_center_point)
-        prev_person_center_points = _detect_players_moving_direction(prev_person_center_points, person_detection_results)
+        prev_person_center_points, angles = _detect_players_moving_direction(prev_person_center_points, person_detection_results)
 
         # Draw the class name label and center point for each object
         for i, (x1, y1, x2, y2, confidence_score, class_id) in enumerate(detection):
@@ -124,9 +124,13 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
             else:
                 text_color = (0, 0, 255)  # red for rest of the players
 
+            direction_text = f'direction:{angles[i]:.2f},' if class_name == 'person' else ''
+
             # Create text label and display it on the frame
-            text_label = f'{class_name} ({center_x}, {center_y}) {confidence_score}'
-            cv2.putText(frame, text_label, (center_x, center_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, text_color, 2)
+            text_label1 = f'{class_name} ({center_x}, {center_y})'
+            text_label2 = f'{direction_text} conf:{confidence_score:.2f}'
+            cv2.putText(frame, text_label1, (center_x + 10, center_y - 25), cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_color, 1)
+            cv2.putText(frame, text_label2, (center_x + 10, center_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_color, 1)
 
             # Draw center point circle on the frame
             cv2.circle(frame, (center_x, center_y), 3, (0, 0, 255), -1)
@@ -190,11 +194,11 @@ def _detect_players_moving_direction(prev_players_center_points, curr_players):
 
     # It's the first frame
     if prev_players_center_points is None:
-        return curr_players_center_points
+        return curr_players_center_points, [0] * len(curr_players_center_points)
     
     # If no players detected - assume the missing players are in the same coordinates
     if not len(curr_players_center_points):
-        return prev_players_center_points
+        return prev_players_center_points, [0] * len(curr_players_center_points)
 
     # Find the index of the closest point in the first vector for each point in the second vector
     closest_indices = np.argmin(cdist(prev_players_center_points, curr_players_center_points), axis=0)
@@ -219,7 +223,7 @@ def _detect_players_moving_direction(prev_players_center_points, curr_players):
         angle_in_degrees = math.degrees(angle_in_radians)
         angles.append(angle_in_degrees)
 
-    return curr_players_center_points
+    return curr_players_center_points, angles
 
 
 

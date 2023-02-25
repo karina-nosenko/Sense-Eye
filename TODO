@@ -1,6 +1,3 @@
-# For each player detect the direction of movement
-* Output the motion angles
-
 # For each player detect its id
 * Image processing for the color of the cap
 
