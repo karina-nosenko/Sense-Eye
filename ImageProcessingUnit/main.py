@@ -19,8 +19,10 @@ def initialize_capture():
     elif (MODE == 'realtime'):
         capture = cv2.VideoCapture(CAMERA_INDEX)
         capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-        capture.set(3, 3840)  # width (max - 3840)
-        capture.set(4, 2160)  # height (max - 2160)
+
+        # Uncomment when using an external usb camera
+        # capture.set(3, 3840)  # width (max - 3840)
+        # capture.set(4, 2160)  # height (max - 2160)
     else: 
         raise ValueError('MODE constant must contain "realtime" or "video" value')
     
@@ -43,6 +45,7 @@ if (MODE == 'video'):
 torch.cuda.empty_cache()
 with torch.no_grad():
     player_with_the_ball_center_point = None
+    prev_person_center_points = None
     weights, img_size, device, use_half_precision, model, stride, names, classes = initialize_player_detection_model()
     frames_range = range(nframes) if (MODE == 'video') else itertools.count()  
 
@@ -52,7 +55,7 @@ with torch.no_grad():
             break
 
         # detect_colors(frame, capture)
-        player_with_the_ball_center_point = detect_objects(frame, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes)
+        player_with_the_ball_center_point, prev_person_center_points = detect_objects(frame, prev_person_center_points, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes)
 
         # Output the result
         if MODE == 'video':
