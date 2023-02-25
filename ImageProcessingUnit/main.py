@@ -19,8 +19,10 @@ def initialize_capture():
     elif (MODE == 'realtime'):
         capture = cv2.VideoCapture(CAMERA_INDEX)
         capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-        capture.set(3, 3840)  # width (max - 3840)
-        capture.set(4, 2160)  # height (max - 2160)
+
+        # Uncomment when using an external usb camera
+        # capture.set(3, 3840)  # width (max - 3840)
+        # capture.set(4, 2160)  # height (max - 2160)
     else: 
         raise ValueError('MODE constant must contain "realtime" or "video" value')
     
