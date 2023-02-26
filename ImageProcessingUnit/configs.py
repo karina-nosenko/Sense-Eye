@@ -1,13 +1,17 @@
 APPEND_PATH = 'yolov7'
 
 # realtime/video
-MODE = 'realtime'
+MODE = 'video'
 
 # Camera index for realtime: 0-webcam, 4/0 - camera
 # Video path for video
 CAMERA_INDEX = 0
-VIDEO_PATH = APPEND_PATH + '/videos/video1.mp4'
+VIDEO_PATH = APPEND_PATH + '/videos/video3.mp4'
+GAME_MODE = 1
 
+#colors id
+YELLOW_COLOR = 0
+ORANGE_COLOR = 1
 # Detection options
 classes_to_detect = ['person', 'sports ball']
 options  = {

@@ -1,5 +1,41 @@
 import cv2
-
+import requests
+import json
+def recomendetion_single_player(color_id,player_x,player_y,holds_ball,direction,ball_x,ball_y):
+    api_url = "http://localhost:8080/api/mode/singlePlayerMode"
+    todo = {
+    "goals": [
+        {
+            "x1": 1,
+            "y1": 15,
+            "x2": 1,
+            "y2": 10
+        },
+        {
+            "x1": 20,
+            "y1": 15,
+            "x2": 20,
+            "y2": 10
+        }
+    ],
+    "players": [
+        {
+            "id": color_id,
+            "x": player_x,
+            "y": player_y,
+            "team": 0,
+            "holdsBall": holds_ball,
+            "sightDirection":direction 
+        }
+    ],
+    "ball": {
+        "x": ball_x,
+        "y": ball_y
+    }
+}
+    headers =  {"Content-Type":"application/json"}
+    response = requests.post(api_url, data=json.dumps(todo), headers=headers)
+    return response.json()
 def rescale_frame(frame, scale):
     """
     Rescales the input frame by the specified scale factor.
