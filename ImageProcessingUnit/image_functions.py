@@ -1,6 +1,82 @@
 import cv2
 import requests
 import json
+import math
+def find_closest_objects(arr1, arr2):
+    results = []
+    used_indexes = []
+    for obj1 in arr1:
+        closest_dist = math.inf
+        closest_obj2 = None
+        for i, obj2 in enumerate(arr2):
+            if i not in used_indexes:
+                dist = math.sqrt((obj1['x'] - obj2['x'])**2 + (obj1['y'] - obj2['y'])**2)
+                if dist < closest_dist:
+                    closest_dist = dist
+                    closest_obj2 = obj2
+        if closest_obj2 is not None:
+            closest_obj2['id'] = obj1['id']
+            results.append(closest_obj2)
+            used_indexes.append(arr2.index(closest_obj2))
+            obj1['x'] = closest_obj2['x']
+            obj1['y'] = closest_obj2['y']
+    return results
+
+def find_indexes_of_two_players(player_caps_index,playersList):
+    yellow_player = {}
+    orange_player = {}
+    print(playersList)
+    print(player_caps_index)
+    result = find_closest_objects(playersList,player_caps_index)
+    print(result)
+    print("--------------------------------------")
+    if(len(result)==2):
+        if(result[0]['id']=='yellow'):
+            yellow_player = result[0]
+            orange_player = result[1]
+        else:
+            yellow_player = result[1]
+            orange_player = result[0]
+    return yellow_player,orange_player
+
+def recomendetion_two_players_same_team(playersList,player_caps_index,ball_x,ball_y):
+    yellow_player, orange_player = find_indexes_of_two_players(playersList,player_caps_index)
+    # yellow_group = json.loads({"group":0})
+    # orange_group = json.loads({"group":0})
+    yellow_player.update({"team":0})
+    yellow_player['id'] = 0
+    orange_player.update({"team":0})
+    orange_player['id'] = 1
+    print(yellow_player)
+    api_url = "http://localhost:8080/api/mode/sameTeamModeA"
+    todo = {
+    "goals": [
+        {
+            "x1": 1,
+            "y1": 15,
+            "x2": 1,
+            "y2": 10
+        },
+        {
+            "x1": 20,
+            "y1": 15,
+            "x2": 20,
+            "y2": 10
+        }
+    ],
+    "players": [
+        yellow_player,
+        orange_player
+    ],
+    "ball": {
+        "x": ball_x,
+        "y": ball_y
+    }
+}
+    headers =  {"Content-Type":"application/json"}
+    response = requests.post(api_url, data=json.dumps(todo), headers=headers)
+    return response.json()
+   
 def recomendetion_single_player(color_id,player_x,player_y,holds_ball,direction,ball_x,ball_y):
     api_url = "http://localhost:8080/api/mode/singlePlayerMode"
     todo = {

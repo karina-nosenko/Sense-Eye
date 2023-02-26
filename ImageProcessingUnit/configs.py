@@ -7,7 +7,7 @@ MODE = 'video'
 # Video path for video
 CAMERA_INDEX = 0
 VIDEO_PATH = APPEND_PATH + '/videos/video3.mp4'
-GAME_MODE = 1
+GAME_MODE = 2
 
 #colors id
 YELLOW_COLOR = 0

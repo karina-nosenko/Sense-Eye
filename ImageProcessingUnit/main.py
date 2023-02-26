@@ -9,7 +9,7 @@ import colors_detection as cd
 sys.path.append(APPEND_PATH)
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
-from image_functions import rescale_frame, recomendetion_single_player
+from image_functions import rescale_frame, recomendetion_single_player, recomendetion_two_players_same_team
 from colors_detection import detect_colors
 from objects_detection import detect_objects, initialize_player_detection_model
 
@@ -56,18 +56,25 @@ with torch.no_grad():
 
 
         player_with_the_ball_center_point, prev_person_center_points,playersList,ball_indexes = detect_objects(frame, prev_person_center_points, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes)
-        players_indexes = cd.detect_colors(frame)
+        player_caps_index = cd.detect_colors(frame)
         #single player
         if(GAME_MODE == 1):
             print(playersList)
-            print(players_indexes)
+            print(player_caps_index)
             print(ball_indexes)
-            if(len(ball_indexes)>0 and len(playersList)>0 and len(playersList[0])>3 and playersList[0]['x'] and playersList[0]['y'] and playersList[0]['holdsBall'] and playersList[0]['angel'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
-                recomemdetion_single_player = recomendetion_single_player(YELLOW_COLOR,playersList[0]['x'],playersList[0]['y'],playersList[0]['holdsBall'],playersList[0]['angel'],ball_indexes[0]['x'],ball_indexes[0]['y'])
+            if(len(ball_indexes)>0 and len(playersList)>0 and len(playersList[0])>3 and playersList[0]['x'] and playersList[0]['y'] and playersList[0]['holdsBall'] and playersList[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
+                recomemdetion_single_player = recomendetion_single_player(YELLOW_COLOR,playersList[0]['x'],playersList[0]['y'],playersList[0]['holdsBall'],playersList[0]['sightDirection'],ball_indexes[0]['x'],ball_indexes[0]['y'])
                 if(recomemdetion_single_player):
                     print(recomemdetion_single_player)
                 else:
                     print({"error": recomemdetion_single_player})
+        if(GAME_MODE == 2):
+            yellow_player = []
+            orange_player = []
+            if(len(playersList)==2 and len(ball_indexes)>0 and ball_indexes[0]['x'] and ball_indexes[0]['y']):
+                print(recomendetion_two_players_same_team(playersList,player_caps_index,ball_indexes[0]['x'],ball_indexes[0]['y']))
+
+
         #two players
         # Output the result
         if MODE == 'video':
