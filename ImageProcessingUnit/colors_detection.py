@@ -4,16 +4,7 @@
 import numpy as np
 import cv2
 
-# Capturing video through webcam
-# video = cv2.VideoCapture(0)
-
-# Start a while loop
-def colorsDetections (frame, video):
-
-    # Reading the video from the
-    # webcam in image frames
-    # ret, frame = video.read()
-
+def detect_colors (frame):
     # Convert the imageFrame in
     # BGR(RGB color space) to
     # HSV(hue-saturation-value)
@@ -63,11 +54,6 @@ def colorsDetections (frame, video):
     orange_mask = cv2.dilate(orange_mask, kernal)
     res_orange = cv2.bitwise_and(frame, frame, mask=orange_mask)
 
-    # For green color
-    # green_mask = cv2.dilate(green_mask, kernal)
-    # res_green = cv2.bitwise_and(imageFrame, imageFrame,
-    #                             mask=green_mask)
-
     # For blue color
     blue_mask = cv2.dilate(blue_mask, kernal)
     res_blue = cv2.bitwise_and(frame, frame,
@@ -88,7 +74,6 @@ def colorsDetections (frame, video):
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
-            print(f"x={x1}, y={y1}")
             cv2.putText(frame, f"Red Colour x={x1}, y={y1}", (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX, 1.0,
                         (0, 0, 255))
@@ -108,27 +93,10 @@ def colorsDetections (frame, video):
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
-            print(f"x={x1}, y={y1}")
 
             cv2.putText(frame, f"orange Colour x={x1}, y={y1}", (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX, 1.0,
                         (0, 145, 255))
-    # # Creating contour to track green color
-    # contours, hierarchy = cv2.findContours(green_mask,
-    #                                        cv2.RETR_TREE,
-    #                                        cv2.CHAIN_APPROX_SIMPLE)
-
-    # for pic, contour in enumerate(contours):
-    #     area = cv2.contourArea(contour)
-    #     if (area > 300):
-    #         x, y, w, h = cv2.boundingRect(contour)
-    #         imageFrame = cv2.rectangle(imageFrame, (x, y),
-    #                                    (x + w, y + h),
-    #                                    (0, 255, 0), 2)
-    #
-    #         cv2.putText(imageFrame, "Green Colour", (x, y),
-    #                     cv2.FONT_HERSHEY_SIMPLEX,
-    #                     1.0, (0, 255, 0))
 
     # Creating contour to track yellow color
     contours, hierarchy = cv2.findContours(yellow_mask,
@@ -145,7 +113,6 @@ def colorsDetections (frame, video):
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
-            print(f"x={x1}, y={y1}")
             cv2.putText(frame, f"yellow Colour x={x1}, y={y1}", (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1.0, (0, 239, 255))
@@ -164,14 +131,6 @@ def colorsDetections (frame, video):
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
-            print(f"x={x1}, y={y1}")
             cv2.putText(frame, f"Blue Colour x={x1}, y={y1}", (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1.0, (255, 0, 0))
-
-    # Program Termination
-    # cv2.imshow("Multiple Color Detection in Real-TIme", frame)
-    # if cv2.waitKey(10) & 0xFF == ord('q'):
-    #     cap.release()
-    #     cv2.destroyAllWindows()
-    #     break
