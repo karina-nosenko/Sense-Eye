@@ -98,7 +98,7 @@ options  = {
 
 # Initializing video object
 if (MODE == 'video'):
-    video_path = APPEND_PATH + '/videos/soccer_video.mp4'   # the full path to video
+    video_path = APPEND_PATH + '/videos/video1.mp4'   # the full path to video
     video = cv2.VideoCapture(video_path)
     fps = video.get(cv2.CAP_PROP_FPS)   # frames per second
     w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))

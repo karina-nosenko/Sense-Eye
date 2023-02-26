@@ -29,19 +29,19 @@ def colorsDetections (frame, video):
     # Set range for orange color and
     # define mask
     orange_lower = np.array([5, 100, 100], np.uint8)
-    orange_upper = np.array([18, 255, 255], np.uint8)
+    orange_upper = np.array([20, 255, 255], np.uint8)
     orange_mask = cv2.inRange(hsvFrame, orange_lower, orange_upper)
 
     # Set range for yellow color and
     # define mask
-    yellow_lower = np.array([20, 100, 100], np.uint8)
-    yellow_upper = np.array([30, 255, 255], np.uint8)
+    yellow_lower = np.array([20, 70, 200], np.uint8)
+    yellow_upper = np.array([35, 255, 255], np.uint8)
     yellow_mask = cv2.inRange(hsvFrame, yellow_lower, yellow_upper)
 
     # Set range for blue color and
     # define mask
-    blue_lower = np.array([94, 80, 2], np.uint8)
-    blue_upper = np.array([120, 255, 255], np.uint8)
+    blue_lower = np.array([100, 150, 150], np.uint8)
+    blue_upper = np.array([130, 255, 255], np.uint8)
     blue_mask = cv2.inRange(hsvFrame, blue_lower, blue_upper)
 
     # Morphological Transform, Dilation
@@ -80,7 +80,7 @@ def colorsDetections (frame, video):
 
     for pic, contour in enumerate(contours):
         area = cv2.contourArea(contour)
-        if (area > 300):
+        if (area > 0 and area < 120):
             x, y, w, h = cv2.boundingRect(contour)
             frame = cv2.rectangle(frame, (x, y),
                                   (x + w, y + h),
@@ -100,7 +100,7 @@ def colorsDetections (frame, video):
 
     for pic, contour in enumerate(contours):
         area = cv2.contourArea(contour)
-        if (area > 300):
+        if (area > 0 and area < 120):
             x, y, w, h = cv2.boundingRect(contour)
             frame = cv2.rectangle(frame, (x, y),
                                   (x + w, y + h),
@@ -137,7 +137,7 @@ def colorsDetections (frame, video):
 
     for pic, contour in enumerate(contours):
         area = cv2.contourArea(contour)
-        if (area > 300):
+        if (area > 0 and area < 120):
             x, y, w, h = cv2.boundingRect(contour)
             frame = cv2.rectangle(frame, (x, y),
                                   (x + w, y + h),
@@ -156,7 +156,7 @@ def colorsDetections (frame, video):
                                            cv2.CHAIN_APPROX_SIMPLE)
     for pic, contour in enumerate(contours):
         area = cv2.contourArea(contour)
-        if (area > 300):
+        if (area > 0 and area < 120):
             x, y, w, h = cv2.boundingRect(contour)
             frame = cv2.rectangle(frame, (x, y),
                                   (x + w, y + h),
