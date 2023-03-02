@@ -8,6 +8,9 @@ MODE = 'video'
 CAMERA_INDEX = 0
 VIDEO_PATH = APPEND_PATH + '/videos/two_players_orange_blue.mp4'
 
+#colors id
+YELLOW_COLOR = 0
+ORANGE_COLOR = 1
 # Detection options
 classes_to_detect = ['person', 'sports ball']
 options  = {
