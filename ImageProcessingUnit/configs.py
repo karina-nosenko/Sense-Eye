@@ -6,7 +6,7 @@ MODE = 'video'
 # Camera index for realtime: 0-webcam, 4/0 - camera
 # Video path for video
 CAMERA_INDEX = 0
-VIDEO_PATH = APPEND_PATH + '/videos/two_players_orange_yellow.mp4'
+VIDEO_PATH = APPEND_PATH + '/videos/two_players_orange_blue.mp4'
 
 # Detection options
 classes_to_detect = ['person', 'sports ball']
@@ -23,6 +23,6 @@ options  = {
     },
     "class-ball": {
         "class-name": 'sports ball',
-        "conf-thres": 0.3
+        "conf-thres": 0.38
     }
 }
