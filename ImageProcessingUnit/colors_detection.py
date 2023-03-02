@@ -4,7 +4,8 @@
 import numpy as np
 import cv2
 
-def detect_colors (frame, video):
+def detect_colors (frame):
+    framePlayersIndexes = []
     # Convert the imageFrame in
     # BGR(RGB color space) to
     # HSV(hue-saturation-value)
@@ -20,19 +21,19 @@ def detect_colors (frame, video):
     # Set range for orange color and
     # define mask
     orange_lower = np.array([5, 100, 100], np.uint8)
-    orange_upper = np.array([18, 255, 255], np.uint8)
+    orange_upper = np.array([20, 255, 255], np.uint8)
     orange_mask = cv2.inRange(hsvFrame, orange_lower, orange_upper)
 
     # Set range for yellow color and
     # define mask
-    yellow_lower = np.array([20, 100, 100], np.uint8)
-    yellow_upper = np.array([30, 255, 255], np.uint8)
+    yellow_lower = np.array([20, 70, 200], np.uint8)
+    yellow_upper = np.array([35, 255, 255], np.uint8)
     yellow_mask = cv2.inRange(hsvFrame, yellow_lower, yellow_upper)
 
     # Set range for blue color and
     # define mask
-    blue_lower = np.array([94, 80, 2], np.uint8)
-    blue_upper = np.array([120, 255, 255], np.uint8)
+    blue_lower = np.array([100, 150, 150], np.uint8)
+    blue_upper = np.array([130, 255, 255], np.uint8)
     blue_mask = cv2.inRange(hsvFrame, blue_lower, blue_upper)
 
     # Morphological Transform, Dilation
@@ -66,7 +67,7 @@ def detect_colors (frame, video):
 
     for pic, contour in enumerate(contours):
         area = cv2.contourArea(contour)
-        if (area > 300):
+        if (area > 0 and area < 120):
             x, y, w, h = cv2.boundingRect(contour)
             frame = cv2.rectangle(frame, (x, y),
                                   (x + w, y + h),
@@ -74,9 +75,16 @@ def detect_colors (frame, video):
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
-            cv2.putText(frame, f"Red Colour x={x1}, y={y1}", (x, y),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1.0,
+            cv2.putText(frame, f"Red Colors x={x1}, y={y1}", (x+15, y+10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                         (0, 0, 255))
+            # player_index = {
+            #     "id":"red",
+            #     "x":x1,
+            #     "y":y1,                
+            # }
+            # framePlayersIndexes.append(player_index)
+
 
     # Creating contour to track orange color
     contours, hierarchy = cv2.findContours(orange_mask,
@@ -85,7 +93,7 @@ def detect_colors (frame, video):
 
     for pic, contour in enumerate(contours):
         area = cv2.contourArea(contour)
-        if (area > 300):
+        if (area > 0 and area < 120):
             x, y, w, h = cv2.boundingRect(contour)
             frame = cv2.rectangle(frame, (x, y),
                                   (x + w, y + h),
@@ -94,9 +102,15 @@ def detect_colors (frame, video):
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
 
-            cv2.putText(frame, f"orange Colour x={x1}, y={y1}", (x, y),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1.0,
+            cv2.putText(frame, f"orange Colors x={x1}, y={y1}", (x+15, y+10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                         (0, 145, 255))
+            player_index = {
+                "id":"orange",
+                "x":x1,
+                "y":y1,                
+            }
+            framePlayersIndexes.append(player_index)
 
     # Creating contour to track yellow color
     contours, hierarchy = cv2.findContours(yellow_mask,
@@ -105,7 +119,7 @@ def detect_colors (frame, video):
 
     for pic, contour in enumerate(contours):
         area = cv2.contourArea(contour)
-        if (area > 300):
+        if (area > 0 and area < 120):
             x, y, w, h = cv2.boundingRect(contour)
             frame = cv2.rectangle(frame, (x, y),
                                   (x + w, y + h),
@@ -113,9 +127,16 @@ def detect_colors (frame, video):
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
-            cv2.putText(frame, f"yellow Colour x={x1}, y={y1}", (x, y),
+            cv2.putText(frame, f"yellow colors x={x1}, y={y1}", (x+15, y+10),
                         cv2.FONT_HERSHEY_SIMPLEX,
-                        1.0, (0, 239, 255))
+                        0.5, (0, 239, 255))
+            player_index = {
+                "id":"yellow",
+                "x":x1,
+                "y":y1,                
+            }
+            framePlayersIndexes.append(player_index)
+
 
     # Creating contour to track blue color
     contours, hierarchy = cv2.findContours(blue_mask,
@@ -123,7 +144,7 @@ def detect_colors (frame, video):
                                            cv2.CHAIN_APPROX_SIMPLE)
     for pic, contour in enumerate(contours):
         area = cv2.contourArea(contour)
-        if (area > 300):
+        if (area > 0 and area < 120):
             x, y, w, h = cv2.boundingRect(contour)
             frame = cv2.rectangle(frame, (x, y),
                                   (x + w, y + h),
@@ -131,6 +152,14 @@ def detect_colors (frame, video):
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
-            cv2.putText(frame, f"Blue Colour x={x1}, y={y1}", (x, y),
+            cv2.putText(frame, f"Blue Colors x={x1}, y={y1}", (x+15, y+10),
                         cv2.FONT_HERSHEY_SIMPLEX,
-                        1.0, (255, 0, 0))
+                        0.5, (255, 0, 0))
+            # player_index = {
+            #     "id":"blue",
+            #     "x":x1,
+            #     "y":y1,                
+            # }
+            # framePlayersIndexes.append(player_index)
+    return framePlayersIndexes
+        
