@@ -5,7 +5,6 @@ import itertools
 import os
 from configs import APPEND_PATH, MODE, CAMERA_INDEX, VIDEO_PATH, options, GAME_MODE, YELLOW_COLOR, ORANGE_COLOR
 import colors_detection as cd
-import objects_detection as od
 
 # Settings
 sys.path.append(APPEND_PATH)
@@ -13,6 +12,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 from image_functions import rescale_frame
 from recommendation_api_helpers import recommendation_single_player, recommendation_two_players_same_team
+from objects_detection import initialize_player_detection_model, detect_objects
 
 
 def initialize_capture():
@@ -48,7 +48,7 @@ torch.cuda.empty_cache()
 with torch.no_grad():
     player_with_the_ball_center_point = None
     prev_person_center_points = None
-    weights, img_size, device, use_half_precision, model, stride, names, classes = od.initialize_player_detection_model()
+    weights, img_size, device, use_half_precision, model, stride, names, classes = initialize_player_detection_model()
     frames_range = range(nframes) if (MODE == 'video') else itertools.count()  
 
     for frame_index in frames_range:
@@ -60,7 +60,7 @@ with torch.no_grad():
         (player_with_the_ball_center_point,
         prev_person_center_points,
         playersList,
-        ball_indexes) = od.detect_objects(
+        ball_indexes) = detect_objects(
             frame,
             prev_person_center_points,
             player_with_the_ball_center_point,

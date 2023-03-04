@@ -77,14 +77,15 @@ def recommendation_two_players_same_team(playersList, player_caps_index, ball_x,
     Raises:
         None
     """
-    yellow_player, orange_player = _find_indexes_of_two_players(playersList,player_caps_index)
+    yellow_player, orange_player = _find_indexes_of_two_players(playersList, player_caps_index)
     # yellow_group = json.loads({"group":0})
     # orange_group = json.loads({"group":0})
     yellow_player.update({"team":0})
     yellow_player['id'] = 0
     orange_player.update({"team":0})
     orange_player['id'] = 1
-    #print(yellow_player)
+    print(yellow_player)
+    print(yellow_player)
     api_url = RECOMMENDATIONS_API_ADDRESS + "/sameTeamModeA"
     todo = {
         "goals": [
@@ -119,11 +120,11 @@ def recommendation_two_players_same_team(playersList, player_caps_index, ball_x,
 def _find_indexes_of_two_players(player_caps_index,playersList):
     yellow_player = {}
     orange_player = {}
-    print(playersList)
-    print(player_caps_index)
-    result = _find_closest_objects(playersList,player_caps_index)
-    print(result)
-    print("--------------------------------------")
+    # print(playersList)
+    # print(player_caps_index)
+    result = _find_closest_objects(playersList, player_caps_index)
+    # print(result)
+    # print("--------------------------------------")
     if(len(result)==2):
         if(result[0]['id']=='yellow'):
             yellow_player = result[0]
@@ -131,7 +132,8 @@ def _find_indexes_of_two_players(player_caps_index,playersList):
         else:
             yellow_player = result[1]
             orange_player = result[0]
-    return yellow_player,orange_player
+
+    return yellow_player, orange_player
 
 
 def _find_closest_objects(arr1, arr2):
@@ -146,10 +148,12 @@ def _find_closest_objects(arr1, arr2):
                 if dist < closest_dist:
                     closest_dist = dist
                     closest_obj2 = obj2
+
         if closest_obj2 is not None:
             closest_obj2['id'] = obj1['id']
             results.append(closest_obj2)
             used_indexes.append(arr2.index(closest_obj2))
             obj1['x'] = closest_obj2['x']
             obj1['y'] = closest_obj2['y']
+
     return results
