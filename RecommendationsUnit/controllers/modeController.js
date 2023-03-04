@@ -75,6 +75,31 @@ const calculateDistanceToGoal = (player, goals) => {
     return calculateEuclideanDistance(goalCenterX, goalCenterY, player.x, player.y);
 }
 
+const isPlayerInsideTriangle = (player, point1, point2, point3) => {
+    // Calculate the areas of the main triangle and three sub-triangles
+    const mainTriangleArea = Math.abs(
+      (point2.x - point1.x) * (point3.y - point1.y) -
+      (point3.x - point1.x) * (point2.y - point1.y)
+    );
+    const subTriangle1Area = Math.abs(
+      (player.x - point1.x) * (point2.y - point1.y) -
+      (point2.x - point1.x) * (player.y - point1.y)
+    );
+    const subTriangle2Area = Math.abs(
+      (player.x - point2.x) * (point3.y - point2.y) -
+      (point3.x - point2.x) * (player.y - point2.y)
+    );
+    const subTriangle3Area = Math.abs(
+      (player.x - point3.x) * (point1.y - point3.y) -
+      (point1.x - point3.x) * (player.y - point3.y)
+    );
+
+    // Check whether the sum of sub-triangle areas equals the main triangle area
+    return (
+      subTriangle1Area + subTriangle2Area + subTriangle3Area <= mainTriangleArea
+    );
+  };
+
 const getPlayerWithBall = (players) => {
     return players.find(player => player.holdsBall) || null;
 }
@@ -88,8 +113,16 @@ const calculateDistanceBetweenPlayers = (player1, player2) => {
 }
 
 const pathToGoalIsFree = (ballHolder, teammates, goal) => {
-    // TODO
-    return 1;
+    const point1 = {x: goal.x1, y: goal.y1};
+    const point2 = {x: goal.x2, y: goal.y2};
+    const point3 = {x: ballHolder.x, y: ballHolder.y};
+    teammates.forEach(teammate => {
+        if (isPlayerInsideTriangle(teammate, point1, point2, point3)) {
+            return false;
+        }
+    });
+
+    return true;
 }
 
 const goalInSightRange = (sightDirection, goals) => {
