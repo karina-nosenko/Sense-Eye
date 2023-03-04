@@ -197,16 +197,16 @@ exports.modeController = {
     differentTeamsModeA(req, res) {
         const { body } = req;
 
-        res.status(200).json({ "success": "not implemented." });
+        res.status(200).json({ "differentTeamsModeA": "not implemented." });
     },
     differentTeamsModeB(req, res) {
         const { body } = req;
 
-        res.status(200).json({ "success": "not implemented." });
+        res.status(200).json({ "differentTeamsModeB": "not implemented." });
     },
     fullGameMode(req, res) {
         const { body } = req;
 
-        res.status(200).json({ "success": "not implemented." });
+        res.status(200).json({ "fullGameMode": "not implemented." });
     },
 }

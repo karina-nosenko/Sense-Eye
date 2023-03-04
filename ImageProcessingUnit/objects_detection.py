@@ -171,6 +171,24 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
             # Draw center point circle on the frame
             cv2.circle(frame, (center_x, center_y), 3, (0, 0, 255), -1)
 
+            # Draw field corners circles
+            top_left = (440, 64)
+            top_right = (710, 55)
+            bottom_left = (335, 425)
+            bottom_right = (700, 440)
+            cv2.circle(frame, top_left, 3, (0, 0, 255), -1)
+            cv2.circle(frame, top_right, 3, (0, 0, 255), -1)
+            cv2.circle(frame, bottom_left, 3, (0, 0, 255), -1)
+            cv2.circle(frame, bottom_right, 3, (0, 0, 255), -1)
+
+            # Draw gates
+            top_left = (530, 60)
+            top_right = (625, 60)
+            bottom_left = (473, 428)
+            bottom_right = (573, 428)
+            cv2.line(frame, top_left, top_right, (0, 0, 255), 1)
+            cv2.line(frame, bottom_left, bottom_right, (0, 0, 255), 1)
+
     return player_with_the_ball_center_point, prev_person_center_points, players_list_indexes_direction_playerWithTheBasll, ball_indexes, 
 
 

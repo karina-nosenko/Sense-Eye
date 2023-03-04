@@ -27,16 +27,16 @@ def recommendation_single_player(color_id, player_x, player_y, holds_ball, direc
     todo = {
         "goals": [
             {
-                "x1": 1,
-                "y1": 15,
-                "x2": 1,
-                "y2": 10
+                "x1": 530,
+                "y1": 60,
+                "x2": 625,
+                "y2": 60
             },
             {
-                "x1": 20,
-                "y1": 15,
-                "x2": 20,
-                "y2": 10
+                "x1": 473,
+                "y1": 428,
+                "x2": 573,
+                "y2": 428
             }
         ],
         "players": [
@@ -90,16 +90,16 @@ def recommendation_two_players_same_team(playersList, player_caps_index, ball_x,
     todo = {
         "goals": [
             {
-                "x1": 1,
-                "y1": 15,
-                "x2": 1,
-                "y2": 10
+                "x1": 530,
+                "y1": 60,
+                "x2": 625,
+                "y2": 60
             },
             {
-                "x1": 20,
-                "y1": 15,
-                "x2": 20,
-                "y2": 10
+                "x1": 473,
+                "y1": 428,
+                "x2": 573,
+                "y2": 428
             }
         ],
         "players": [
