@@ -1,3 +1,7 @@
+const axios = require('axios');
+
+IP_ADDRESS = "172.26.89.38:5000"
+
 const { MAX_GOAL_PASSING_DISTANCE,
         MIN_GOAL_PASSING_DISTANCE,
         MAX_TEAMMATE_PASSING_DISTANCE,
@@ -53,32 +57,69 @@ const sortByDistance = (teammatesDistance) => {
 
 const recommendMovingAwayFromGoal = (res, player, goal) => {
     // TODO
-    res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
+
+    return axios.get('http://' + IP_ADDRESS + '/send_recommendation_to_color?color=red&output_state=1')
+    .then(function (response) {
+        res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
+    })
+    .catch(function (error) {
+        res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
+    })
 }
 
 const recommendMovingTowardsGoal = (res, player, goal) => {
     // TODO
-    res.status(200).json({ "success": "recommendMovingTowardsGoal" });
+    return axios.get('http://' + IP_ADDRESS + '/send_recommendation_to_color?color=red&output_state=2')
+    .then(function (response) {
+        res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
+    })
+    .catch(function (error) {
+        res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
+    })
 }
 
 const recommendDirectShotOnGoal = (res, player, goal) => {
     // TODO
-    res.status(200).json({ "success": "recommendDirectShotOnGoal" });
+    return axios.get('http://' + IP_ADDRESS + '/send_recommendation_to_color?color=red&output_state=3')
+    .then(function (response) {
+        res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
+    })
+    .catch(function (error) {
+        res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
+    })
 }
 
 const recommendPassToTeammate = (res, ballHolder, teammate) => {
     // TODO
-    res.status(200).json({ "success": "recommendPassToTeammate" });
+    return axios.get('http://' + IP_ADDRESS + '/send_recommendation_to_color?color=red&output_state=4')
+    .then(function (response) {
+        res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
+    })
+    .catch(function (error) {
+        res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
+    })
 }
 
 const recommendKeepTheBall = (res) => {
     // TODO
-    res.status(200).json({ "success": "recommendKeepTheBall" });
+    return axios.get('http://' + IP_ADDRESS + '/send_recommendation_to_color?color=red&output_state=5')
+    .then(function (response) {
+        res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
+    })
+    .catch(function (error) {
+        res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
+    })
 }
 
 const doNothing = (res) => {
     // TODO
-    res.status(200).json({ "success": "doNothing" });
+    return axios.get('http://' + IP_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
+    .then(function (response) {
+        res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
+    })
+    .catch(function (error) {
+        res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
+    })
 }
 
 exports.modeController = {
