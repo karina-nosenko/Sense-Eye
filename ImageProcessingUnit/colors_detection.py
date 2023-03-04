@@ -1,10 +1,18 @@
 # Python code for Multiple Color Detection
 
-
 import numpy as np
 import cv2
 
 def detect_colors (frame):
+    """
+    Detects the positions of caps based on their color.
+
+    Args:
+    - frame: A video frame in the BGR color space.
+
+    Returns:
+    - A list of players' caps indexes, each containing the player's color ID, x coordinate, and y coordinate.
+    """
     framePlayersIndexes = []
     # Convert the imageFrame in
     # BGR(RGB color space) to

@@ -1,6 +1,6 @@
 APPEND_PATH = 'yolov7'
 
-# realtime/video
+# realtime/video/video_write_output
 MODE = 'video'
 
 # Camera index for realtime: 0-webcam, 4/0 - camera
@@ -12,6 +12,7 @@ GAME_MODE = 2
 #colors id
 YELLOW_COLOR = 0
 ORANGE_COLOR = 1
+
 # Detection options
 classes_to_detect = ['person', 'sports ball']
 options  = {
@@ -27,6 +28,6 @@ options  = {
     },
     "class-ball": {
         "class-name": 'sports ball',
-        "conf-thres": 0.3
+        "conf-thres": 0.38
     }
 }

@@ -1,3 +1,5 @@
+# The Python file contains functions for initializing and using a PyTorch model to detect objects in a frame.
+
 import cv2
 import math
 import torch
@@ -20,14 +22,14 @@ def initialize_player_detection_model():
         None
 
     Returns:
-        weights (str): The path of the weight file used for the model.
-        img_size (int): The image size used for the model.
-        device (torch.device): The device on which the model is running.
-        use_half_precision (bool): A boolean value indicating whether half precision is used for the model.
-        model (torch.nn.Module): The player detection model.
-        stride (int): The stride value used for the model.
-        names (list): The list of class names used for the model.
-        classes (list): The list of class indexes corresponding to the class names.
+    - weights (str): The path of the weight file used for the model.
+    - img_size (int): The image size used for the model.
+    - device (torch.device): The device on which the model is running.
+    - use_half_precision (bool): A boolean value indicating whether half precision is used for the model.
+    - model (torch.nn.Module): The player detection model.
+    - stride (int): The stride value used for the model.
+    - names (list): The list of class names used for the model.
+    - classes (list): The list of class indexes corresponding to the class names.
 
     Raises:
         None
@@ -59,15 +61,15 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
     Detects objects in a frame using a PyTorch model.
 
     Args:
-        frame (numpy.ndarray): The frame to detect objects in.
-        player_with_the_ball_center_point (tuple of int): The center point of the player with the ball.
-        img_size (int): The size of the input image for the model.
-        device (str): The device to use for inference.
-        use_half_precision (bool): Whether to use half-precision or not.
-        model (torch.nn.Module): The PyTorch model to use for object detection.
-        stride (int): The stride used for adjusting the image shape.
-        names (list of str): The class names of the objects to detect.
-        classes (list of int): The class IDs of the objects to detect.
+    - frame (numpy.ndarray): The frame to detect objects in.
+    - player_with_the_ball_center_point (tuple of int): The center point of the player with the ball.
+    - img_size (int): The size of the input image for the model.
+    - device (str): The device to use for inference.
+    - use_half_precision (bool): Whether to use half-precision or not.
+    - model (torch.nn.Module): The PyTorch model to use for object detection.
+    - stride (int): The stride used for adjusting the image shape.
+    - names (list of str): The class names of the objects to detect.
+    - classes (list of int): The class IDs of the objects to detect.
 
     Returns:
         None
@@ -104,7 +106,7 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
 
     # Plotting the detections
     players_list_indexes_direction_playerWithTheBasll = []
-    ball_indexes=[]
+    ball_indexes = []
     for detection in all_detections:
         if not len(detection):
             continue
@@ -143,8 +145,10 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_color, 1)
             cv2.putText(frame, text_label2, (center_x + 10, center_y - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_color, 1)
+            
             if(class_name == 'ball'):
-                ball_indexes.append({"x":center_x,"y":center_y})
+                ball_indexes.append({"x":center_x, "y":center_y})
+                
             if playerWithTheBall == True and class_name == 'person':
                 player = {
                     "holdsBall": True,
@@ -160,12 +164,31 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
                     "holdsBall": False,
                     "x": center_x,
                     "y": center_y
+                    "sightDirection": float(angles[i])
                 }
                 players_list_indexes_direction_playerWithTheBasll.append(
                     player)
 
             # Draw center point circle on the frame
             cv2.circle(frame, (center_x, center_y), 3, (0, 0, 255), -1)
+
+            # Draw field corners circles
+            top_left = (440, 64)
+            top_right = (710, 55)
+            bottom_left = (335, 425)
+            bottom_right = (700, 440)
+            cv2.circle(frame, top_left, 3, (0, 0, 255), -1)
+            cv2.circle(frame, top_right, 3, (0, 0, 255), -1)
+            cv2.circle(frame, bottom_left, 3, (0, 0, 255), -1)
+            cv2.circle(frame, bottom_right, 3, (0, 0, 255), -1)
+
+            # Draw gates
+            top_left = (530, 60)
+            top_right = (625, 60)
+            bottom_left = (473, 428)
+            bottom_right = (573, 428)
+            cv2.line(frame, top_left, top_right, (0, 0, 255), 1)
+            cv2.line(frame, bottom_left, bottom_right, (0, 0, 255), 1)
 
     return player_with_the_ball_center_point, prev_person_center_points, players_list_indexes_direction_playerWithTheBasll, ball_indexes, 
 

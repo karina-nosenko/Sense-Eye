@@ -49,4 +49,4 @@ def show_connected_players():
 
 
 if __name__ == '__main__':
-    app.run(host='192.168.14.3', port=5000, threaded=False)
+    app.run(host='0.0.0.0', port=5000, threaded=False)
