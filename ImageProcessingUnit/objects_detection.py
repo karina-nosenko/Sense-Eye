@@ -164,6 +164,7 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
                     "holdsBall": False,
                     "x": center_x,
                     "y": center_y
+                    "sightDirection": float(angles[i])
                 }
                 players_list_indexes_direction_playerWithTheBasll.append(
                     player)
