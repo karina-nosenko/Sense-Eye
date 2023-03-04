@@ -12,6 +12,7 @@ GAME_MODE = 2
 #colors id
 YELLOW_COLOR = 0
 ORANGE_COLOR = 1
+
 # Detection options
 classes_to_detect = ['person', 'sports ball']
 options  = {

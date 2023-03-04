@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-IP_ADDRESS = "172.26.89.38:5000"
+HARDWARE_API_ADDRESS = "172.26.89.38:5000"
 
 const { MAX_GOAL_PASSING_DISTANCE,
         MIN_GOAL_PASSING_DISTANCE,
@@ -58,7 +58,7 @@ const sortByDistance = (teammatesDistance) => {
 const recommendMovingAwayFromGoal = (res, player, goal) => {
     // TODO
 
-    return axios.get('http://' + IP_ADDRESS + '/send_recommendation_to_color?color=red&output_state=1')
+    return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=1')
     .then(function (response) {
         res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
     })
@@ -69,7 +69,7 @@ const recommendMovingAwayFromGoal = (res, player, goal) => {
 
 const recommendMovingTowardsGoal = (res, player, goal) => {
     // TODO
-    return axios.get('http://' + IP_ADDRESS + '/send_recommendation_to_color?color=red&output_state=2')
+    return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=2')
     .then(function (response) {
         res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
     })
@@ -80,7 +80,7 @@ const recommendMovingTowardsGoal = (res, player, goal) => {
 
 const recommendDirectShotOnGoal = (res, player, goal) => {
     // TODO
-    return axios.get('http://' + IP_ADDRESS + '/send_recommendation_to_color?color=red&output_state=3')
+    return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=3')
     .then(function (response) {
         res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
     })
@@ -91,7 +91,7 @@ const recommendDirectShotOnGoal = (res, player, goal) => {
 
 const recommendPassToTeammate = (res, ballHolder, teammate) => {
     // TODO
-    return axios.get('http://' + IP_ADDRESS + '/send_recommendation_to_color?color=red&output_state=4')
+    return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=4')
     .then(function (response) {
         res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
     })
@@ -102,7 +102,7 @@ const recommendPassToTeammate = (res, ballHolder, teammate) => {
 
 const recommendKeepTheBall = (res) => {
     // TODO
-    return axios.get('http://' + IP_ADDRESS + '/send_recommendation_to_color?color=red&output_state=5')
+    return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=5')
     .then(function (response) {
         res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
     })
@@ -113,7 +113,7 @@ const recommendKeepTheBall = (res) => {
 
 const doNothing = (res) => {
     // TODO
-    return axios.get('http://' + IP_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
+    return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
     .then(function (response) {
         res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
     })
