@@ -146,66 +146,64 @@ const recommendMovingAwayFromGoal = (res, ballHolder, goal) => {
         output_state += 6;
     }
 
-    res.status(200).json({ "recommendMovingAwayFromGoal": `color:${ getColorNameById(ballHolder.id) }, output_state:${ output_state }` });
-    // return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
-    // .then(function (response) {
-    //     res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
-    // })
-    // .catch(function (error) {
-    //     res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
-    // })
+    const color = getColorNameById(ballHolder.id);
+    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=move`)
+    .then(function (response) {
+        res.status(200).json({ "recommendMovingAwayFromGoal": response });
+    })
+    .catch(function (error) {
+        res.status(200).json({ "error": error });
+    })
 }
 
 const recommendMovingTowardsGoal = (res, ballHolder, goal) => {
     let output_state = getClockDirectionToGoal(ballHolder, goal)
 
-    res.status(200).json({ "recommendMovingTowardsGoal": `color:${ getColorNameById(ballHolder.id) }, output_state:${ output_state }` });
-    // return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
-    // .then(function (response) {
-    //     res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
-    // })
-    // .catch(function (error) {
-    //     res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
-    // })
+    const color = getColorNameById(ballHolder.id);
+    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=move`)
+    .then(function (response) {
+        res.status(200).json({ "recommendMovingTowardsGoal": response });
+    })
+    .catch(function (error) {
+        res.status(200).json({ "error": error });
+    })
 }
 
 const recommendDirectShotOnGoal = (res, ballHolder, goal) => {
     let output_state = getClockDirectionToGoal(ballHolder, goal)
 
-    res.status(200).json({ "recommendDirectShotOnGoal": `color:${ getColorNameById(ballHolder.id) }, output_state:${ output_state }` });
-    // return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
-    // .then(function (response) {
-    //     res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
-    // })
-    // .catch(function (error) {
-    //     res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
-    // })
+    const color = getColorNameById(ballHolder.id);
+    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=kick`)
+    .then(function (response) {
+        res.status(200).json({ "recommendDirectShotOnGoal": response });
+    })
+    .catch(function (error) {
+        res.status(200).json({ "error": error });
+    })
 }
 
 const recommendPassToTeammate = (res, ballHolder, teammate) => {
     let output_state = getClockDirection(ballHolder, teammate.x, teammate.y)
 
-    res.status(200).json({ "recommendPassToTeammate": `color:${ getColorNameById(ballHolder.id) }, output_state:${ output_state }` });
-    // return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
-    // .then(function (response) {
-    //     res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
-    // })
-    // .catch(function (error) {
-    //     res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
-    // })
+    const color = getColorNameById(ballHolder.id);
+    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=pass`)
+    .then(function (response) {
+        res.status(200).json({ "recommendPassToTeammate": response });
+    })
+    .catch(function (error) {
+        res.status(200).json({ "error": error });
+    })
 }
 
 const recommendKeepTheBall = (res, ballHolder) => {
-
-    res.status(200).json({ "recommendKeepTheBall": `color:${ getColorNameById(ballHolder.id) }, output_state:${ 0 }` });
-
-    // return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
-    // .then(function (response) {
-    //     res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
-    // })
-    // .catch(function (error) {
-    //     res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
-    // })
+    const color = getColorNameById(ballHolder.id);
+    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${0}&state=move`)
+    .then(function (response) {
+        res.status(200).json({ "recommendKeepTheBall": response });
+    })
+    .catch(function (error) {
+        res.status(200).json({ "error": error });
+    })
 }
 
 const doNothing = (res) => {
