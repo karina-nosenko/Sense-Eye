@@ -39,8 +39,10 @@ def initialize_output(capture):
 
 capture = initialize_capture()
 
-if (MODE == 'video'):
+if (MODE == 'video_write_output'):
     output = initialize_output(capture)
+
+if (MODE == 'video' or MODE == 'video_write_output'):
     nframes = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
 
 # Initializing model and setting it for inference
@@ -89,15 +91,14 @@ with torch.no_grad():
         #         print(recommendation_two_players_same_team(playersList, player_caps_index,ball_indexes[0]['x'], ball_indexes[0]['y']))
 
         # Output the result
-        if MODE == 'video':
+        if MODE == 'video_write_output':
             print(f"{frame_index+1}/{nframes} frames processed")
             output.write(frame)
         else:
-            cv2.imshow("Frame", rescale_frame(frame, scale=0.6667))
+            cv2.imshow("Frame", rescale_frame(frame, scale=2)) # for usb camera scale=0.6667
             key = cv2.waitKey(1)
             if key == 27:
                 break
- 
     
-output.release() if (MODE == 'video') else cv2.destroyAllWindows()
+output.release() if (MODE == 'video_write_output') else cv2.destroyAllWindows()
 capture.release()
