@@ -56,70 +56,81 @@ const sortByDistance = (teammatesDistance) => {
 }
 
 const recommendMovingAwayFromGoal = (res, player, goal) => {
-    // TODO
+    
 
-    return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=1')
-    .then(function (response) {
-        res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
-    })
-    .catch(function (error) {
-        res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
-    })
+    res.status(200).json({ "recommendMovingAwayFromGoal": "color:" + color + " output_state:" + output_state });
+    // return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
+    // .then(function (response) {
+    //     res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
+    // })
+    // .catch(function (error) {
+    //     res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
+    // })
 }
 
 const recommendMovingTowardsGoal = (res, player, goal) => {
-    // TODO
-    return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=2')
-    .then(function (response) {
-        res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
-    })
-    .catch(function (error) {
-        res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
-    })
+    
+
+    res.status(200).json({ "recommendMovingTowardsGoal": "color:" + color + " output_state:" + output_state });
+    // return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
+    // .then(function (response) {
+    //     res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
+    // })
+    // .catch(function (error) {
+    //     res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
+    // })
 }
 
 const recommendDirectShotOnGoal = (res, player, goal) => {
-    // TODO
-    return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=3')
-    .then(function (response) {
-        res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
-    })
-    .catch(function (error) {
-        res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
-    })
+    
+
+    res.status(200).json({ "recommendDirectShotOnGoal": "color:" + color + " output_state:" + output_state });
+    // return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
+    // .then(function (response) {
+    //     res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
+    // })
+    // .catch(function (error) {
+    //     res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
+    // })
 }
 
 const recommendPassToTeammate = (res, ballHolder, teammate) => {
-    // TODO
-    return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=4')
-    .then(function (response) {
-        res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
-    })
-    .catch(function (error) {
-        res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
-    })
+    
+
+    res.status(200).json({ "recommendPassToTeammate": "color:" + color + " output_state:" + output_state });
+    // return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
+    // .then(function (response) {
+    //     res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
+    // })
+    // .catch(function (error) {
+    //     res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
+    // })
 }
 
 const recommendKeepTheBall = (res) => {
-    // TODO
-    return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=5')
-    .then(function (response) {
-        res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
-    })
-    .catch(function (error) {
-        res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
-    })
+    
+
+    res.status(200).json({ "recommendKeepTheBall": "color:" + color + " output_state:" + output_state });
+    // return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
+    // .then(function (response) {
+    //     res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
+    // })
+    // .catch(function (error) {
+    //     res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
+    // })
 }
 
 const doNothing = (res) => {
-    // TODO
-    return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
-    .then(function (response) {
-        res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
-    })
-    .catch(function (error) {
-        res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
-    })
+    
+
+    res.status(200).json({ "doNothing": "color:" + color + " output_state:" + output_state });
+    // return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
+    // .then(function (response) {
+    //     res.status(200).json({ "success": "recommendMovingAwayFromGoal" });
+    // })
+    // .catch(function (error) {
+    //     res.status(200).json({ "error": "recommendMovingAwayFromGoal" });
+    // })
 }
 
 exports.modeController = {
