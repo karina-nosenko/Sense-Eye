@@ -85,7 +85,7 @@ def recommendation_two_players_same_team(playersList, player_caps_index, ball_x,
     orange_player.update({"team":0})
     orange_player['id'] = 1
     print(yellow_player)
-    print(yellow_player)
+    print(orange_player)
     api_url = RECOMMENDATIONS_API_ADDRESS + "/sameTeamModeA"
     todo = {
         "goals": [

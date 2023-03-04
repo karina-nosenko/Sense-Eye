@@ -78,17 +78,17 @@ with torch.no_grad():
         player_caps_index = cd.detect_colors(frame)
 
         # Single player
-        # if (GAME_MODE == 1):
-        #     # print(playersList)
-        #     # print(player_caps_index)
-        #     # print(ball_indexes)
-        #     if(len(ball_indexes)>0 and len(playersList)>0 and len(playersList[0])>3 and playersList[0]['x'] and playersList[0]['y'] and playersList[0]['holdsBall'] and playersList[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
-        #         print(recommendation_single_player(YELLOW_COLOR, playersList[0]['x'], playersList[0]['y'], playersList[0]['holdsBall'], playersList[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y']))
+        if (GAME_MODE == 1):
+            # print(playersList)
+            # print(player_caps_index)
+            # print(ball_indexes)
+            if(len(ball_indexes)>0 and len(playersList)>0 and len(playersList[0])>3 and playersList[0]['x'] and playersList[0]['y'] and playersList[0]['holdsBall'] and playersList[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
+                print(recommendation_single_player(YELLOW_COLOR, playersList[0]['x'], playersList[0]['y'], playersList[0]['holdsBall'], playersList[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y']))
 
-        # # Two players
-        # elif (GAME_MODE == 2):
-        #     if(len(playersList)==2 and len(ball_indexes)>0 and ball_indexes[0]['x'] and ball_indexes[0]['y']):
-        #         print(recommendation_two_players_same_team(playersList, player_caps_index,ball_indexes[0]['x'], ball_indexes[0]['y']))
+        # Two players
+        elif (GAME_MODE == 2):
+            if(len(playersList)==2 and len(ball_indexes)>0 and ball_indexes[0]['x'] and ball_indexes[0]['y']):
+                print(recommendation_two_players_same_team(playersList, player_caps_index, ball_indexes[0]['x'], ball_indexes[0]['y']))
 
         # Output the result
         if MODE == 'video_write_output':

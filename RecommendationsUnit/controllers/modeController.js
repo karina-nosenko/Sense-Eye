@@ -80,7 +80,7 @@ const getPlayerWithBall = (players) => {
 }
 
 const getTeammates = (ballHolder, players) => {
-    return players.filter(player => player.id != ballHolder.id);
+    return players.filter(player => (player.id != ballHolder.id) && (player.team == ballHolder.team));
 }
 
 const calculateDistanceBetweenPlayers = (player1, player2) => {
