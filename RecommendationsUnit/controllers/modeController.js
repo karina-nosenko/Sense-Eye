@@ -122,14 +122,14 @@ const pathToGoalIsFree = (ballHolder, teammates, goal) => {
     });
 }
 
-const goalInSightRange = (sightDirection, goals) => {
-    // TODO
-    return true;
+const goalInSightRange = (ballHolder, goal) => {
+    const output_state = getClockDirectionToGoal(ballHolder, goal)  
+    return [9, 10, 11, 12, 1, 2, 3].includes(output_state);
 }
 
-const teammateInSightRange = (sightDirection, teammate) => {
-    // TODO
-    return true;
+const teammateInSightRange = (ballHolder, teammate) => {
+    const output_state = getClockDirection(ballHolder, teammate.x, teammate.y)  
+    return [9, 10, 11, 12, 1, 2, 3].includes(output_state);
 }
 
 const sortByDistance = (teammatesDistance) => {
@@ -260,15 +260,16 @@ exports.modeController = {
         const teammates = getTeammates(ballHolder, body.players);
         const teammatesDistance = calculateDistanceBetweenPlayers(ballHolder, teammates);
         const goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
+        const goalIndex = ballHolder.team;
 
         if (isBetween(goalDistance, MIN_GOAL_PASSING_DISTANCE, MAX_GOAL_PASSING_DISTANCE) &&
-            pathToGoalIsFree(ballHolder, teammates, body.goals) &&
-            goalInSightRange(ballHolder.sightDirection, body.goals)) {
-            return recommendDirectShotOnGoal(res, body.players[0], body.goals[0]);
+            pathToGoalIsFree(ballHolder, teammates, body.goals[goalIndex]) &&
+            goalInSightRange(ballHolder, body.goals[goalIndex])) {
+            return recommendDirectShotOnGoal(res, body.players[0], body.goals[goalIndex]);
         } else {
-            sortedTeammates = sortByDistance(teammatesDistance)
+            sortedTeammates = sortByDistance(teammatesDistance) // TODO - fix calculateDistanceBetweenPlayers
             sortedTeammates.forEach(teammate => {
-                if (teammateInSightRange(ballHolder.sightDirection, teammate)) {
+                if (teammateInSightRange(ballHolder, teammate)) {
                     return recommendPassToTeammate(res, ballHolder, teammate);
                 }
             });
