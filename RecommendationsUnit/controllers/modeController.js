@@ -53,10 +53,10 @@ const getClockDirection = (player, pointX, pointY) => {
 const getClockDirectionToGoal = (player, goal) => {
     const clockToLeftGoalSide = getClockDirection(player, goal.x1, goal.y1);
     const clockToRightGoalSide = getClockDirection(player, goal.x2, goal.y2);
-    console.log(player)
-    console.log(goal)
-    console.log(clockToLeftGoalSide)
-    console.log(clockToRightGoalSide)
+    // console.log(player)
+    // console.log(goal)
+    // console.log(clockToLeftGoalSide)
+    // console.log(clockToRightGoalSide)
 
     let middleClock = Math.round((clockToLeftGoalSide + clockToRightGoalSide) / 2) % 12 || 12;
     if (Math.abs(clockToLeftGoalSide - middleClock) > 5) {
@@ -116,13 +116,10 @@ const pathToGoalIsFree = (ballHolder, teammates, goal) => {
     const point1 = {x: goal.x1, y: goal.y1};
     const point2 = {x: goal.x2, y: goal.y2};
     const point3 = {x: ballHolder.x, y: ballHolder.y};
-    teammates.forEach(teammate => {
-        if (isPlayerInsideTriangle(teammate, point1, point2, point3)) {
-            return false;
-        }
-    });
 
-    return true;
+    return !teammates.some(teammate => {
+        return isPlayerInsideTriangle(teammate, point1, point2, point3);
+    });
 }
 
 const goalInSightRange = (sightDirection, goals) => {
@@ -187,7 +184,7 @@ const recommendDirectShotOnGoal = (res, ballHolder, goal) => {
 }
 
 const recommendPassToTeammate = (res, ballHolder, teammate) => {
-    let output_state = getClockDirection(ballHolder, teammate)
+    let output_state = getClockDirection(ballHolder, teammate.x, teammate.y)
 
     res.status(200).json({ "recommendPassToTeammate": `color:${ getColorNameById(ballHolder.id) }, output_state:${ output_state }` });
     // return axios.get('http://' + HARDWARE_API_ADDRESS + '/send_recommendation_to_color?color=red&output_state=6')
