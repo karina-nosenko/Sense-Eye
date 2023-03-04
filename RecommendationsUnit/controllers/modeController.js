@@ -30,13 +30,16 @@ const calculateEuclideanDistance = (x1, y1, x2, y2) => {
 }
 
 const getClockDirection = (player, pointX, pointY) => {
-    // Calculate the angle between the player and the point
+    const playerDirection = player.sightDirection + 180;
+
+    // Calculate the angle from the player to the point
     const deltaX = pointX - player.x;
-    const deltaY = player.y - pointY;   // inverted y-axis
-    const directionDegrees = (Math.atan2(deltaY, deltaX) * 180 / Math.PI + 360) % 360;
+    const deltaY = player.y - pointY;
+    let directionDegrees = (Math.atan2(deltaY, deltaX) * 180 / Math.PI + 360) % 360;
+    directionDegrees = directionDegrees < 0 ? 360 + directionDegrees : directionDegrees;
 
     // Calculate the angle difference between the point direction and the player direction
-    let angleDiff = directionDegrees - player.sightDirection;
+    let angleDiff = playerDirection - directionDegrees;
     if (angleDiff < 0) {
         angleDiff += 360;
     }
@@ -53,10 +56,6 @@ const getClockDirection = (player, pointX, pointY) => {
 const getClockDirectionToGoal = (player, goal) => {
     const clockToLeftGoalSide = getClockDirection(player, goal.x1, goal.y1);
     const clockToRightGoalSide = getClockDirection(player, goal.x2, goal.y2);
-    // console.log(player)
-    // console.log(goal)
-    // console.log(clockToLeftGoalSide)
-    // console.log(clockToRightGoalSide)
 
     let middleClock = Math.round((clockToLeftGoalSide + clockToRightGoalSide) / 2) % 12 || 12;
     if (Math.abs(clockToLeftGoalSide - middleClock) > 5) {
