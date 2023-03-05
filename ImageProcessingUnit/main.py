@@ -1,5 +1,6 @@
 import sys
 import cv2
+import numpy as np
 import torch
 import itertools
 import os
@@ -57,8 +58,6 @@ with torch.no_grad():
         ret, frame = capture.read()  
         if not ret:
             break
-
-
         (player_with_the_ball_center_point,
         prev_person_center_points,
         playersList,
