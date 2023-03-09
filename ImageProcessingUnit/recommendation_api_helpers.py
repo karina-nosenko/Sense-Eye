@@ -27,17 +27,30 @@ def recommendation_single_player(color_id, player_x, player_y, holds_ball, direc
     todo = {
         "goals": [
             {
-                "x1": 530,
-                "y1": 60,
-                "x2": 625,
-                "y2": 60
+                "x1": 650,
+                "y1": 638,
+                "x2": 860,
+                "y2": 632
             },
             {
-                "x1": 473,
-                "y1": 428,
-                "x2": 573,
-                "y2": 428
+                "x1": 735,
+                "y1": 90,
+                "x2": 938,
+                "y2": 90
             }
+        # "goals": [
+        #     {
+        #         "x1": 530,
+        #         "y1": 60,
+        #         "x2": 625,
+        #         "y2": 60
+        #     },
+        #     {
+        #         "x1": 473,
+        #         "y1": 428,
+        #         "x2": 573,
+        #         "y2": 428
+        #     }
         ],
         "players": [
             {
@@ -54,7 +67,7 @@ def recommendation_single_player(color_id, player_x, player_y, holds_ball, direc
             "y": ball_y
         }
     }
-
+    print('going to send the request')
     headers =  {"Content-Type":"application/json"}
     response = requests.post(api_url, data=json.dumps(todo), headers=headers)
     return response.json()
@@ -90,17 +103,30 @@ def recommendation_two_players_same_team(playersList, player_caps_index, ball_x,
     todo = {
         "goals": [
             {
-                "x1": 530,
-                "y1": 60,
-                "x2": 625,
-                "y2": 60
+                "x1": 650,
+                "y1": 638,
+                "x2": 860,
+                "y2": 632
             },
             {
-                "x1": 473,
-                "y1": 428,
-                "x2": 573,
-                "y2": 428
+                "x1": 735,
+                "y1": 90,
+                "x2": 938,
+                "y2": 90
             }
+        # "goals": [
+        #     {
+        #         "x1": 530,
+        #         "y1": 60,
+        #         "x2": 625,
+        #         "y2": 60
+        #     },
+        #     {
+        #         "x1": 473,
+        #         "y1": 428,
+        #         "x2": 573,
+        #         "y2": 428
+        #     }          
         ],
         "players": [
             yellow_player,

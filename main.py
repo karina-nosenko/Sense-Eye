@@ -7,13 +7,14 @@ mapping_ip_to_color = {}
 current_player_with_the_ball_color_ip = None  # we will have his ip in here
 
 
-@app.route('/send_recommendation_to_color') # output D1-GPIO5-5 D2-GPIO4-4 D3-GPIO0-0 D4-GPIO2-2
+@app.route('/recommend') # output D1-GPIO5-5 D2-GPIO4-4 D3-GPIO0-0 D4-GPIO2-2
 def recommend():
     color = request.args.get('color')
     output_state = request.args.get('output_state')  # output D1-GPIO5-5 D2-GPIO4-4 D3-GPIO0-0 D4-GPIO2-2
+    state = request.args.get('state')
     current_player_with_the_ball_ip = mapping_color_to_ip[color]
-    print('http://'+current_player_with_the_ball_ip+'/recommend/'+output_state)
-    requests.get('http://'+current_player_with_the_ball_ip+'/recommend/'+output_state)
+    print('http://'+current_player_with_the_ball_ip+'/recommend/'+ state + '/' + output_state)
+    requests.get('http://'+current_player_with_the_ball_ip+'/recommend/'+ state + '/' + output_state)
     # Do something with the received data
     return "Data received"
 

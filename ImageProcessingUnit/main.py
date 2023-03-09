@@ -23,8 +23,8 @@ def initialize_capture():
         capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
         # Uncomment when using an external usb camera
-        # capture.set(3, 3840)  # width (max - 3840)
-        # capture.set(4, 2160)  # height (max - 2160)
+        capture.set(3, 1280)  # width (max - 3840)
+        capture.set(4, 720)  # height (max - 2160)
     else: 
         raise ValueError('MODE constant must contain "realtime" or "video" value')
     
@@ -57,8 +57,6 @@ with torch.no_grad():
         ret, frame = capture.read()  
         if not ret:
             break
-
-
         (player_with_the_ball_center_point,
         prev_person_center_points,
         playersList,
@@ -74,7 +72,9 @@ with torch.no_grad():
             names,
             classes
         )
-
+        ball_prev_indexes = []
+        if(len(ball_indexes)>0):
+            ball_prev_indexes = ball_indexes
         player_caps_index = cd.detect_colors(frame)
 
         # Single player
@@ -82,9 +82,11 @@ with torch.no_grad():
             # print(playersList)
             # print(player_caps_index)
             # print(ball_indexes)
-            if(len(ball_indexes)>0 and len(playersList)>0 and len(playersList[0])>3 and playersList[0]['x'] and playersList[0]['y'] and playersList[0]['holdsBall'] and playersList[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
+            print('before if')
+            if(len(ball_prev_indexes)>0 and len(playersList)>0 and len(playersList[0])>3 and playersList[0]['x'] and playersList[0]['y'] and playersList[0]['holdsBall'] and playersList[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
+                print('before sending')
                 print(recommendation_single_player(YELLOW_COLOR, playersList[0]['x'], playersList[0]['y'], playersList[0]['holdsBall'], playersList[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y']))
-
+            print('after if')
         # Two players
         elif (GAME_MODE == 2):
             if(len(playersList)==2 and len(ball_indexes)>0 and ball_indexes[0]['x'] and ball_indexes[0]['y']):
@@ -95,7 +97,8 @@ with torch.no_grad():
             print(f"{frame_index+1}/{nframes} frames processed")
             output.write(frame)
         else:
-            cv2.imshow("Frame", rescale_frame(frame, scale=2)) # for usb camera scale=0.6667
+            # cv2.imshow("Frame", frame)
+            cv2.imshow("Frame", rescale_frame(frame, scale=1)) # for usb camera scale=0.6667
             key = cv2.waitKey(1)
             if key == 27:
                 break
