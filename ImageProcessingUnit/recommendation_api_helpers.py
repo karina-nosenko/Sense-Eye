@@ -2,7 +2,40 @@ import requests
 import json
 import math
 
+from configs import MODE
+
 RECOMMENDATIONS_API_ADDRESS = "http://localhost:8080/api/mode"
+
+if MODE == "realtime":
+    goals = [
+        {
+            "x1": 650,
+            "y1": 638,
+            "x2": 860,
+            "y2": 632
+        },
+        {
+            "x1": 735,
+            "y1": 90,
+            "x2": 938,
+            "y2": 90
+        }
+    ]
+else:
+    goals = [
+        {
+            "x1": 530,
+            "y1": 60,
+            "x2": 625,
+            "y2": 60
+        },
+        {
+            "x1": 473,
+            "y1": 428,
+            "x2": 573,
+            "y2": 428
+        }
+    ]
 
 def recommendation_single_player(color_id, player_x, player_y, holds_ball, direction,ball_x, ball_y):
     """
@@ -24,34 +57,9 @@ def recommendation_single_player(color_id, player_x, player_y, holds_ball, direc
         None
     """
     api_url = RECOMMENDATIONS_API_ADDRESS + "/singlePlayerMode"
+
     todo = {
-        # "goals": [
-        #     {
-        #         "x1": 650,
-        #         "y1": 638,
-        #         "x2": 860,
-        #         "y2": 632
-        #     },
-        #     {
-        #         "x1": 735,
-        #         "y1": 90,
-        #         "x2": 938,
-        #         "y2": 90
-        #     }
-        "goals": [
-            {
-                "x1": 530,
-                "y1": 60,
-                "x2": 625,
-                "y2": 60
-            },
-            {
-                "x1": 473,
-                "y1": 428,
-                "x2": 573,
-                "y2": 428
-            }
-        ],
+        "goals": goals,
         "players": [
             {
                 "id": color_id,
@@ -101,33 +109,7 @@ def recommendation_two_players_same_team(playersList, player_caps_index, ball_x,
     print(orange_player)
     api_url = RECOMMENDATIONS_API_ADDRESS + "/sameTeamModeA"
     todo = {
-        # "goals": [
-        #     {
-        #         "x1": 650,
-        #         "y1": 638,
-        #         "x2": 860,
-        #         "y2": 632
-        #     },
-        #     {
-        #         "x1": 735,
-        #         "y1": 90,
-        #         "x2": 938,
-        #         "y2": 90
-        #     }
-        "goals": [
-            {
-                "x1": 530,
-                "y1": 60,
-                "x2": 625,
-                "y2": 60
-            },
-            {
-                "x1": 473,
-                "y1": 428,
-                "x2": 573,
-                "y2": 428
-            }          
-        ],
+        "goals": goals,
         "players": [
             yellow_player,
             orange_player

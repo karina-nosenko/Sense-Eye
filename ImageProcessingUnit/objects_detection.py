@@ -10,7 +10,7 @@ from yolov7.models.experimental import attempt_load
 from yolov7.utils.general import non_max_suppression, scale_coords, check_img_size
 from yolov7.utils.torch_utils import time_synchronized, select_device
 
-from configs import options
+from configs import options, MODE
 from image_functions import adjust_image_to_desired_shape
 
 
@@ -104,43 +104,42 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
         torch.cat((person_detection_results[0], ball_detection_results[0]))]
     t2 = time_synchronized()
 
-    # For realtime
-    # # Draw field corners circles
-    # top_left = (597, 96)
-    # top_right = (1065, 83)
-    # bottom_left = (457, 638)
-    # bottom_right = (1050, 625)
-    # cv2.circle(frame, top_left, 3, (0, 0, 255), -1)
-    # cv2.circle(frame, top_right, 3, (0, 0, 255), -1)
-    # cv2.circle(frame, bottom_left, 3, (0, 0, 255), -1)
-    # cv2.circle(frame, bottom_right, 3, (0, 0, 255), -1)
+    if MODE == "realtime":
+        # Draw field corners circles
+        top_left = (597, 96)
+        top_right = (1065, 83)
+        bottom_left = (457, 638)
+        bottom_right = (1050, 625)
+        cv2.circle(frame, top_left, 3, (0, 0, 255), -1)
+        cv2.circle(frame, top_right, 3, (0, 0, 255), -1)
+        cv2.circle(frame, bottom_left, 3, (0, 0, 255), -1)
+        cv2.circle(frame, bottom_right, 3, (0, 0, 255), -1)
 
-    # # Draw gates
-    # top_left = (735, 90)
-    # top_right = (938, 90)
-    # bottom_left = (650, 638)
-    # bottom_right = (860, 632)
-    # cv2.line(frame, top_left, top_right, (0, 0, 255), 1)
-    # cv2.line(frame, bottom_left, bottom_right, (0, 0, 255), 1)
+        # Draw gates
+        top_left = (735, 90)
+        top_right = (938, 90)
+        bottom_left = (650, 638)
+        bottom_right = (860, 632)
+        cv2.line(frame, top_left, top_right, (0, 0, 255), 1)
+        cv2.line(frame, bottom_left, bottom_right, (0, 0, 255), 1)
+    else:
+        # Draw field corners circles
+        top_left = (440, 64)
+        top_right = (710, 55)
+        bottom_left = (335, 425)
+        bottom_right = (700, 440)
+        cv2.circle(frame, top_left, 3, (0, 0, 255), -1)
+        cv2.circle(frame, top_right, 3, (0, 0, 255), -1)
+        cv2.circle(frame, bottom_left, 3, (0, 0, 255), -1)
+        cv2.circle(frame, bottom_right, 3, (0, 0, 255), -1)
 
-    # For video:
-    # Draw field corners circles
-    top_left = (440, 64)
-    top_right = (710, 55)
-    bottom_left = (335, 425)
-    bottom_right = (700, 440)
-    cv2.circle(frame, top_left, 3, (0, 0, 255), -1)
-    cv2.circle(frame, top_right, 3, (0, 0, 255), -1)
-    cv2.circle(frame, bottom_left, 3, (0, 0, 255), -1)
-    cv2.circle(frame, bottom_right, 3, (0, 0, 255), -1)
-
-    # Draw gates
-    top_left = (530, 60)
-    top_right = (625, 60)
-    bottom_left = (473, 428)
-    bottom_right = (573, 428)
-    cv2.line(frame, top_left, top_right, (0, 0, 255), 1)
-    cv2.line(frame, bottom_left, bottom_right, (0, 0, 255), 1)
+        # Draw gates
+        top_left = (530, 60)
+        top_right = (625, 60)
+        bottom_left = (473, 428)
+        bottom_right = (573, 428)
+        cv2.line(frame, top_left, top_right, (0, 0, 255), 1)
+        cv2.line(frame, bottom_left, bottom_right, (0, 0, 255), 1)
 
     # Plotting the detections
     players_list_indexes_direction_playerWithTheBasll = []
