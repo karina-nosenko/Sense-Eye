@@ -27,14 +27,14 @@ DFPlayer - A Mini MP3 Player For Arduino
 ////////////////////////////////////////
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-const char* ssid     = "Yuval";
-const char* password = "Panama507";
+const char* ssid = "Redmi Note 9 Pro";
+const char* password = "Aa123456789";
 bool pressed = false;
 int recommend;
 // Set web server port number to 80
 ESP8266WebServer server(80);
 // Host
-const char* host = "192.168.14.3";
+const char* host = "172.26.93.30";
 WiFiClient client_to_server;
 // Variable to store the HTTP request
 String header;
@@ -93,7 +93,7 @@ void setup() {
     Serial.println("Connection to server failed");
   }
 // We now create a URI for the request
-  url = "/save_id?color_band=red&ip="+WiFi.localIP().toString();
+  url = "/save_id?color_band=orange&ip="+WiFi.localIP().toString();
   // Send request
   Serial.print("Requesting URL: ");
   Serial.println(url);
@@ -103,6 +103,7 @@ void setup() {
                "Connection: close\r\n\r\n");
   client_to_server.stop();
   delay(100);
+  server.on("/recommend/move/0", move_0);
   server.on("/recommend/move/1", move_1);
   server.on("/recommend/move/2", move_2);
   server.on("/recommend/move/3", move_3);
@@ -380,6 +381,15 @@ void pass_11() {
 }
 void pass_12() {
     recommend = 24;
+    server.send(200, "text/html", "hello from esp8266!"); 
+    // output0State = "on";
+    // digitalWrite(output0, HIGH);
+    // delay(1000);
+    // output5State = "off";
+    // digitalWrite(output0, LOW);
+}
+void move_0() {
+    recommend = 37;
     server.send(200, "text/html", "hello from esp8266!"); 
     // output0State = "on";
     // digitalWrite(output0, HIGH);
