@@ -6,6 +6,7 @@ import itertools
 import os
 from configs import APPEND_PATH, MODE, CAMERA_INDEX, VIDEO_PATH, options, GAME_MODE, YELLOW_COLOR, ORANGE_COLOR
 import colors_detection as cd
+from datetime import datetime
 
 # Settings
 sys.path.append(APPEND_PATH)
@@ -35,7 +36,9 @@ def initialize_output(capture):
     fps = int(capture.get(cv2.CAP_PROP_FPS))
     w = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    return cv2.VideoWriter('../output_videos/output.mp4', cv2.VideoWriter_fourcc(*'H264'), fps , (w,h))
+    current_timestamp = datetime.now()
+    formatted_timestamp = current_timestamp.strftime('%Y-%m-%d %H:%M:%S')
+    return cv2.VideoWriter(f'../output_videos/{formatted_timestamp}.mp4', cv2.VideoWriter_fourcc(*'H264'), fps , (w,h))
 
 
 capture = initialize_capture()
