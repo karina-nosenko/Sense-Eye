@@ -1,6 +1,6 @@
 # Server configuration file
 video:
-  file_path: ImageProcessingUnit\
+  working_directory: ImageProcessingUnit/
   sudo_command: sudo
   command: python3
   file_name: 'main.py'
