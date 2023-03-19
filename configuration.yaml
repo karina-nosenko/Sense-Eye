@@ -1,0 +1,16 @@
+# Server configuration file
+video:
+  file_path: ImageProcessingUnit\
+  sudo_command: sudo
+  command: python3
+  file_name: 'main.py'
+python:
+  working_directory: \
+  sudo_command: sudo
+  command: python3
+  file_name: 'main.py'
+node:
+  working_directory: RecommendationsUnit/
+  command: npm
+  argument_1: run
+  argument_2: dev
