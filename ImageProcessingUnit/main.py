@@ -35,7 +35,7 @@ def initialize_output(capture):
     fps = int(capture.get(cv2.CAP_PROP_FPS))
     w = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    return cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'H264'), fps , (w,h))
+    return cv2.VideoWriter('../output_videos/output.mp4', cv2.VideoWriter_fourcc(*'H264'), fps , (w,h))
 
 
 capture = initialize_capture()

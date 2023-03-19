@@ -62,7 +62,7 @@
 				button.innerText = `${timestamp}`;
 				button.addEventListener("click", () => {
                     console.log(getCurrentDirAbsolutePath())
-					createVideoWindow(`${getCurrentDirAbsolutePath()}/video1.mp4`);
+					createVideoWindow(`${getCurrentDirAbsolutePath()}/../../output_videos/output.mp4`);
 				});
 				container.appendChild(button);
 			});
