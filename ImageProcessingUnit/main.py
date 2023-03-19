@@ -17,16 +17,15 @@ from objects_detection import initialize_player_detection_model, detect_objects
 
 
 def initialize_capture():
-    if (MODE == 'video'):
+    if (MODE == 'video' or MODE == 'video_write_output'):
         capture = cv2.VideoCapture(VIDEO_PATH) 
     elif (MODE == 'realtime'):
         capture = cv2.VideoCapture(CAMERA_INDEX)
-        capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+        capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H264'))
 
         # Relevant when using an external usb camera
-        if MODE == "realtime":
-            capture.set(3, 1280)  # width (max - 3840)
-            capture.set(4, 720)  # height (max - 2160)
+        capture.set(3, 1280)  # width (max - 3840)
+        capture.set(4, 720)  # height (max - 2160)
     else: 
         raise ValueError('MODE constant must contain "realtime" or "video" value')
     
@@ -36,7 +35,7 @@ def initialize_output(capture):
     fps = int(capture.get(cv2.CAP_PROP_FPS))
     w = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    return cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'DIVX'), fps , (w,h))
+    return cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'H264'), fps , (w,h))
 
 
 capture = initialize_capture()
@@ -98,12 +97,19 @@ with torch.no_grad():
         if MODE == 'video_write_output':
             print(f"{frame_index+1}/{nframes} frames processed")
             output.write(frame)
+            cv2.imshow("Frame", rescale_frame(frame, scale=1))
+            key = cv2.waitKey(1)
+            if key == 27:
+                break
         else:
             # cv2.imshow("Frame", frame)
             cv2.imshow("Frame", rescale_frame(frame, scale=1)) # for usb camera scale=0.6667
             key = cv2.waitKey(1)
             if key == 27:
                 break
-    
-output.release() if (MODE == 'video_write_output') else cv2.destroyAllWindows()
+
+if (MODE == 'video_write_output'):
+    output.release()
+
+cv2.destroyAllWindows()
 capture.release()
