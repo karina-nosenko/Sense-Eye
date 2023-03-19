@@ -1,14 +1,16 @@
 # Server configuration file
-# python:
-#   file_path: ImageProcessingUnit\main.py
-#   command: python
-#   port: 3000
+video:
+  file_path: ImageProcessingUnit\
+  sudo_command: sudo
+  command: python3
+  file_name: 'main.py'
 python:
   working_directory: \
-  command: python
+  sudo_command: sudo
+  command: python3
   file_name: 'main.py'
 node:
-  working_directory: RecommendationsUnit\
+  working_directory: RecommendationsUnit/
   command: npm
   argument_1: run
   argument_2: dev
