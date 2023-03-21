@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>My Camera Feed</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		body {
+			background-color: #f8f8f8;
+			font-family: sans-serif;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			height: 100vh;
+		}
+
+		video {
+			width: 50%;
+			height: auto;
+			border-radius: 4px;
+			margin-bottom: 20px;
+		}
+
+		button {
+			padding: 10px;
+			font-size: 18px;
+			border: none;
+			background-color: #333;
+			color: #fff;
+			cursor: pointer;
+			border-radius: 4px;
+		}
+	</style>
+</head>
+
+<body id="app">
+	<h1>My Camera Feed</h1>
+	<video id="video" autoplay></video>
+	<button onclick="goToHistory()">View History</button>
+
+	<script type="text/javascript">
+		const video = document.getElementById('video');
+		const startButton = document.getElementById('startButton');
+		const stopButton = document.getElementById('stopButton');
+
+		// get the media stream from the camera and display it in the video element
+		function startCamera() {
+			// 	const exec = require('child_process').exec;
+			// 	exec('python /Sense-Eye/run_config_file.py', (error, stdout, stderr) => {
+			// 	if (error) {
+			// 		console.error(`exec error: ${error}`);
+			// 		return;
+			// 	}
+			// 	console.log(`stdout: ${stdout}`);
+			// 	console.error(`stderr: ${stderr}`);
+			// });
+		}
+
+		// stop the camera and clear the video element
+		function stopProcesses() {
+			const { remote } = require('electron');
+			const childProcess = remote.require('child_process');
+
+			// send SIGTERM signal to each running process
+			childProcess.exec('taskkill /F /T /PID ' + process.pid);
+		}
+		function stopCamera() {
+			video.srcObject.getTracks()[0].stop();
+			video.srcObject = null;
+			startButton.disabled = false;
+			stopButton.disabled = true;
+		}
+
+		function goToHistory() {
+			window.location.href = "history.html";
+		}
+	</script>
+</body>
+
+</html>

@@ -1,7 +1,7 @@
 APPEND_PATH = 'yolov7'
 
 # realtime/video/video_write_output
-MODE = 'video_write_output'
+MODE = 'realtime'
 
 # Camera index for realtime: 0-webcam, 4/0 - camera
 # Video path for video
@@ -20,7 +20,7 @@ options  = {
     "yaml"   : APPEND_PATH + "/data/coco.yaml",
     "img-size": 640,    # default image size
     "iou-thres" : 0.45, # NMS IoU threshold for inference (0.45)
-    "device" : '0',   # device to run our model i.e. 0 or 0,1,2,3 or cpu
+    "device" : 'cpu',   # device to run our model i.e. 0 or 0,1,2,3 or cpu
     "classes": classes_to_detect,
     "class-person": {
         "class-name": 'person',
