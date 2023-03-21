@@ -56,8 +56,6 @@
 		function listOfVideos(timestamps) {
 			const container = document.getElementById("videos-container");
 			container.innerHTML = "";
-
-			const myAPI = require('electron').remote.getGlobal('myAPI');
     
 			myAPI.getOutputVideos()
 			.then((resonse) => {

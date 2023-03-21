@@ -31,17 +31,6 @@ def save_id():
     return "Data received"
 
 
-# @app.route('/help_button')
-# def help_button():
-#     color_band = request.args.get('color_band')
-#     ip = request.args.get('ip')
-#
-#     print("ip is = " + ip)
-#     print("color_band is = " + color_band)
-#     # Do something with the received data
-#     return "Data received"
-
-
 @app.route('/status')
 def show_connected_players():
     for key in mapping_color_to_ip:
