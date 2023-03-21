@@ -1,4 +1,28 @@
 const { app, BrowserWindow } = require('electron')
+const fs = require('fs');
+const { contextBridge, ipcRenderer } = require('electron');
+
+const folderPath = `${__dirname}/../../output_videos/`;
+
+contextBridge.exposeInMainWorld('myAPI', {
+  getOutputVideos: () => {
+    const output_videos = []
+    fs.readdir(folderPath, (err, files) => {
+      if (err) {
+        console.log('Error reading folder:', err);
+        return;
+      }
+
+      files.forEach(file => {
+        output_videos.push(file);
+      });
+    })
+    .then(() => {
+      ipcRenderer.send('getOutputVideos', output_videos);
+    }); 
+  }
+});
+
 
 function createWindow () {
   const win = new BrowserWindow({

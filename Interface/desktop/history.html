@@ -57,6 +57,13 @@
 			const container = document.getElementById("videos-container");
 			container.innerHTML = "";
 
+			const myAPI = require('electron').remote.getGlobal('myAPI');
+    
+			myAPI.getOutputVideos()
+			.then((resonse) => {
+				console.log('history:'+resonse)
+			});
+
 			timestamps.forEach((timestamp, index) => {
 				const button = document.createElement("button");
 				button.innerText = `${timestamp}`;
