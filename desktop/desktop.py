@@ -32,21 +32,6 @@ class VideoWindow(QMainWindow):
         event.ignore()
         self.hide()
 
-# class VideoWindow(QWidget):
-#     def __init__(self, main_vindow):
-#         super().__init__()
-#         self.main_window = main_window
-#         self.setWindowTitle("Video Viewer")
-#         self.setGeometry(main_window.geometry())
-#         self.video_path = video_path
-
-        # # create the web view widget
-        # self.webview = QWebEngineView(self)
-        # self.webview.setGeometry(0, 0, 800, 600)
-
-        # # load the video file
-        # self.webview.load(QUrl.fromLocalFile(self.video_path))
-
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -66,15 +51,6 @@ class MainWindow(QWidget):
         self.layout = QVBoxLayout()
 
         # add a button for each video file in the output_videos folder
-        # video_folder = "../output_videos"
-        # for filename in os.listdir(video_folder):
-        #     if filename.endswith(".ogv"):
-        #         video_path = os.path.join(video_folder, self)
-        #         button = self.QPushButton(filename, self)
-        #         button.clicked.connect(self.open_video_window(video_path))
-        #         self.layout.addWidget(button)
-
-        # add a button for each video file in the output_videos folder
         video_folder = "../output_videos"
         for filename in os.listdir(video_folder):
             if filename.endswith(".ogv"):
@@ -82,11 +58,6 @@ class MainWindow(QWidget):
                 button = QPushButton(filename, self)
                 button.clicked.connect(lambda checked, path=video_path: self.open_video_window(path))
                 self.layout.addWidget(button)
-
-        # self.pushButton = QPushButton("window", self)
-        # self.pushButton.move(275, 200)
-        # self.pushButton.setToolTip("<h3>Start the Session</h3>")
-        # self.pushButton.clicked.connect(self.window2)
 
         self.setLayout(self.layout)
 
@@ -105,10 +76,6 @@ class MainWindow(QWidget):
         self.process2 = None
         self.process3 = None
 
-
-    # def open_video_window(self, video_path):
-    #     self.window = VideoWindow(self, video_path)
-    #     self.window.show()
 
     def main_window(self):
         self.label = QLabel("Manager", self)
