@@ -165,8 +165,6 @@ class HistoryPage(QMainWindow):
         self.initUI()
 
     def initUI(self): 
-        self.videoButtons = []
-
         # create the heading
         self.heading = QLabel(self)
         self.heading.setText('My Camera History')
