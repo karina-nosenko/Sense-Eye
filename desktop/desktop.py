@@ -31,9 +31,23 @@ class VideoWindow(QMainWindow):
         self.hide()
 
 
-class HistoryPage(QWidget):
+class HistoryPage(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        self.videoButtons = []
+
+        # create the web view widget
+        self.webview = QWebEngineView(self)
+        self.webview.setGeometry(0, 0, 800, 600)
+
+        # load the HTML file
+        self.webview.load(QUrl.fromLocalFile(os.path.abspath('history.html')))
+
+        # create a "back" button
+        self.buttonBack = QPushButton('Back', self)
+        self.buttonBack.move(350, 500)
+        self.buttonBack.clicked.connect(self.show_main_window_page)
 
         # create a vertical layout for the buttons
         self.layout = QVBoxLayout()
@@ -45,6 +59,7 @@ class HistoryPage(QWidget):
                 video_path = os.path.join(video_folder, filename)
                 button = QPushButton(filename, self)
                 button.clicked.connect(lambda checked, path=video_path: self.open_video_window(path))
+                self.videoButtons.append(button)
                 self.layout.addWidget(button)
 
         self.setLayout(self.layout)
@@ -53,6 +68,15 @@ class HistoryPage(QWidget):
     def open_video_window(self, video_path):
         self.w = VideoWindow(video_path)
         self.w.show()
+
+
+    def show_main_window_page(self):
+        # hide the buttons
+        self.buttonBack.hide()
+        for videoButton in self.videoButtons:
+            videoButton.hide()
+
+        self.setCentralWidget(MainWindow())
 
 
 class MainWindow(QMainWindow):
@@ -67,22 +91,22 @@ class MainWindow(QMainWindow):
         self.webview.setGeometry(0, 0, 800, 600)
         
         # load the HTML file
-        # self.webview.load(QUrl.fromLocalFile(os.path.abspath('camera.html')))
-        
-        # create a "show history" button
-        self.button = QPushButton('Show History', self)
-        self.button.move(50, 500)
-        self.button.clicked.connect(self.show_history_page)
-
+        self.webview.load(QUrl.fromLocalFile(os.path.abspath('camera.html')))
+  
         # create a "start" button
-        self.button = QPushButton('Start', self)
-        self.button.move(350, 500)
-        self.button.clicked.connect(self.start_process)
+        self.buttonStart = QPushButton('Start', self)
+        self.buttonStart.move(250, 300)
+        self.buttonStart.clicked.connect(self.start_process)
 
         # create a "end" button
         self.buttonEnd = QPushButton('End', self)
-        self.buttonEnd.move(650, 500)
+        self.buttonEnd.move(450, 300)
         self.buttonEnd.clicked.connect(self.end_process)
+
+        # create a "view history" button
+        self.buttonHistory = QPushButton('View History', self)
+        self.buttonHistory.move(350, 500)
+        self.buttonHistory.clicked.connect(self.show_history_page)
 
         # initialize subprocess variables to None
         self.process1 = None
@@ -91,6 +115,11 @@ class MainWindow(QMainWindow):
 
     
     def show_history_page(self):
+        # hide start and end buttons
+        self.buttonStart.hide()
+        self.buttonEnd.hide()
+        self.buttonHistory.hide()
+
         self.setCentralWidget(HistoryPage())
 
         
