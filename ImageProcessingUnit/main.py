@@ -38,7 +38,7 @@ def initialize_output(capture):
     h = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
     current_timestamp = datetime.now()
     formatted_timestamp = current_timestamp.strftime('%Y-%m-%d %H:%M:%S')
-    return cv2.VideoWriter(f'../output_videos/{formatted_timestamp}.mp4', cv2.VideoWriter_fourcc(*'H264'), fps , (w,h))
+    return cv2.VideoWriter(f'../output_videos/{formatted_timestamp}.ogv', cv2.VideoWriter_fourcc(*'THEO'), fps , (w,h))
 
 
 capture = initialize_capture()
