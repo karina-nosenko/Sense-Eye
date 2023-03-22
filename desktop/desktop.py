@@ -1,15 +1,27 @@
 import sys
-from PyQt5.QtCore import QUrl
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
-from PyQt5.QtWebEngineWidgets import QWebEngineView
-
-from PyQt5 import QtGui
-from PyQt5.QtWidgets import (QMainWindow, QToolTip, QMessageBox, QLabel, QVBoxLayout)
+from PyQt5 import QtCore
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtWebEngineWidgets import *
+from PyQt5.QtGui import *
 
 import subprocess
 import os
 import signal
 import psutil
+
+# CSS styles
+buttonStyle = '''padding: 10px;
+			font-size: 18px;
+			border: none;
+			background-color: #333;
+			color: #fff;
+			border-radius: 4px;'''
+
+headingStyle = '''font-size: 50px;
+			font-weight: bold;
+            font-family: sans-serif;
+			color: #000;'''
 
 
 class VideoWindow(QMainWindow):
@@ -37,32 +49,40 @@ class HistoryPage(QMainWindow):
 
         self.videoButtons = []
 
-        # create the web view widget
-        self.webview = QWebEngineView(self)
-        self.webview.setGeometry(0, 0, 800, 600)
-
         # load the HTML file
-        self.webview.load(QUrl.fromLocalFile(os.path.abspath('history.html')))
+        # self.webview.load(QUrl.fromLocalFile(os.path.abspath('history.html')))
 
-        # create a "back" button
-        self.buttonBack = QPushButton('Back', self)
-        self.buttonBack.move(350, 500)
-        self.buttonBack.clicked.connect(self.show_main_window_page)
-
-        # create a vertical layout for the buttons
-        self.layout = QVBoxLayout()
+        # create a grid layout for the buttons
+        grid = QGridLayout()
 
         # add a button for each video file in the output_videos folder
         video_folder = "../output_videos"
+        row = 0
+        column = 0
         for filename in os.listdir(video_folder):
             if filename.endswith(".ogv"):
                 video_path = os.path.join(video_folder, filename)
                 button = QPushButton(filename, self)
                 button.clicked.connect(lambda checked, path=video_path: self.open_video_window(path))
                 self.videoButtons.append(button)
-                self.layout.addWidget(button)
+                grid.addWidget(button, row, column)
+                column += 1
+                if column == 3:
+                    row += 1
+                    column = 0
 
-        self.setLayout(self.layout)
+        # create a widget and set the grid layout as its layout
+        widget = QWidget(self)
+        widget.setLayout(grid)
+
+        # set the widget as the central widget of the main window
+        self.setCentralWidget(widget)     
+        self.setGeometry(300, 300, 250, 150)
+
+        # create a "back" button
+        self.buttonBack = QPushButton('Back', self)
+        self.buttonBack.move(350, 500)
+        self.buttonBack.clicked.connect(self.show_main_window_page)
 
 
     def open_video_window(self, video_path):
@@ -82,31 +102,70 @@ class HistoryPage(QMainWindow):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        
+        self.initUI()
+
+    def initUI(self):        
         self.setWindowTitle('SenseEye Desktop Application')
-        self.setGeometry(100, 100, 800, 600)
+
+        # calculate the width and height of the window in percentages
+        width_percent = 80
+        height_percent = 80
+        screen_size = QDesktopWidget().screenGeometry()
+        width = int(screen_size.width() * width_percent / 100)
+        height = int(screen_size.height() * height_percent / 100)
+
+        # set the geometry of the window
+        self.setGeometry(0, 0, width, height)
         
         # create the web view widget
         self.webview = QWebEngineView(self)
-        self.webview.setGeometry(0, 0, 800, 600)
+        self.webview.setGeometry(0, 0, width, height)
         
-        # load the HTML file
-        self.webview.load(QUrl.fromLocalFile(os.path.abspath('camera.html')))
+        # create the heading
+        self.heading = QLabel(self)
+        self.heading.setText('My Camera Feed')
+        self.heading.setAlignment(Qt.AlignVCenter) 
+        self.heading.setStyleSheet(headingStyle)  
   
         # create a "start" button
-        self.buttonStart = QPushButton('Start', self)
-        self.buttonStart.move(250, 300)
+        self.buttonStart = QPushButton('Start', self) 
         self.buttonStart.clicked.connect(self.start_process)
+        self.buttonStart.setFixedSize(200, 50)
+        self.buttonStart.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonStart.setContentsMargins(30, 0, 0, 30)
+        self.buttonStart.setStyleSheet(buttonStyle)
 
         # create a "end" button
         self.buttonEnd = QPushButton('End', self)
-        self.buttonEnd.move(450, 300)
         self.buttonEnd.clicked.connect(self.end_process)
+        self.buttonEnd.setFixedSize(200, 50)
+        self.buttonEnd.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonEnd.setStyleSheet(buttonStyle)
 
         # create a "view history" button
         self.buttonHistory = QPushButton('View History', self)
-        self.buttonHistory.move(350, 500)
         self.buttonHistory.clicked.connect(self.show_history_page)
+        self.buttonHistory.setFixedSize(200, 50)
+        self.buttonHistory.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonHistory.setStyleSheet(buttonStyle)
+
+        # create a vertical layout and add the widgets to it
+        layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.heading)
+        layout.addSpacing(40)
+        layout.addWidget(self.buttonStart)
+        layout.addSpacing(20)
+        layout.addWidget(self.buttonEnd)
+        layout.addSpacing(20)
+        layout.addWidget(self.buttonHistory)
+        
+        # create a central widget and set the layout on it
+        central_widget = QWidget()
+        central_widget.setLayout(layout)
+        
+        # set the central widget on the main window
+        self.setCentralWidget(central_widget)
 
         # initialize subprocess variables to None
         self.process1 = None
@@ -115,7 +174,7 @@ class MainWindow(QMainWindow):
 
     
     def show_history_page(self):
-        # hide start and end buttons
+        self.heading.hide()
         self.buttonStart.hide()
         self.buttonEnd.hide()
         self.buttonHistory.hide()
