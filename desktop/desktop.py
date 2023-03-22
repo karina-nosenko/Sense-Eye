@@ -13,19 +13,17 @@ import psutil
 
 
 class VideoWindow(QMainWindow):
-    def __init__(self, main_window, video_path):
+    def __init__(self, video_path):
         super().__init__()
-        self.main_window = main_window
         self.setWindowTitle("Video Viewer")
-        self.setGeometry(main_window.geometry())
-        self.video_path = video_path
+        self.setGeometry(100, 100, 800, 600)
 
         # create the web view widget
         self.webview = QWebEngineView(self)
         self.webview.setGeometry(0, 0, 800, 600)
 
         # load the video file
-        self.webview.load(QUrl.fromLocalFile(os.path.abspath(self.video_path)))
+        self.webview.load(QUrl.fromLocalFile(os.path.abspath(video_path)))
 
 
     def closeEvent(self, event):
@@ -33,20 +31,10 @@ class VideoWindow(QMainWindow):
         self.hide()
 
 
-class MainWindow(QWidget):
+class HistoryPage(QWidget):
     def __init__(self):
         super().__init__()
-        
-        self.setWindowTitle('SenseEye Desktop Application')
-        self.setGeometry(100, 100, 800, 600)
-        
-        # create the web view widget
-        self.webview = QWebEngineView(self)
-        self.webview.setGeometry(0, 0, 800, 600)
-        
-        # load the HTML file
-        self.webview.load(QUrl.fromLocalFile(os.path.abspath('camera.html')))
-        
+
         # create a vertical layout for the buttons
         self.layout = QVBoxLayout()
 
@@ -61,14 +49,39 @@ class MainWindow(QWidget):
 
         self.setLayout(self.layout)
 
+
+    def open_video_window(self, video_path):
+        self.w = VideoWindow(video_path)
+        self.w.show()
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        
+        self.setWindowTitle('SenseEye Desktop Application')
+        self.setGeometry(100, 100, 800, 600)
+        
+        # create the web view widget
+        self.webview = QWebEngineView(self)
+        self.webview.setGeometry(0, 0, 800, 600)
+        
+        # load the HTML file
+        # self.webview.load(QUrl.fromLocalFile(os.path.abspath('camera.html')))
+        
+        # create a "show history" button
+        self.button = QPushButton('Show History', self)
+        self.button.move(50, 500)
+        self.button.clicked.connect(self.show_history_page)
+
         # create a "start" button
         self.button = QPushButton('Start', self)
-        self.button.move(300, 500)
+        self.button.move(350, 500)
         self.button.clicked.connect(self.start_process)
 
         # create a "end" button
         self.buttonEnd = QPushButton('End', self)
-        self.buttonEnd.move(600, 500)
+        self.buttonEnd.move(650, 500)
         self.buttonEnd.clicked.connect(self.end_process)
 
         # initialize subprocess variables to None
@@ -76,26 +89,17 @@ class MainWindow(QWidget):
         self.process2 = None
         self.process3 = None
 
-
-    def main_window(self):
-        self.label = QLabel("Manager", self)
-        self.label.move(285, 175)
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.top, self.left, self.width, self.height)
-        self.show()
-
     
-    def open_video_window(self, video_path):
-        self.w = VideoWindow(self, video_path)
-        self.w.show()
+    def show_history_page(self):
+        self.setCentralWidget(HistoryPage())
 
         
     def start_process(self):
-        # execute "python main.py" command
         self.process1 = subprocess.Popen(['sudo', 'python3','main.py'],cwd='../')
         self.process2 = subprocess.Popen(['npm','run','dev'],cwd='../RecommendationsUnit/')
         self.process3 = subprocess.Popen(['sudo', 'python3','main.py'],cwd='../ImageProcessingUnit/')
-    
+
+
     def end_process(self):
         print("1-->", self.process1, "2-->" , self.process2,"3-->",self.process3)
 
