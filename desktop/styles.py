@@ -10,3 +10,7 @@ headingStyle = '''font-size: 50px;
 			font-weight: bold;
             font-family: sans-serif;
 			color: #000;'''
+
+labelStyle = '''font-size: 24px;
+            font-family: sans-serif;
+			color: #505050;'''

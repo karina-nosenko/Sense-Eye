@@ -23,8 +23,8 @@ class MainPage(QMainWindow):
         self.setWindowTitle('SenseEye Desktop Application')
 
         # calculate the width and height of the window in percentages
-        width_percent = 80
-        height_percent = 80
+        width_percent = 90
+        height_percent = 90
         screen_size = QDesktopWidget().screenGeometry()
         width = int(screen_size.width() * width_percent / 100)
         height = int(screen_size.height() * height_percent / 100)
@@ -49,12 +49,20 @@ class MainPage(QMainWindow):
         self.buttonStart.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.buttonStart.setStyleSheet(buttonStyle)
 
+        # create a "wait" label
+        self.waitLabel = QLabel(self)
+        self.waitLabel.setText('Please wait! The video window will pop up in a minute.')
+        self.waitLabel.setAlignment(Qt.AlignVCenter)
+        self.waitLabel.setStyleSheet(labelStyle)
+        self.waitLabel.hide()
+
         # create a "end" button
         self.buttonEnd = QPushButton('End', self)
         self.buttonEnd.clicked.connect(self.end_process)
         self.buttonEnd.setFixedSize(200, 50)
         self.buttonEnd.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.buttonEnd.setStyleSheet(buttonStyle)
+        self.buttonEnd.hide()
 
         # create a "view history" button
         self.buttonHistory = QPushButton('View History', self)
@@ -69,6 +77,8 @@ class MainPage(QMainWindow):
         layout.addWidget(self.heading)
         layout.addSpacing(40)
         layout.addWidget(self.buttonStart)
+        layout.addSpacing(20)
+        layout.addWidget(self.waitLabel)
         layout.addSpacing(20)
         layout.addWidget(self.buttonEnd)
         layout.addSpacing(20)
@@ -92,9 +102,17 @@ class MainPage(QMainWindow):
         self.process2 = subprocess.Popen(['npm','run','dev'],cwd='../RecommendationsUnit/')
         self.process3 = subprocess.Popen(['sudo', 'python3','main.py'],cwd='../ImageProcessingUnit/')
 
+        self.buttonStart.hide()
+        self.waitLabel.show()
+        self.buttonEnd.show()
+
 
     def end_process(self):
         print("1-->", self.process1, "2-->" , self.process2,"3-->",self.process3)
+
+        self.buttonStart.show()
+        self.waitLabel.hide()
+        self.buttonEnd.hide()
 
         # terminate all subprocesses
         if self.process1:
@@ -135,6 +153,7 @@ class MainPage(QMainWindow):
         self.buttonStart.hide()
         self.buttonEnd.hide()
         self.buttonHistory.hide()
+        self.waitLabel.hide()
 
         self.setCentralWidget(HistoryPage())
 
