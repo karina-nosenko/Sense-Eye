@@ -1,8 +1,0 @@
-node_modules
-build
-desktop
-desktop.spec
-main.js
-package-lock.json
-package.json
-main.spec
