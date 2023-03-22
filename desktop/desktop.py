@@ -46,43 +46,58 @@ class VideoWindow(QMainWindow):
 class HistoryPage(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.initUI()
 
+    def initUI(self): 
         self.videoButtons = []
 
-        # load the HTML file
-        # self.webview.load(QUrl.fromLocalFile(os.path.abspath('history.html')))
+        # create the heading
+        self.heading = QLabel(self)
+        self.heading.setText('My Camera History')
+        self.heading.setAlignment(Qt.AlignVCenter) 
+        self.heading.setStyleSheet(headingStyle)
 
-        # create a grid layout for the buttons
-        grid = QGridLayout()
-
-        # add a button for each video file in the output_videos folder
-        video_folder = "../output_videos"
+        # create the videos buttons
+        self.videosLayout = QGridLayout()
+        self.videosLayout.setSpacing(10)
         row = 0
         column = 0
+        video_folder = "../output_videos"
         for filename in os.listdir(video_folder):
             if filename.endswith(".ogv"):
                 video_path = os.path.join(video_folder, filename)
-                button = QPushButton(filename, self)
+                button = QPushButton(filename, self) 
                 button.clicked.connect(lambda checked, path=video_path: self.open_video_window(path))
-                self.videoButtons.append(button)
-                grid.addWidget(button, row, column)
+                button.setFixedSize(500, 50)
+                button.setStyleSheet(buttonStyle)
+                self.videosLayout.addWidget(button, row, column)
                 column += 1
                 if column == 3:
                     row += 1
                     column = 0
 
-        # create a widget and set the grid layout as its layout
-        widget = QWidget(self)
-        widget.setLayout(grid)
-
-        # set the widget as the central widget of the main window
-        self.setCentralWidget(widget)     
-        self.setGeometry(300, 300, 250, 150)
-
         # create a "back" button
-        self.buttonBack = QPushButton('Back', self)
-        self.buttonBack.move(350, 500)
+        self.buttonBack = QPushButton('Back', self) 
         self.buttonBack.clicked.connect(self.show_main_window_page)
+        self.buttonBack.setFixedSize(200, 50)
+        self.buttonBack.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonBack.setStyleSheet(buttonStyle)
+
+        # create a vertical layout and add the widgets to it
+        layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.heading)
+        layout.addSpacing(40)
+        layout.addLayout(self.videosLayout)
+        layout.addSpacing(40)
+        layout.addWidget(self.buttonBack)
+
+        # create a central widget and set the layout on it
+        central_widget = QWidget()
+        central_widget.setLayout(layout)
+        
+        # set the central widget on the main window
+        self.setCentralWidget(central_widget)
 
 
     def open_video_window(self, video_path):
@@ -91,12 +106,11 @@ class HistoryPage(QMainWindow):
 
 
     def show_main_window_page(self):
-        # hide the buttons
+        self.heading.hide()
         self.buttonBack.hide()
-        for videoButton in self.videoButtons:
-            videoButton.hide()
 
         self.setCentralWidget(MainWindow())
+
 
 
 class MainWindow(QMainWindow):
@@ -132,7 +146,6 @@ class MainWindow(QMainWindow):
         self.buttonStart.clicked.connect(self.start_process)
         self.buttonStart.setFixedSize(200, 50)
         self.buttonStart.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        self.buttonStart.setContentsMargins(30, 0, 0, 30)
         self.buttonStart.setStyleSheet(buttonStyle)
 
         # create a "end" button
