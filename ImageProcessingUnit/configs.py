@@ -1,7 +1,7 @@
 APPEND_PATH = 'yolov7'
 
-# realtime/video/video_write_output
-MODE = 'video_write_output'
+# realtime/video
+MODE = 'realtime'
 
 # Camera index for realtime: 0-webcam, 4/0 - camera
 # Video path for video

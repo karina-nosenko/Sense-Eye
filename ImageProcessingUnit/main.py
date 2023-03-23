@@ -18,7 +18,7 @@ from objects_detection import initialize_player_detection_model, detect_objects
 
 
 def initialize_capture():
-    if (MODE == 'video' or MODE == 'video_write_output'):
+    if (MODE == 'video'):
         capture = cv2.VideoCapture(VIDEO_PATH) 
     elif (MODE == 'realtime'):
         capture = cv2.VideoCapture(CAMERA_INDEX)
@@ -43,10 +43,9 @@ def initialize_output(capture):
 
 capture = initialize_capture()
 
-if (MODE == 'video_write_output'):
-    output = initialize_output(capture)
+output = initialize_output(capture)
 
-if (MODE == 'video' or MODE == 'video_write_output'):
+if (MODE == 'video'):
     nframes = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
 
 # Initializing model and setting it for inference
@@ -97,22 +96,15 @@ with torch.no_grad():
                 print(recommendation_two_players_same_team(playersList, player_caps_index, ball_indexes[0]['x'], ball_indexes[0]['y']))
 
         # Output the result
-        if MODE == 'video_write_output':
+        if MODE == 'video':
             print(f"{frame_index+1}/{nframes} frames processed")
-            output.write(frame)
-            cv2.imshow("Frame", rescale_frame(frame, scale=1))
-            key = cv2.waitKey(1)
-            if key == 27:
-                break
-        else:
-            # cv2.imshow("Frame", frame)
-            cv2.imshow("Frame", rescale_frame(frame, scale=1)) # for usb camera scale=0.6667
-            key = cv2.waitKey(1)
-            if key == 27:
-                break
+            
+        output.write(frame)
+        cv2.imshow("Frame", rescale_frame(frame, scale=1)) # for usb camera scale=0.6667
+        key = cv2.waitKey(1)
+        if key == 27:
+            break
 
-if (MODE == 'video_write_output'):
-    output.release()
-
+output.release()
 cv2.destroyAllWindows()
 capture.release()
