@@ -22,11 +22,11 @@ def initialize_capture():
         capture = cv2.VideoCapture(VIDEO_PATH) 
     elif (MODE == 'realtime'):
         capture = cv2.VideoCapture(CAMERA_INDEX)
-        capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H264'))
+        capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
         # Relevant when using an external usb camera
-        capture.set(3, 1280)  # width (max - 3840)
-        capture.set(4, 720)  # height (max - 2160)
+        # capture.set(3, 1280)  # width (max - 3840)
+        # capture.set(4, 720)  # height (max - 2160)
     else: 
         raise ValueError('MODE constant must contain "realtime" or "video" value')
     
@@ -98,7 +98,7 @@ with torch.no_grad():
         # Output the result
         if MODE == 'video':
             print(f"{frame_index+1}/{nframes} frames processed")
-            
+
         output.write(frame)
         cv2.imshow("Frame", rescale_frame(frame, scale=1)) # for usb camera scale=0.6667
         key = cv2.waitKey(1)
