@@ -8,6 +8,8 @@ import subprocess
 import os
 import signal
 import psutil
+import time
+import subprocess
 
 from videoWindow import *
 from styles import *
@@ -49,12 +51,12 @@ class MainPage(QMainWindow):
         self.buttonStart.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.buttonStart.setStyleSheet(buttonStyle)
 
-        # create a "wait" label
-        self.waitLabel = QLabel(self)
-        self.waitLabel.setText('Please wait! The video window will pop up in a minute.')
-        self.waitLabel.setAlignment(Qt.AlignVCenter)
-        self.waitLabel.setStyleSheet(labelStyle)
-        self.waitLabel.hide()
+        # create a "status" label
+        self.statusLabel = QLabel()
+        self.statusLabel.setText('Connecting...')
+        self.statusLabel.setAlignment(Qt.AlignVCenter)
+        self.statusLabel.setStyleSheet(labelStyle)
+        self.statusLabel.hide()   
 
         # create a "end" button
         self.buttonEnd = QPushButton('End', self)
@@ -78,7 +80,7 @@ class MainPage(QMainWindow):
         layout.addSpacing(40)
         layout.addWidget(self.buttonStart)
         layout.addSpacing(20)
-        layout.addWidget(self.waitLabel)
+        layout.addWidget(self.statusLabel)
         layout.addSpacing(20)
         layout.addWidget(self.buttonEnd)
         layout.addSpacing(20)
@@ -98,20 +100,28 @@ class MainPage(QMainWindow):
 
         
     def start_process(self):
-        self.process1 = subprocess.Popen(['sudo', 'python3','main.py'],cwd='../')
-        self.process2 = subprocess.Popen(['npm','run','dev'],cwd='../RecommendationsUnit/')
-        self.process3 = subprocess.Popen(['sudo', 'python3','main.py'],cwd='../ImageProcessingUnit/')
-
         self.buttonStart.hide()
-        self.waitLabel.show()
+        self.statusLabel.show()
         self.buttonEnd.show()
 
+        # release ports
+        os.system("sudo fuser -k 5000/tcp")
+        os.system("sudo fuser -k 8080/tcp")
+
+        # give the user 10 seconds to connect the components
+        self.statusLabel.setText('Attempting to connect to the components...')
+        QApplication.processEvents()
+        self.process1 = subprocess.Popen(['sudo', 'python3','main.py'],cwd='../') 
+        time.sleep(10)
+        self.statusLabel.setText('Please wait! The video window will pop up in a minute.')
+
+        self.process2 = subprocess.Popen(['npm','run','dev'],cwd='../RecommendationsUnit/')
+        self.process3 = subprocess.Popen(['sudo', 'python3','main.py'],cwd='../ImageProcessingUnit/')
+        
 
     def end_process(self):
-        print("1-->", self.process1, "2-->" , self.process2,"3-->",self.process3)
-
         self.buttonStart.show()
-        self.waitLabel.hide()
+        self.statusLabel.hide()
         self.buttonEnd.hide()
 
         # terminate all subprocesses
@@ -153,7 +163,7 @@ class MainPage(QMainWindow):
         self.buttonStart.hide()
         self.buttonEnd.hide()
         self.buttonHistory.hide()
-        self.waitLabel.hide()
+        self.statusLabel.hide()
 
         self.setCentralWidget(HistoryPage())
 

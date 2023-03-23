@@ -1,13 +1,13 @@
 from flask import Flask, request
 import requests
-app = Flask(__name__)
+flaskApp = Flask(__name__)
 
 mapping_color_to_ip = {}
 mapping_ip_to_color = {}
 current_player_with_the_ball_color_ip = None  # we will have his ip in here
 
 
-@app.route('/recommend') # output D1-GPIO5-5 D2-GPIO4-4 D3-GPIO0-0 D4-GPIO2-2
+@flaskApp.route('/recommend') # output D1-GPIO5-5 D2-GPIO4-4 D3-GPIO0-0 D4-GPIO2-2
 def recommend():
     color = request.args.get('color')
     output_state = request.args.get('output_state')  # output D1-GPIO5-5 D2-GPIO4-4 D3-GPIO0-0 D4-GPIO2-2
@@ -19,7 +19,7 @@ def recommend():
     return "Data received"
 
 
-@app.route('/save_id')
+@flaskApp.route('/save_id')
 def save_id():
     color_band = request.args.get('color_band')
     ip = request.args.get('ip')
@@ -31,7 +31,7 @@ def save_id():
     return "Data received"
 
 
-@app.route('/status')
+@flaskApp.route('/status')
 def show_connected_players():
     for key in mapping_color_to_ip:
         print(key)
@@ -39,4 +39,4 @@ def show_connected_players():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, threaded=False)
+    flaskApp.run(host='0.0.0.0', port=5000, threaded=False)
