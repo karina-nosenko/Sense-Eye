@@ -25,8 +25,8 @@ class MainPage(QMainWindow):
         self.setWindowTitle('SenseEye Desktop Application')
 
         # calculate the width and height of the window in percentages
-        width_percent = 50
-        height_percent = 50
+        width_percent = 90
+        height_percent = 90
         screen_size = QDesktopWidget().screenGeometry()
         width = int(screen_size.width() * width_percent / 100)
         height = int(screen_size.height() * height_percent / 100)
@@ -188,10 +188,10 @@ class HistoryPage(QMainWindow):
         row = 0
         column = 0
         video_folder = "../output_videos"
-        for filename in os.listdir(video_folder):
+        for filename in sorted(os.listdir(video_folder)):
             if filename.endswith(".ogv"):
                 video_path = os.path.join(video_folder, filename)
-                button = QPushButton(filename, self) 
+                button = QPushButton(filename[:-4], self) 
                 button.clicked.connect(lambda checked, path=video_path: self.open_video_window(path))
                 button.setFixedSize(500, 50)
                 button.setStyleSheet(buttonStyle)

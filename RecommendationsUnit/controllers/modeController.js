@@ -221,13 +221,10 @@ exports.modeController = {
         const goalDistance = calculateDistanceToGoal(body.players[0], body.goals);
         const goalIndex = body.players[0].team;
         if (goalDistance <= MIN_GOAL_PASSING_DISTANCE) {
-            console.log('recommendMovingAwayFromGoal')
             return recommendMovingAwayFromGoal(res, body.players[0], body.goals[goalIndex]);
         } else if (goalDistance >= MAX_GOAL_PASSING_DISTANCE) {
-            console.log('recommendMovingTowardsGoal')
             return recommendMovingTowardsGoal(res, body.players[0], body.goals[goalIndex]);
         } else {
-            console.log('recommendDirectShotOnGoal')
             return recommendDirectShotOnGoal(res, body.players[0], body.goals[goalIndex]);
         }
     },
