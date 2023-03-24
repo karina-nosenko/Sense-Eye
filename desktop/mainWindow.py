@@ -25,8 +25,8 @@ class MainPage(QMainWindow):
         self.setWindowTitle('SenseEye Desktop Application')
 
         # calculate the width and height of the window in percentages
-        width_percent = 90
-        height_percent = 90
+        width_percent = 50
+        height_percent = 50
         screen_size = QDesktopWidget().screenGeometry()
         width = int(screen_size.width() * width_percent / 100)
         height = int(screen_size.height() * height_percent / 100)
@@ -145,8 +145,9 @@ class MainPage(QMainWindow):
 
             # Terminate any threads in the process
             for thread in process.threads():
-                thread_obj = psutil._psplatform.Thread(thread.id, process.pid)
-                thread_obj.terminate()
+                if getattr(psutil._psplatform, "Thread", None):
+                    thread_obj = psutil._psplatform.Thread(thread.id, process.pid)
+                    thread_obj.terminate()
 
             # Finally, terminate the main process
             process.terminate()

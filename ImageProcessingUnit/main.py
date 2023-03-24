@@ -51,6 +51,7 @@ if (MODE == 'video'):
 color_recommendation = ''
 output_state_recommendation = ''
 state_recommendation = ''
+data = {}
 
 # Initializing model and setting it for inference
 torch.cuda.empty_cache()
@@ -86,28 +87,22 @@ with torch.no_grad():
 
         # Single player
         if (GAME_MODE == 1):
-            # print(playersList)
-            # print(player_caps_index)
-            # print(ball_indexes)
-            print('before if')
             if(len(ball_prev_indexes)>0 and len(playersList)>0 and len(playersList[0])>3 and playersList[0]['x'] and playersList[0]['y'] and playersList[0]['holdsBall'] and playersList[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
-                print('before sending')
                 data = recommendation_single_player(YELLOW_COLOR, playersList[0]['x'], playersList[0]['y'], playersList[0]['holdsBall'], playersList[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
-
-                if "color"  in data or "output_state"  in data or "state"  in data:
-                    color_recommendation = data['color']
-                    output_state_recommendation = str(data['output_state'])
-                    state_recommendation = data['state']
-        
-            print('after if')
-        # Two players
+        # Two players from the same team
         elif (GAME_MODE == 2):
             if(len(playersList)==2 and len(ball_indexes)>0 and ball_indexes[0]['x'] and ball_indexes[0]['y']):
-                print(recommendation_two_players_same_team(playersList, player_caps_index, ball_indexes[0]['x'], ball_indexes[0]['y']))
+                data = recommendation_two_players_same_team(playersList, player_caps_index, ball_indexes[0]['x'], ball_indexes[0]['y'])
 
+        if "color" in data and "output_state"  in data and "state"  in data:
+            color_recommendation = data['color']
+            output_state_recommendation = str(data['output_state'])
+            state_recommendation = data['state']
 
+        # Output recommendation label
         cv2.putText(frame, color_recommendation + ": " + state_recommendation + " " + output_state_recommendation, 
-                            (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1)
+                            (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1)
+        
         # Output the result
         if MODE == 'video':
             print(f"{frame_index+1}/{nframes} frames processed")
