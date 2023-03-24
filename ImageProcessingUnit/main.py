@@ -7,7 +7,7 @@ import os
 from configs import APPEND_PATH, MODE, CAMERA_INDEX, VIDEO_PATH, options, GAME_MODE, YELLOW_COLOR, ORANGE_COLOR
 import colors_detection as cd
 from datetime import datetime
-
+import json
 # Settings
 sys.path.append(APPEND_PATH)
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
@@ -18,19 +18,19 @@ from objects_detection import initialize_player_detection_model, detect_objects
 
 
 def initialize_capture():
-    if (MODE == 'video'):
-        capture = cv2.VideoCapture(VIDEO_PATH) 
-    elif (MODE == 'realtime'):
-        capture = cv2.VideoCapture(CAMERA_INDEX)
-        capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+        if (MODE == 'video'):
+            capture = cv2.VideoCapture(VIDEO_PATH) 
+        elif (MODE == 'realtime'):
+            capture = cv2.VideoCapture(CAMERA_INDEX)
+            capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H264'))
 
         # Relevant when using an external usb camera
         # capture.set(3, 1280)  # width (max - 3840)
         # capture.set(4, 720)  # height (max - 2160)
-    else: 
-        raise ValueError('MODE constant must contain "realtime" or "video" value')
-    
-    return capture
+        else: 
+            raise ValueError('MODE constant must contain "realtime" or "video" value')
+        
+        return capture
 
 def initialize_output(capture):
     fps = int(capture.get(cv2.CAP_PROP_FPS))
@@ -47,6 +47,10 @@ output = initialize_output(capture)
 
 if (MODE == 'video'):
     nframes = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
+
+color_recommendation = ''
+output_state_recommendation = ''
+state_recommendation = ''
 
 # Initializing model and setting it for inference
 torch.cuda.empty_cache()
@@ -88,13 +92,22 @@ with torch.no_grad():
             print('before if')
             if(len(ball_prev_indexes)>0 and len(playersList)>0 and len(playersList[0])>3 and playersList[0]['x'] and playersList[0]['y'] and playersList[0]['holdsBall'] and playersList[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
                 print('before sending')
-                print(recommendation_single_player(YELLOW_COLOR, playersList[0]['x'], playersList[0]['y'], playersList[0]['holdsBall'], playersList[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y']))
+                data = recommendation_single_player(YELLOW_COLOR, playersList[0]['x'], playersList[0]['y'], playersList[0]['holdsBall'], playersList[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
+
+                if "color"  in data or "output_state"  in data or "state"  in data:
+                    color_recommendation = data['color']
+                    output_state_recommendation = str(data['output_state'])
+                    state_recommendation = data['state']
+        
             print('after if')
         # Two players
         elif (GAME_MODE == 2):
             if(len(playersList)==2 and len(ball_indexes)>0 and ball_indexes[0]['x'] and ball_indexes[0]['y']):
                 print(recommendation_two_players_same_team(playersList, player_caps_index, ball_indexes[0]['x'], ball_indexes[0]['y']))
 
+
+        cv2.putText(frame, color_recommendation + ": " + state_recommendation + " " + output_state_recommendation, 
+                            (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1)
         # Output the result
         if MODE == 'video':
             print(f"{frame_index+1}/{nframes} frames processed")

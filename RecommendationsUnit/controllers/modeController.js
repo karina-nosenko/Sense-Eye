@@ -1,12 +1,13 @@
 const axios = require('axios');
+const fs = require('fs');
 
 HARDWARE_API_ADDRESS = "172.26.87.255:5000"
 
 const { MAX_GOAL_PASSING_DISTANCE,
-        MIN_GOAL_PASSING_DISTANCE,
-        MAX_TEAMMATE_PASSING_DISTANCE,
-        MIN_TEAMMATE_PASSING_DISTANCE,
-        MAX_OPPONENT_DISTANCE } = require('../constants');
+    MIN_GOAL_PASSING_DISTANCE,
+    MAX_TEAMMATE_PASSING_DISTANCE,
+    MIN_TEAMMATE_PASSING_DISTANCE,
+    MAX_OPPONENT_DISTANCE } = require('../constants');
 
 const getColorNameById = (id) => {
     switch (id) {
@@ -17,7 +18,7 @@ const getColorNameById = (id) => {
         case 2:
             return 'blue';
         default:
-            return 'undefined';           
+            return 'undefined';
     }
 }
 
@@ -59,9 +60,9 @@ const getClockDirectionToGoal = (player, goal) => {
 
     let middleClock = Math.round((clockToLeftGoalSide + clockToRightGoalSide) / 2) % 12 || 12;
     if (Math.abs(clockToLeftGoalSide - middleClock) > 5) {
-      return clockToLeftGoalSide;
+        return clockToLeftGoalSide;
     } else if (Math.abs(clockToRightGoalSide - middleClock) > 5) {
-      return clockToRightGoalSide;
+        return clockToRightGoalSide;
     } else {
         return middleClock;
     }
@@ -69,35 +70,35 @@ const getClockDirectionToGoal = (player, goal) => {
 
 const calculateDistanceToGoal = (player, goals) => {
     const goalIndex = player.team;
-    const goalCenterX = (goals[goalIndex].x1 + goals[goalIndex].x2)/2;
-    const goalCenterY = (goals[goalIndex].y1 + goals[goalIndex].y2)/2;
+    const goalCenterX = (goals[goalIndex].x1 + goals[goalIndex].x2) / 2;
+    const goalCenterY = (goals[goalIndex].y1 + goals[goalIndex].y2) / 2;
     return calculateEuclideanDistance(goalCenterX, goalCenterY, player.x, player.y);
 }
 
 const isPlayerInsideTriangle = (player, point1, point2, point3) => {
     // Calculate the areas of the main triangle and three sub-triangles
     const mainTriangleArea = Math.abs(
-      (point2.x - point1.x) * (point3.y - point1.y) -
-      (point3.x - point1.x) * (point2.y - point1.y)
+        (point2.x - point1.x) * (point3.y - point1.y) -
+        (point3.x - point1.x) * (point2.y - point1.y)
     );
     const subTriangle1Area = Math.abs(
-      (player.x - point1.x) * (point2.y - point1.y) -
-      (point2.x - point1.x) * (player.y - point1.y)
+        (player.x - point1.x) * (point2.y - point1.y) -
+        (point2.x - point1.x) * (player.y - point1.y)
     );
     const subTriangle2Area = Math.abs(
-      (player.x - point2.x) * (point3.y - point2.y) -
-      (point3.x - point2.x) * (player.y - point2.y)
+        (player.x - point2.x) * (point3.y - point2.y) -
+        (point3.x - point2.x) * (player.y - point2.y)
     );
     const subTriangle3Area = Math.abs(
-      (player.x - point3.x) * (point1.y - point3.y) -
-      (point1.x - point3.x) * (player.y - point3.y)
+        (player.x - point3.x) * (point1.y - point3.y) -
+        (point1.x - point3.x) * (player.y - point3.y)
     );
 
     // Check whether the sum of sub-triangle areas equals the main triangle area
     return (
-      subTriangle1Area + subTriangle2Area + subTriangle3Area <= mainTriangleArea
+        subTriangle1Area + subTriangle2Area + subTriangle3Area <= mainTriangleArea
     );
-  };
+};
 
 const getPlayerWithBall = (players) => {
     return players.find(player => player.holdsBall) || null;
@@ -112,9 +113,9 @@ const calculateDistanceBetweenPlayers = (player1, player2) => {
 }
 
 const pathToGoalIsFree = (ballHolder, teammates, goal) => {
-    const point1 = {x: goal.x1, y: goal.y1};
-    const point2 = {x: goal.x2, y: goal.y2};
-    const point3 = {x: ballHolder.x, y: ballHolder.y};
+    const point1 = { x: goal.x1, y: goal.y1 };
+    const point2 = { x: goal.x2, y: goal.y2 };
+    const point3 = { x: ballHolder.x, y: ballHolder.y };
 
     return !teammates.some(teammate => {
         return isPlayerInsideTriangle(teammate, point1, point2, point3);
@@ -122,12 +123,12 @@ const pathToGoalIsFree = (ballHolder, teammates, goal) => {
 }
 
 const goalInSightRange = (ballHolder, goal) => {
-    const output_state = getClockDirectionToGoal(ballHolder, goal)  
+    const output_state = getClockDirectionToGoal(ballHolder, goal)
     return [9, 10, 11, 12, 1, 2, 3].includes(output_state);
 }
 
 const teammateInSightRange = (ballHolder, teammate) => {
-    const output_state = getClockDirection(ballHolder, teammate.x, teammate.y)  
+    const output_state = getClockDirection(ballHolder, teammate.x, teammate.y)
     return [9, 10, 11, 12, 1, 2, 3].includes(output_state);
 }
 
@@ -147,26 +148,28 @@ const recommendMovingAwayFromGoal = (res, ballHolder, goal) => {
     }
 
     const color = getColorNameById(ballHolder.id);
+
     return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=move`)
-    .then(function (response) {
-        res.status(200).json({ "recommendMovingAwayFromGoal": response });
-    })
-    .catch(function (error) {
-        res.status(200).json({ "error": error });
-    })
+        .then(function (response) {
+            res.status(200).json({'color': color,'output_state':output_state,'state':'move'});
+        })
+        .catch(function (error) {
+            res.status(200).json({'color': '','output_state':'','state':''});
+        })
 }
 
 const recommendMovingTowardsGoal = (res, ballHolder, goal) => {
     let output_state = getClockDirectionToGoal(ballHolder, goal)
 
     const color = getColorNameById(ballHolder.id);
+
     return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=move`)
-    .then(function (response) {
-        res.status(200).json({ "recommendMovingTowardsGoal": response });
-    })
-    .catch(function (error) {
-        res.status(200).json({ "error": error });
-    })
+        .then(function (response) {
+            res.status(200).json({'color': color,'output_state':output_state,'state':'move'});
+        })
+        .catch(function (error) {
+            res.status(200).json({'color': '','output_state':'','state':''});
+        })
 }
 
 const recommendDirectShotOnGoal = (res, ballHolder, goal) => {
@@ -174,36 +177,37 @@ const recommendDirectShotOnGoal = (res, ballHolder, goal) => {
 
     const color = getColorNameById(ballHolder.id);
     return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=kick`)
-    .then(function (response) {
-        res.status(200).json({ "recommendDirectShotOnGoal": response });
-    })
-    .catch(function (error) {
-        res.status(200).json({ "error": error });
-    })
+        .then(function (response) {
+            res.status(200).json({'color': color,'output_state':output_state,'state':'kick'});
+        })
+        .catch(function (error) {
+            res.status(200).json({'color': '','output_state':'','state':''});
+        })
 }
 
 const recommendPassToTeammate = (res, ballHolder, teammate) => {
     let output_state = getClockDirection(ballHolder, teammate.x, teammate.y)
 
     const color = getColorNameById(ballHolder.id);
+
     return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=pass`)
-    .then(function (response) {
-        res.status(200).json({ "recommendPassToTeammate": response });
-    })
-    .catch(function (error) {
-        res.status(200).json({ "error": error });
-    })
+        .then(function (response) {
+            res.status(200).json({'color': color,'output_state':output_state,'state':'pass'});
+        })
+        .catch(function (error) {
+            res.status(200).json({'color': '','output_state':'','state':''});
+        })
 }
 
 const recommendKeepTheBall = (res, ballHolder) => {
     const color = getColorNameById(ballHolder.id);
     return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${0}&state=move`)
-    .then(function (response) {
-        res.status(200).json({ "recommendKeepTheBall": response });
-    })
-    .catch(function (error) {
-        res.status(200).json({ "error": error });
-    })
+        .then(function (response) {
+            res.status(200).json({'color': color,'output_state':0,'state':'move'});
+        })
+        .catch(function (error) {
+            res.status(200).json({'color': '','output_state':'','state':''});
+        })
 }
 
 const doNothing = (res) => {
@@ -225,7 +229,7 @@ exports.modeController = {
         } else {
             console.log('recommendDirectShotOnGoal')
             return recommendDirectShotOnGoal(res, body.players[0], body.goals[goalIndex]);
-        } 
+        }
     },
     sameTeamModeA(req, res) {
         const { body } = req;
@@ -235,7 +239,7 @@ exports.modeController = {
             return doNothing(res);    // No player with ball
         }
 
-        const teammates = getTeammates(ballHolder, body.players);   
+        const teammates = getTeammates(ballHolder, body.players);
         const teammateDistance = calculateDistanceBetweenPlayers(ballHolder, teammates[0]);
         const goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
         const goalIndex = ballHolder.team;
