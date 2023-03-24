@@ -3,7 +3,7 @@
 import numpy as np
 import cv2
 
-def detect_colors (frame):
+def detect_colors(frame):
     """
     Detects the positions of caps based on their color.
 
@@ -83,16 +83,6 @@ def detect_colors (frame):
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
-            # cv2.putText(frame, f"Red Colors x={x1}, y={y1}", (x+15, y+10),
-            #             cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-            #             (0, 0, 255))
-            # player_index = {
-            #     "id":"red",
-            #     "x":x1,
-            #     "y":y1,                
-            # }
-            # framePlayersIndexes.append(player_index)
-
 
     # Creating contour to track orange color
     contours, hierarchy = cv2.findContours(orange_mask,
@@ -110,14 +100,12 @@ def detect_colors (frame):
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
 
-            # cv2.putText(frame, f"orange Colors x={x1}, y={y1}", (x+15, y+10),
-            #             cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-            #             (0, 145, 255))
             player_index = {
                 "id":"orange",
                 "x":x1,
                 "y":y1,                
             }
+
             framePlayersIndexes.append(player_index)
 
     # Creating contour to track yellow color
@@ -135,14 +123,13 @@ def detect_colors (frame):
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
-            # cv2.putText(frame, f"yellow colors x={x1}, y={y1}", (x+15, y+10),
-            #             cv2.FONT_HERSHEY_SIMPLEX,
-            #             0.5, (0, 239, 255))
+
             player_index = {
                 "id":"yellow",
                 "x":x1,
                 "y":y1,                
             }
+
             framePlayersIndexes.append(player_index)
 
 
@@ -160,14 +147,6 @@ def detect_colors (frame):
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
-            # cv2.putText(frame, f"Blue Colors x={x1}, y={y1}", (x+15, y+10),
-            #             cv2.FONT_HERSHEY_SIMPLEX,
-            #             0.5, (255, 0, 0))
-            # player_index = {
-            #     "id":"blue",
-            #     "x":x1,
-            #     "y":y1,                
-            # }
-            # framePlayersIndexes.append(player_index)
+
     return framePlayersIndexes
         
