@@ -180,8 +180,8 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
             text_label2 = f'{direction_text} conf:{confidence_score:.2f}'
             cv2.putText(frame, text_label1, (center_x + 10, center_y - 25),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_color, 1)
-            cv2.putText(frame, text_label2, (center_x + 10, center_y - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_color, 1)
+            # cv2.putText(frame, text_label2, (center_x + 10, center_y - 10),
+            #             cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_color, 1)
             
             if(class_name == 'ball'):
                 ball_indexes.append({"x":center_x, "y":center_y})

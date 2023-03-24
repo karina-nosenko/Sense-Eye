@@ -1,13 +1,13 @@
 APPEND_PATH = 'yolov7'
 
 # realtime/video
-MODE = 'realtime'
+MODE = 'video'
 
 # Camera index for realtime: 0-webcam, 4/0 - camera
 # Video path for video
 CAMERA_INDEX = 0
-VIDEO_PATH = APPEND_PATH + '/videos/two_players_orange_yellow.mp4'
-GAME_MODE = 2
+VIDEO_PATH = APPEND_PATH + '/videos/video3.mp4'
+GAME_MODE = 1
 
 #colors id
 YELLOW_COLOR = 0
@@ -20,7 +20,7 @@ options  = {
     "yaml"   : APPEND_PATH + "/data/coco.yaml",
     "img-size": 640,    # default image size
     "iou-thres" : 0.45, # NMS IoU threshold for inference (0.45)
-    "device" : '0',   # device to run our model i.e. 0 or 0,1,2,3 or cpu
+    "device" : 'cpu',   # device to run our model i.e. 0 or 0,1,2,3 or cpu
     "classes": classes_to_detect,
     "class-person": {
         "class-name": 'person',
