@@ -1,13 +1,12 @@
 import sys
 import cv2
-import numpy as np
 import torch
 import itertools
 import os
 from configs import APPEND_PATH, MODE, CAMERA_INDEX, VIDEO_PATH, options, GAME_MODE, YELLOW_COLOR, ORANGE_COLOR
 import colors_detection as cd
 from datetime import datetime
-import json
+
 # Settings
 sys.path.append(APPEND_PATH)
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
