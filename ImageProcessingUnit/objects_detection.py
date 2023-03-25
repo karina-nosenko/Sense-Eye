@@ -141,16 +141,20 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
         cv2.line(frame, top_left, top_right, (0, 0, 255), 1)
         cv2.line(frame, bottom_left, bottom_right, (0, 0, 255), 1)
 
+    # Scale box coordinates to the size of current frame
+    for detection in person_detection_results:
+        detection[:, :4] = scale_coords(img.shape[2:], detection[:, :4], frame.shape).round()
+    for detection in ball_detection_results:
+        detection[:, :4] = scale_coords(img.shape[2:], detection[:, :4], frame.shape).round() 
+    for detection in all_detections:
+        detection[:, :4] = scale_coords(img.shape[2:], detection[:, :4], frame.shape).round() 
+
     # Plotting the detections
     players_list_indexes_direction_playerWithTheBasll = []
     ball_indexes = []
     for detection in all_detections:
         if not len(detection):
             continue
-
-        # Scale box coordinates to the size of current frame
-        detection[:, :4] = scale_coords(
-            img.shape[2:], detection[:, :4], frame.shape).round()
 
         player_with_the_ball_center_point = _detect_player_with_the_ball(
             detection, names, player_with_the_ball_center_point)
