@@ -103,7 +103,9 @@ const isPlayerInsideTriangle = (player, point1, point2, point3) => {
 const getPlayerWithBall = (players) => {
     return players.find(player => player.holdsBall) || null;
 }
-
+const getPlayerOpponent = (players,opponent_team_index) => {
+    return players.find(player => (player.team == opponent_team_index));
+}
 const getTeammates = (ballHolder, players) => {
     return players.filter(player => (player.id != ballHolder.id) && (player.team == ballHolder.team));
 }
@@ -266,7 +268,7 @@ exports.modeController = {
         if (isBetween(goalDistance, MIN_GOAL_PASSING_DISTANCE, MAX_GOAL_PASSING_DISTANCE) &&
             pathToGoalIsFree(ballHolder, teammates, body.goals[goalIndex]) &&
             goalInSightRange(ballHolder, body.goals[goalIndex])) {
-            return recommendDirectShotOnGoal(res, body.players[0], body.goals[goalIndex]);
+            return recommendDirectShotOnGoal(res, ballHolder, body.goals[goalIndex]);
         } else {
             sortedTeammates = sortByDistance(teammatesDistance) // TODO - fix calculateDistanceBetweenPlayers
             sortedTeammates.forEach(teammate => {
@@ -280,8 +282,19 @@ exports.modeController = {
     },
     differentTeamsModeA(req, res) {
         const { body } = req;
-
-        res.status(200).json({ "differentTeamsModeA": "not implemented." });
+        const ballHolder = getPlayerWithBall(body.players);
+        const goalIndex = ballHolder.team;
+        opponent_team_index = !ballHolder.team
+        opponent = getPlayerOpponent(body.players,opponent_team_index);
+        opponentDistance = calculateEuclideanDistance(ballHolder,opponent);
+        goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
+        if (isBetween(goalDistance, MIN_GOAL_PASSING_DISTANCE, MAX_GOAL_PASSING_DISTANCE) &&
+        goalInSightRange(ballHolder, body.goals[goalIndex]))
+            return recommendDirectShotOnGoal(res, ballHolder, body.goals[goalIndex]);
+        else if(opponentDistance <= MAX_OPPONENT_DISTANCE)
+            return recommendPassAwayFromOpponent(ballHolder,opponent);
+        else
+            return recommendKeepTheBall(res, ballHolder);
     },
     differentTeamsModeB(req, res) {
         const { body } = req;
