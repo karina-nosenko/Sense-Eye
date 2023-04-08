@@ -25,8 +25,8 @@ class MainPage(QMainWindow):
         self.setWindowTitle('SenseEye Desktop Application')
 
         # calculate the width and height of the window in percentages
-        width_percent = 90
-        height_percent = 90
+        width_percent = 60
+        height_percent = 60
         screen_size = QDesktopWidget().screenGeometry()
         width = int(screen_size.width() * width_percent / 100)
         height = int(screen_size.height() * height_percent / 100)
