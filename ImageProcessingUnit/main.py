@@ -52,6 +52,7 @@ if (MODE == 'video'):
 color_recommendation = ''
 output_state_recommendation = ''
 state_recommendation = ''
+previous_recommendation_label = ''
 data = {}
 
 # Initializing model and setting it for inference
@@ -66,6 +67,7 @@ with torch.no_grad():
         ret, frame = capture.read()  
         if not ret:
             break
+
         (player_with_the_ball_center_point,
         prev_person_center_points,
         playersList,
@@ -101,14 +103,18 @@ with torch.no_grad():
             state_recommendation = data['state']
 
         # Output recommendation label
-        cv2.putText(frame, color_recommendation + ": " + state_recommendation + " " + output_state_recommendation, 
+        recommendation_label = color_recommendation + ": " + state_recommendation + " " + output_state_recommendation
+        cv2.putText(frame, recommendation_label, 
                             (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1)
         
         # Save the frame with the recommendation to materials
-        path = '../materials/recommendations/' + CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H-%M-%S')
-        filename = f'{path}/{str(uuid.uuid4())}.jpg'
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        cv2.imwrite(filename, cv2.resize(frame, (1600, 901)))
+        if recommendation_label != previous_recommendation_label:
+            path = '../materials/recommendations/' + CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H-%M-%S')
+            filename = f'{path}/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.jpg'
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            cv2.imwrite(filename, cv2.resize(frame, (1600, 901)))
+        
+        previous_recommendation_label = recommendation_label
 
         # Output the result
         if MODE == 'video':

@@ -112,7 +112,7 @@ class MainPage(QMainWindow):
         self.statusLabel.setText('Attempting to connect to the components...')
         QApplication.processEvents()
         self.process1 = subprocess.Popen(['sudo', 'python3','main.py'],cwd='../') 
-        time.sleep(10)
+        # time.sleep(10)
         self.statusLabel.setText('Please wait! The video window will pop up in a minute.')
 
         self.process2 = subprocess.Popen(['npm','run','dev'],cwd='../RecommendationsUnit/')

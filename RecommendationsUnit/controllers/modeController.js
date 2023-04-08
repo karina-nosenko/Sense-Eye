@@ -31,7 +31,7 @@ const calculateEuclideanDistance = (x1, y1, x2, y2) => {
 }
 
 const getClockDirection = (player, pointX, pointY) => {
-    const playerDirection = player.sightDirection + 180;
+    const playerDirection = player.sightDirection;
 
     // Calculate the angle from the player to the point
     const deltaX = pointX - player.x;
@@ -151,13 +151,14 @@ const recommendMovingAwayFromGoal = (res, ballHolder, goal) => {
 
     const color = getColorNameById(ballHolder.id);
 
-    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=move`)
-        .then(function (response) {
-            res.status(200).json({'color': color,'output_state':output_state,'state':'move'});
-        })
-        .catch(function (error) {
-            res.status(200).json({'color': '','output_state':'','state':''});
-        })
+    return res.status(200).json({'color': color,'output_state':output_state,'state':'move'});
+    // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=move`)
+    //     .then(function (response) {
+    //         res.status(200).json({'color': color,'output_state':output_state,'state':'move'});
+    //     })
+    //     .catch(function (error) {
+    //         res.status(200).json({'color': '','output_state':'','state':''});
+    //     })
 }
 
 const recommendMovingTowardsGoal = (res, ballHolder, goal) => {
@@ -165,51 +166,54 @@ const recommendMovingTowardsGoal = (res, ballHolder, goal) => {
 
     const color = getColorNameById(ballHolder.id);
 
-    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=move`)
-        .then(function (response) {
-            res.status(200).json({'color': color,'output_state':output_state,'state':'move'});
-        })
-        .catch(function (error) {
-            res.status(200).json({'color': '','output_state':'','state':''});
-        })
+    return res.status(200).json({'color': color,'output_state':output_state,'state':'move'});
+    // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=move`)
+    //     .then(function (response) {
+    //         res.status(200).json({'color': color,'output_state':output_state,'state':'move'});
+    //     })
+    //     .catch(function (error) {
+    //         res.status(200).json({'color': '','output_state':'','state':''});
+    //     })
 }
 
 const recommendDirectShotOnGoal = (res, ballHolder, goal) => {
     let output_state = getClockDirectionToGoal(ballHolder, goal)
 
     const color = getColorNameById(ballHolder.id);
-    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=kick`)
-        .then(function (response) {
-            res.status(200).json({'color': color,'output_state':output_state,'state':'kick'});
-        })
-        .catch(function (error) {
-            res.status(200).json({'color': '','output_state':'','state':''});
-        })
+    return res.status(200).json({'color': color,'output_state':output_state,'state':'kick'});
+    // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=kick`)
+    //     .then(function (response) {
+    //         res.status(200).json({'color': color,'output_state':output_state,'state':'kick'});
+    //     })
+    //     .catch(function (error) {
+    //         res.status(200).json({'color': '','output_state':'','state':''});
+    //     })
 }
 
 const recommendPassToTeammate = (res, ballHolder, teammate) => {
     let output_state = getClockDirection(ballHolder, teammate.x, teammate.y)
 
     const color = getColorNameById(ballHolder.id);
-
-    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=pass`)
-        .then(function (response) {
-            res.status(200).json({'color': color,'output_state':output_state,'state':'pass'});
-        })
-        .catch(function (error) {
-            res.status(200).json({'color': '','output_state':'','state':''});
-        })
+    return res.status(200).json({'color': color,'output_state':output_state,'state':'pass'});
+    // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=pass`)
+    //     .then(function (response) {
+    //         res.status(200).json({'color': color,'output_state':output_state,'state':'pass'});
+    //     })
+    //     .catch(function (error) {
+    //         res.status(200).json({'color': '','output_state':'','state':''});
+    //     })
 }
 
 const recommendKeepTheBall = (res, ballHolder) => {
     const color = getColorNameById(ballHolder.id);
-    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${0}&state=move`)
-        .then(function (response) {
-            res.status(200).json({'color': color,'output_state':0,'state':'move'});
-        })
-        .catch(function (error) {
-            res.status(200).json({'color': '','output_state':'','state':''});
-        })
+    return res.status(200).json({'color': color,'output_state':0,'state':'move'});
+    // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${0}&state=move`)
+    //     .then(function (response) {
+    //         res.status(200).json({'color': color,'output_state':0,'state':'move'});
+    //     })
+    //     .catch(function (error) {
+    //         res.status(200).json({'color': '','output_state':'','state':''});
+    //     })
 }
 
 const doNothing = (res) => {
