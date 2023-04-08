@@ -6,6 +6,7 @@ import os
 from configs import APPEND_PATH, MODE, CAMERA_INDEX, VIDEO_PATH, options, GAME_MODE, YELLOW_COLOR, ORANGE_COLOR
 import colors_detection as cd
 from datetime import datetime
+import math
 
 # Settings
 sys.path.append(APPEND_PATH)
@@ -15,6 +16,7 @@ from image_functions import rescale_frame
 from recommendation_api_helpers import recommendation_single_player, recommendation_two_players_same_team
 from objects_detection import initialize_player_detection_model, detect_objects
 
+CURRENT_TIMESTAMP = datetime.now()
 
 def initialize_capture():
         if (MODE == 'video'):
@@ -35,8 +37,8 @@ def initialize_output(capture):
     fps = int(capture.get(cv2.CAP_PROP_FPS))
     w = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    current_timestamp = datetime.now()
-    formatted_timestamp = current_timestamp.strftime('%Y-%m-%d %H:%M:%S')
+    CURRENT_TIMESTAMP = datetime.now()
+    formatted_timestamp = CURRENT_TIMESTAMP.strftime('%Y-%m-%d %H:%M:%S')
     return cv2.VideoWriter(f'../output_videos/{formatted_timestamp}.ogv', cv2.VideoWriter_fourcc(*'THEO'), fps , (w,h))
 
 
@@ -50,6 +52,7 @@ if (MODE == 'video'):
 color_recommendation = ''
 output_state_recommendation = ''
 state_recommendation = ''
+previous_recommendation_label = ''
 data = {}
 
 # Initializing model and setting it for inference
@@ -64,6 +67,7 @@ with torch.no_grad():
         ret, frame = capture.read()  
         if not ret:
             break
+
         (player_with_the_ball_center_point,
         prev_person_center_points,
         playersList,
@@ -99,9 +103,31 @@ with torch.no_grad():
             state_recommendation = data['state']
 
         # Output recommendation label
-        cv2.putText(frame, color_recommendation + ": " + state_recommendation + " " + output_state_recommendation, 
-                            (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1)
+        recommendation_label = color_recommendation + ": " + state_recommendation + " " + output_state_recommendation
+        cv2.putText(frame, recommendation_label, (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1)
+
+        # # Output recommendation arrow
+        # if output_state_recommendation != '':
+        #     arrow_angle = (int(output_state_recommendation) / 12) * 360
+        #     start_arrow = (int(player_with_the_ball_center_point[0]), int(player_with_the_ball_center_point[1]))
+        #     arrow_length = 40
+        #     delta_x = arrow_length * math.cos(math.radians(arrow_angle))
+        #     delta_y = arrow_length * math.sin(math.radians(arrow_angle))
+        #     x2 = int(player_with_the_ball_center_point[0] + delta_x)
+        #     y2 = int(player_with_the_ball_center_point[1] - delta_y)
+        #     end_arrow = (x2, y2)
+        #     color = (255, 191, 0) if color_recommendation == 'yellow' else (5, 100, 100)
+        #     cv2.arrowedLine(frame, start_arrow, end_arrow, color, thickness = 2, tipLength = 0.5)
         
+        # Save the frame with the recommendation to materials
+        if recommendation_label != previous_recommendation_label:
+            path = '../materials/recommendations/' + CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H-%M-%S')
+            filename = f'{path}/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.jpg'
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            cv2.imwrite(filename, cv2.resize(frame, (1600, 901)))
+        
+        previous_recommendation_label = recommendation_label
+
         # Output the result
         if MODE == 'video':
             print(f"{frame_index+1}/{nframes} frames processed")
