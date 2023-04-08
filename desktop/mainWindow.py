@@ -25,8 +25,8 @@ class MainPage(QMainWindow):
         self.setWindowTitle('SenseEye Desktop Application')
 
         # calculate the width and height of the window in percentages
-        width_percent = 90
-        height_percent = 90
+        width_percent = 60
+        height_percent = 60
         screen_size = QDesktopWidget().screenGeometry()
         width = int(screen_size.width() * width_percent / 100)
         height = int(screen_size.height() * height_percent / 100)
@@ -112,7 +112,7 @@ class MainPage(QMainWindow):
         self.statusLabel.setText('Attempting to connect to the components...')
         QApplication.processEvents()
         self.process1 = subprocess.Popen(['sudo', 'python3','main.py'],cwd='../') 
-        time.sleep(10)
+        # time.sleep(10)
         self.statusLabel.setText('Please wait! The video window will pop up in a minute.')
 
         self.process2 = subprocess.Popen(['npm','run','dev'],cwd='../RecommendationsUnit/')
