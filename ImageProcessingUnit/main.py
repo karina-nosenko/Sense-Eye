@@ -3,7 +3,7 @@ import cv2
 import torch
 import itertools
 import os
-from configs import APPEND_PATH, MODE, CAMERA_INDEX, VIDEO_PATH, options, GAME_MODE, YELLOW_COLOR, ORANGE_COLOR
+from configs import APPEND_PATH, MODE, CAMERA_INDEX, VIDEO_PATH, options, GAME_MODE, YELLOW_COLOR, ORANGE_COLOR, SHOW_RECOMMENDATION_ARROW
 import colors_detection as cd
 from datetime import datetime
 import math
@@ -53,6 +53,7 @@ color_recommendation = ''
 output_state_recommendation = ''
 state_recommendation = ''
 previous_recommendation_label = ''
+frames_counter = 1
 data = {}
 
 # Initializing model and setting it for inference
@@ -71,7 +72,8 @@ with torch.no_grad():
         (player_with_the_ball_center_point,
         prev_person_center_points,
         playersList,
-        ball_indexes) = detect_objects(
+        ball_indexes,
+        frames_counter) = detect_objects(
             frame,
             prev_person_center_points,
             player_with_the_ball_center_point,
@@ -81,7 +83,8 @@ with torch.no_grad():
             model,
             stride,
             names,
-            classes
+            classes,
+            frames_counter
         )
         ball_prev_indexes = []
         if(len(ball_indexes)>0):
@@ -106,18 +109,19 @@ with torch.no_grad():
         recommendation_label = color_recommendation + ": " + state_recommendation + " " + output_state_recommendation
         cv2.putText(frame, recommendation_label, (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1)
 
-        # # Output recommendation arrow
-        # if output_state_recommendation != '':
-        #     arrow_angle = (int(output_state_recommendation) / 12) * 360
-        #     start_arrow = (int(player_with_the_ball_center_point[0]), int(player_with_the_ball_center_point[1]))
-        #     arrow_length = 40
-        #     delta_x = arrow_length * math.cos(math.radians(arrow_angle))
-        #     delta_y = arrow_length * math.sin(math.radians(arrow_angle))
-        #     x2 = int(player_with_the_ball_center_point[0] + delta_x)
-        #     y2 = int(player_with_the_ball_center_point[1] - delta_y)
-        #     end_arrow = (x2, y2)
-        #     color = (255, 191, 0) if color_recommendation == 'yellow' else (5, 100, 100)
-        #     cv2.arrowedLine(frame, start_arrow, end_arrow, color, thickness = 2, tipLength = 0.5)
+        # Output recommendation arrow
+        if SHOW_RECOMMENDATION_ARROW:
+            if output_state_recommendation != '':
+                arrow_angle = (int(output_state_recommendation) / 12) * 360
+                start_arrow = (int(player_with_the_ball_center_point[0]), int(player_with_the_ball_center_point[1]))
+                arrow_length = 40
+                delta_x = arrow_length * math.cos(math.radians(arrow_angle))
+                delta_y = arrow_length * math.sin(math.radians(arrow_angle))
+                x2 = int(player_with_the_ball_center_point[0] + delta_x)
+                y2 = int(player_with_the_ball_center_point[1] - delta_y)
+                end_arrow = (x2, y2)
+                color = (255, 191, 0) if color_recommendation == 'yellow' else (5, 100, 100)
+                cv2.arrowedLine(frame, start_arrow, end_arrow, color, thickness = 2, tipLength = 0.5)
         
         # Save the frame with the recommendation to materials
         if recommendation_label != previous_recommendation_label:

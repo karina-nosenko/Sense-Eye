@@ -2,6 +2,7 @@
 
 import numpy as np
 import cv2
+from configs import SHOW_COLORS
 
 def detect_colors(frame):
     """
@@ -77,9 +78,12 @@ def detect_colors(frame):
         area = cv2.contourArea(contour)
         if (area > 0 and area < 120):
             x, y, w, h = cv2.boundingRect(contour)
-            frame = cv2.rectangle(frame, (x, y),
-                                  (x + w, y + h),
-                                  (0, 0, 255), 2)
+
+            if SHOW_COLORS:
+                frame = cv2.rectangle(frame, (x, y),
+                                    (x + w, y + h),
+                                    (0, 0, 255), 2)
+                
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
@@ -93,9 +97,12 @@ def detect_colors(frame):
         area = cv2.contourArea(contour)
         if (area > 0 and area < 120):
             x, y, w, h = cv2.boundingRect(contour)
-            frame = cv2.rectangle(frame, (x, y),
-                                  (x + w, y + h),
-                                  (0, 145, 255), 2)
+
+            if SHOW_COLORS:
+                frame = cv2.rectangle(frame, (x, y),
+                                    (x + w, y + h),
+                                    (0, 145, 255), 2)
+                
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
@@ -117,9 +124,12 @@ def detect_colors(frame):
         area = cv2.contourArea(contour)
         if (area > 0 and area < 120):
             x, y, w, h = cv2.boundingRect(contour)
-            frame = cv2.rectangle(frame, (x, y),
-                                  (x + w, y + h),
-                                  (0, 239, 255), 2)
+
+            if SHOW_COLORS:
+                frame = cv2.rectangle(frame, (x, y),
+                                    (x + w, y + h),
+                                    (0, 239, 255), 2)
+                
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])
@@ -141,9 +151,12 @@ def detect_colors(frame):
         area = cv2.contourArea(contour)
         if (area > 0 and area < 120):
             x, y, w, h = cv2.boundingRect(contour)
-            frame = cv2.rectangle(frame, (x, y),
-                                  (x + w, y + h),
-                                  (255, 0, 0), 2)
+
+            if SHOW_COLORS:
+                frame = cv2.rectangle(frame, (x, y),
+                                    (x + w, y + h),
+                                    (255, 0, 0), 2)
+
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
             y1 = int(moments["m01"] / moments["m00"])

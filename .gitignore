@@ -3,4 +3,4 @@ dist
 main.spec
 desktop.spec
 *.ogv
-materials
+materials/recommendations/*

@@ -10,7 +10,7 @@ from yolov7.models.experimental import attempt_load
 from yolov7.utils.general import non_max_suppression, scale_coords, check_img_size
 from yolov7.utils.torch_utils import time_synchronized, select_device
 
-from configs import options, MODE
+from configs import options, MODE, SHOW_CENTER_POINTS, SHOW_DIRECTION_ARROW, SHOW_DIRECTION_LABEL, SHOW_CLASS_LABEL
 from image_functions import adjust_image_to_desired_shape
 
 
@@ -56,7 +56,7 @@ def initialize_player_detection_model():
     return weights, img_size, device, use_half_precision, model, stride, names, classes
 
 
-def detect_objects(frame, prev_person_center_points, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes):
+def detect_objects(frame, prev_person_center_points, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes, frames_counter):
     """
     Detects objects in a frame using a PyTorch model.
 
@@ -158,8 +158,8 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
 
         player_with_the_ball_center_point = _detect_player_with_the_ball(
             detection, names, player_with_the_ball_center_point)
-        prev_person_center_points, angles = _detect_players_moving_direction(frame,
-            prev_person_center_points, person_detection_results)
+        prev_person_center_points, angles, frames_counter  = _detect_players_moving_direction(frame,
+            prev_person_center_points, person_detection_results, frames_counter)
         # Draw the class name label and center point for each object
         for i, (x1, y1, x2, y2, confidence_score, class_id) in enumerate(detection):
             center_x = int((x1 + x2) // 2)
@@ -177,30 +177,33 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
             else:
                 text_color = (0, 0, 255)  # red for rest of the players
             
-            direction_text = f'direction:{angles[i] + 180},' if class_name == 'person' else ''
-
             # Output the arrow to show the direction
-            if len(angles) > i and class_name == 'person':
-                arrow_angle = angles[i]
-                start_arrow = (center_x, center_y)
-                arrow_length = 20
-                delta_x = arrow_length * math.cos(math.radians(arrow_angle))
-                delta_y = arrow_length * math.sin(math.radians(arrow_angle))
-                x2 = int(center_x + delta_x)
-                y2 = int(center_y - delta_y)
-                end_arrow = (x2, y2)
-                print(end_arrow)
-                cv2.arrowedLine(frame, start_arrow, end_arrow, (0, 0, 255), 1)
+            if SHOW_DIRECTION_ARROW:
+                if len(angles) > i and class_name == 'person':
+                    arrow_angle = angles[i]
+                    start_arrow = (center_x, center_y)
+                    arrow_length = 20
+                    delta_x = arrow_length * math.cos(math.radians(arrow_angle))
+                    delta_y = arrow_length * math.sin(math.radians(arrow_angle))
+                    x2 = int(center_x + delta_x)
+                    y2 = int(center_y - delta_y)
+                    end_arrow = (x2, y2)
+                    print(end_arrow)
+                    cv2.arrowedLine(frame, start_arrow, end_arrow, (0, 0, 255), 1)
 
             # Create text label and display it on the frame
-            text_label1 = f'{class_name} ({center_x}, {center_y})'
-            text_label2 = f'{direction_text} conf:{confidence_score:.2f}'
-            # cv2.putText(frame, text_label1, (center_x + 10, center_y - 25),
-            #             cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_color, 1)
-            # cv2.putText(frame, text_label2, (center_x + 10, center_y - 10),
-            #             cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_color, 1)
-            # cv2.putText(frame, direction_text, (center_x + 10, center_y - 25),
-            #     cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_color, 1)
+            if SHOW_CLASS_LABEL:
+                class_label = f'{class_name} ({center_x}, {center_y})'
+                cv2.putText(frame, class_label, (center_x + 10, center_y - 25),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_color, 1)
+          
+            if SHOW_DIRECTION_LABEL:
+                direction_text = f'direction:{angles[i] + 180},' if class_name == 'person' else ''
+                direction_label = f'{direction_text} conf:{confidence_score:.2f}'
+                cv2.putText(frame, direction_label, (center_x + 10, center_y - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_color, 1)                   
+                cv2.putText(frame, direction_text, (center_x + 10, center_y - 25),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_color, 1)
             
             if(class_name == 'ball'):
                 ball_indexes.append({"x":center_x, "y":center_y})
@@ -226,9 +229,10 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
                     player)
 
             # Draw center point circle on the frame
-            # cv2.circle(frame, (center_x, center_y), 3, (0, 0, 255), -1)
+            if SHOW_CENTER_POINTS:
+                cv2.circle(frame, (center_x, center_y), 3, (0, 0, 255), -1)
 
-    return player_with_the_ball_center_point, prev_person_center_points, players_list_indexes_direction_playerWithTheBasll, ball_indexes, 
+    return player_with_the_ball_center_point, prev_person_center_points, players_list_indexes_direction_playerWithTheBasll, ball_indexes, frames_counter
 
 
 def _find_nearest_player_to_the_ball(ball_center_point, all_detections, names):
@@ -287,19 +291,23 @@ def _detect_player_with_the_ball(detection, names, player_with_the_ball_center_p
     return player_with_the_ball_center_point
 
 
-def _detect_players_moving_direction(frame, prev_players_center_points, curr_players):
+def _detect_players_moving_direction(frame, prev_players_center_points, curr_players, frames_counter):
     # Calculate center points of current person objects
     curr_players_xyxy = curr_players[0][:, :4]
     curr_players_center_points = [[((bbox[0]+bbox[2])//2), ((bbox[1]+bbox[3])//2)]
                                   for bbox in curr_players_xyxy.cpu().numpy()]
 
+    frames_counter += 1
+
     # It's the first frame
     if prev_players_center_points is None:
-        return curr_players_center_points, [0] * len(curr_players_center_points)
+        return curr_players_center_points, [0] * len(curr_players_center_points), frames_counter
 
-    # If no players detected - assume the missing players are in the same coordinates
-    if not len(curr_players_center_points):
-        return prev_players_center_points, [0] * len(curr_players_center_points)
+    # If no players detected or the frame count is odd - assume the missing players are in the same coordinates
+    # (we're skipping each second frame for better direction accuracy)
+    # TODO: missing players must have the same angles from the previous frame
+    if not len(curr_players_center_points) or (frames_counter % 2 != 0):
+        return prev_players_center_points, [0] * len(curr_players_center_points), frames_counter
 
     # Find the index of the closest point in the first vector for each point in the second vector
     closest_indices = np.argmin(
@@ -322,21 +330,17 @@ def _detect_players_moving_direction(frame, prev_players_center_points, curr_pla
         prev_player = prev_players_center_points[closest_indices[i]]
 
         # Draw points of current and previous coordinate
-        prev_player_coord = (int(prev_player[0]), int(prev_player[1]))
-        curr_player_coord = (int(curr_player[0]), int(curr_player[1]))
-        cv2.circle(frame, prev_player_coord, 1, (225, 225, 0), -1)
-        cv2.circle(frame, curr_player_coord, 1, (0, 255, 0), -1)
+        if SHOW_DIRECTION_ARROW:
+            prev_player_coord = (int(prev_player[0]), int(prev_player[1]))
+            curr_player_coord = (int(curr_player[0]), int(curr_player[1]))
+            cv2.circle(frame, prev_player_coord, 1, (225, 225, 0), -1)
+            cv2.circle(frame, curr_player_coord, 1, (0, 255, 0), -1)
 
-        x1 = prev_player[0]
-        x2 = curr_player[0]
-        y1 = prev_player[1]
-        y2 = curr_player[1]
-        angle = math.atan2(-(y2 - y1), x2 - x1)
+        angle = math.atan2(-(curr_player[1] - prev_player[1]), curr_player[0] - prev_player[0])
         angle_degrees = math.degrees(angle)
         if angle_degrees < 0:
             angle_degrees += 360
 
-        # cv2.putText(frame, str(angle_degrees), (int(curr_player[0] + 10), int(curr_player[1] + 10)), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 0, 0), 1)
         angles.append(angle_degrees)
 
-    return curr_players_center_points, angles
+    return curr_players_center_points, angles, frames_counter
