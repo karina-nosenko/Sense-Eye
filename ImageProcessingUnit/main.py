@@ -64,7 +64,7 @@ with torch.no_grad():
     player_with_the_ball_center_point = None
     prev_person_center_points = None
     weights, img_size, device, use_half_precision, model, stride, names, classes = initialize_player_detection_model()
-    frames_range = range(nframes) if (MODE == 'video') else itertools.count()  
+    frames_range = range(nframes) if (MODE == 'video') else itertools.count()
 
     for frame_index in frames_range:
         ret, frame = capture.read()  
@@ -77,7 +77,8 @@ with torch.no_grad():
         prev_person_center_points,
         playersList,
         ball_indexes,
-        frames_counter) = detect_objects(
+        frames_counter,
+        COORDINATES_TRACKING) = detect_objects(
             frame,
             prev_person_center_points,
             player_with_the_ball_center_point,
@@ -88,7 +89,8 @@ with torch.no_grad():
             stride,
             names,
             classes,
-            frames_counter)
+            frames_counter,
+            COORDINATES_TRACKING)
         ball_prev_indexes = []
         if(len(ball_indexes)>0):
             ball_prev_indexes = ball_indexes
