@@ -17,6 +17,8 @@ from recommendation_api_helpers import recommendation_single_player, recommendat
 from objects_detection import initialize_player_detection_model, detect_objects
 
 CURRENT_TIMESTAMP = datetime.now()
+LAST_FRAME = cv2.imread('')
+COORDINATES_TRACKING = []
 
 def initialize_capture():
         if (MODE == 'video'):
@@ -69,6 +71,8 @@ with torch.no_grad():
         if not ret:
             break
 
+        LAST_FRAME = frame
+
         (player_with_the_ball_center_point,
         prev_person_center_points,
         playersList,
@@ -84,8 +88,7 @@ with torch.no_grad():
             stride,
             names,
             classes,
-            frames_counter
-        )
+            frames_counter)
         ball_prev_indexes = []
         if(len(ball_indexes)>0):
             ball_prev_indexes = ball_indexes
@@ -142,6 +145,15 @@ with torch.no_grad():
         if key == 27:
             break
 
+# Save the frame with players' movement traces
+
+
+path = '../materials/traces/' + CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H-%M-%S')
+filename = f'{path}/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.jpg'
+os.makedirs(os.path.dirname(filename), exist_ok=True)
+cv2.imwrite(filename, cv2.resize(frame, (1600, 901)))
+
+# Release resources
 output.release()
 cv2.destroyAllWindows()
 capture.release()
