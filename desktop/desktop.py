@@ -21,7 +21,7 @@ def syncronize():
     while True:
         if is_internet_connection():
             # TODO: send all contents of /materials to the DB
-            print('Ping to Google successful!')
+            print('Ping to Google successful!')    
         else:
             print('No ping response from Google.')
         time.sleep(10) # wait for 10 seconds before checking again
