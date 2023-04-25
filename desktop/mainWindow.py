@@ -13,9 +13,10 @@ import subprocess
 
 from videoWindow import *
 from styles import *
+from desktop import start_sending_materials_process
 
 
-#################### Main Page ####################
+#== Main Page ==#
 class MainPage(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -158,6 +159,8 @@ class MainPage(QMainWindow):
 
         print("All subprocesses terminated.")
 
+        start_sending_materials_process()
+
 
     def show_history_page(self):
         self.heading.hide()
@@ -169,7 +172,7 @@ class MainPage(QMainWindow):
         self.setCentralWidget(HistoryPage())
 
 
-#################### History Page ####################
+#== History Page ==#
 class HistoryPage(QMainWindow):
     def __init__(self):
         super().__init__()
