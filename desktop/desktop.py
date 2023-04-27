@@ -12,6 +12,38 @@ from multiprocessing import Process
 
 from mainWindow import *
 
+def create_games():
+    client = pymongo.MongoClient("mongodb+srv://yosef:sense111@cluster0.bmxfx.mongodb.net/sense-eye")
+    db = client["sense-eye"]
+    collection = db["games"]
+
+    path = os.path.join("../materials", "games.txt")
+    if not os.path.exists(path):
+        return
+    
+    with open(path, "r+") as f:
+        d = f.readlines()
+        f.seek(0)
+        for i in d:
+            game_id, game_mode = i.strip().split()
+            document = {
+                "timestamp": game_id,
+                "mode": game_mode,
+                "orgName": "shenkar"
+            }
+
+            result = collection.insert_one(document)
+            print(result)
+            if result.inserted_id:
+                # Erase the current row from the file by overwriting it with an empty string
+                f.write(i)
+                f.truncate()
+            else:
+                # Unsuccessful insert - stop iterating
+                return
+            
+        os.remove(path)
+
 def send_recommendations_to_db():
     client = pymongo.MongoClient("mongodb+srv://yosef:sense111@cluster0.bmxfx.mongodb.net/sense-eye")
     db = client["sense-eye"]
@@ -44,7 +76,6 @@ def send_recommendations_to_db():
         # Delete the folder after sending its contents
         os.rmdir(os.path.join(path, foldername))
 
-
 def is_internet_connection():
     ping_process = subprocess.run(['ping', '-c', '1', 'google.com'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -56,8 +87,9 @@ def is_internet_connection():
 def syncronize():
     while True:
         if is_internet_connection():
-            print('Ping to Google successful!')  
+            print('Ping to Google successful!')
 
+            create_games() 
             send_recommendations_to_db()
 
         else:
