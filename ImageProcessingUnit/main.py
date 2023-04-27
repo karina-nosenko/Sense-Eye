@@ -46,6 +46,11 @@ capture = initialize_capture()
 
 output = initialize_output(capture)
 
+# Add a new game record to the materials
+file_path = os.path.join("../materials", "games.txt")
+with open(file_path, "a") as f:
+    f.write(f"{CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H:%M:%S')} {GAME_MODE}\n")
+
 if (MODE == 'video'):
     nframes = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
 
@@ -122,7 +127,7 @@ with torch.no_grad():
                 end_arrow = (x2, y2)
                 color = (255, 191, 0) if color_recommendation == 'yellow' else (5, 100, 100)
                 cv2.arrowedLine(frame, start_arrow, end_arrow, color, thickness = 2, tipLength = 0.5)
-        
+
         # Save the frame with the recommendation to materials
         if recommendation_label != previous_recommendation_label:
             path = '../materials/recommendations/' + CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H-%M-%S')
