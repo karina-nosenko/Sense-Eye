@@ -18,7 +18,7 @@ from recommendation_api_helpers import recommendation_single_player, recommendat
 from objects_detection import initialize_player_detection_model, detect_objects
 
 CURRENT_TIMESTAMP = datetime.now()
-LAST_FRAME = cv2.imread('')
+FIRST_FRAME_SAVED = False
 
 def save_traces_records(players_list, ball_indexes):
     # Get the path to the traces file
@@ -115,8 +115,12 @@ with torch.no_grad():
         ret, frame = capture.read()  
         if not ret:
             break
-
-        LAST_FRAME = frame
+        
+        if not FIRST_FRAME_SAVED:
+            path = '../materials/traces/' + CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H-%M-%S') + '/first_frame.jpg'
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            cv2.imwrite(path, cv2.resize(frame, (1600, 901)))
+            FIRST_FRAME_SAVED = True
 
         (player_with_the_ball_center_point,
         prev_person_center_points,

@@ -250,7 +250,6 @@ const recommendMovingTowardsGoal = (res, ballHolder, goal) => {
 }
 
 const recommendDirectShotOnGoal = (res, ballHolder, goal) => {
-    console.log("recommendDirectShotOnGoal");
     let output_state = getClockDirectionToGoal(ballHolder, goal)
 
     const color = getColorNameById(ballHolder.id);
