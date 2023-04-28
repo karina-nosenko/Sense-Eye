@@ -1,9 +1,8 @@
 import sys
 import os
 import pymongo
-from PIL import Image
+import platform
 import base64
-from PyQt5 import QtCore
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtWebEngineWidgets import *
@@ -77,7 +76,12 @@ def send_recommendations_to_db():
         os.rmdir(os.path.join(path, foldername))
 
 def is_internet_connection():
-    ping_process = subprocess.run(['ping', '-c', '1', 'google.com'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    ping_process = None
+    if platform.system() == "Linux":
+        ping_process = subprocess.run(['ping', '-c', '1', 'google.com'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    else:
+        # TODO: make sure it works on Windows
+        ping_process = subprocess.run(['ping', '-n', '1', 'google.com'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
     if '1 received' in ping_process.stdout.decode():
         return True
