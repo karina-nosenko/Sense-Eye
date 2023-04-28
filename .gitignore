@@ -4,3 +4,4 @@ main.spec
 desktop.spec
 *.ogv
 materials/recommendations/*
+materials/traces/*
