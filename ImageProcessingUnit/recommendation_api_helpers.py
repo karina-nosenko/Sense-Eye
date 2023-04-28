@@ -37,7 +37,7 @@ else:
         }
     ]
 
-def recommendation_single_player(color_id, player_x, player_y, holds_ball, direction,ball_x, ball_y):
+def recommendation_single_player(color_id, player_x, player_y, holds_ball, direction, ball_x, ball_y):
     """
     Calls an API endpoint with player data and returns a recommendation for a single player mode.
 
@@ -57,8 +57,7 @@ def recommendation_single_player(color_id, player_x, player_y, holds_ball, direc
         None
     """
     api_url = RECOMMENDATIONS_API_ADDRESS + "/singlePlayerMode"
-
-    todo = {
+    data = {
         "goals": goals,
         "players": [
             {
@@ -75,13 +74,12 @@ def recommendation_single_player(color_id, player_x, player_y, holds_ball, direc
             "y": ball_y
         }
     }
-    print('going to send the request')
-    headers =  {"Content-Type":"application/json"}
-    response = requests.post(api_url, data=json.dumps(todo), headers=headers)
+
+    headers = {"Content-Type":"application/json"}
+    response = requests.post(api_url, data=json.dumps(data), headers=headers)
     return response.json()
 
-
-def recommendation_two_players_same_team(playersList, player_caps_index, ball_x, ball_y):
+def recommendation_two_players_same_team(player1, player2, ball_x, ball_y):
     """
     Calls an API endpoint with player data and returns a recommendation for a same team mode.
 
@@ -98,21 +96,12 @@ def recommendation_two_players_same_team(playersList, player_caps_index, ball_x,
     Raises:
         None
     """
-    yellow_player, orange_player = _find_indexes_of_two_players(playersList, player_caps_index)
-    # yellow_group = json.loads({"group":0})
-    # orange_group = json.loads({"group":0})
-    yellow_player.update({"team":0})
-    yellow_player['id'] = 0
-    orange_player.update({"team":0})
-    orange_player['id'] = 1
-    print(yellow_player)
-    print(orange_player)
     api_url = RECOMMENDATIONS_API_ADDRESS + "/sameTeamModeA"
-    todo = {
+    data = {
         "goals": goals,
         "players": [
-            yellow_player,
-            orange_player
+            player1,
+            player2
         ],
         "ball": {
             "x": ball_x,
@@ -121,18 +110,52 @@ def recommendation_two_players_same_team(playersList, player_caps_index, ball_x,
     }
     
     headers =  {"Content-Type":"application/json"}
-    response = requests.post(api_url, data=json.dumps(todo), headers=headers)
+    response = requests.post(api_url, data=json.dumps(data), headers=headers)
     return response.json()
 
+# def recommendation_two_players_same_team(playersList, player_caps_index, ball_x, ball_y):
+#     """
+#     Calls an API endpoint with player data and returns a recommendation for a same team mode.
 
-def _find_indexes_of_two_players(player_caps_index,playersList):
+#     Args:
+#     - playersList (list): A list of player dictionaries containing the player's x and y positions,
+#       whether they hold the ball or not, their color_id and direction.
+#     - player_caps_index (int): Coordinates of the caps of the players
+#     - ball_x (int): The x position of the ball.
+#     - ball_y (int): The y position of the ball.
+    
+#     Returns:
+#     - dict: The JSON response from the API call containing the recommendation for the player that holds the ball.
+
+#     Raises:
+#         None
+#     """
+#     yellow_player, orange_player = _find_indexes_of_two_players(playersList, player_caps_index)
+#     yellow_player.update({"team":0})
+#     yellow_player['id'] = 0
+#     orange_player.update({"team":0})
+#     orange_player['id'] = 1
+#     api_url = RECOMMENDATIONS_API_ADDRESS + "/sameTeamModeA"
+#     todo = {
+#         "goals": goals,
+#         "players": [
+#             yellow_player,
+#             orange_player
+#         ],
+#         "ball": {
+#             "x": ball_x,
+#             "y": ball_y
+#         }
+#     }
+    
+#     headers =  {"Content-Type":"application/json"}
+#     response = requests.post(api_url, data=json.dumps(todo), headers=headers)
+#     return response.json()
+
+def find_indexes_of_two_players(player_caps_index, playersList):
     yellow_player = {}
     orange_player = {}
-    # print(playersList)
-    # print(player_caps_index)
     result = _find_closest_objects(playersList, player_caps_index)
-    # print(result)
-    # print("--------------------------------------")
     if(len(result)==2):
         if(result[0]['id']=='yellow'):
             yellow_player = result[0]
@@ -142,7 +165,6 @@ def _find_indexes_of_two_players(player_caps_index,playersList):
             orange_player = result[0]
 
     return yellow_player, orange_player
-
 
 def _find_closest_objects(arr1, arr2):
     results = []

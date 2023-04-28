@@ -56,7 +56,7 @@ def initialize_player_detection_model():
     return weights, img_size, device, use_half_precision, model, stride, names, classes
 
 
-def detect_objects(frame, prev_person_center_points, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes, frames_counter, coordinates_tracking):
+def detect_objects(frame, prev_person_center_points, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes, frames_counter):
     """
     Detects objects in a frame using a PyTorch model.
 
@@ -165,11 +165,6 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
             center_x = int((x1 + x2) // 2)
             center_y = int((y1 + y2) // 2)
 
-            coordinates_tracking.append({
-                "class": names[int(class_id)],
-                "coordinates": (center_x, center_y)
-            })
-
             # Assign color based on object class
             playerWithTheBall = False
             class_name = names[int(class_id)]
@@ -181,6 +176,13 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
                 class_name = 'ball'
             else:
                 text_color = (0, 0, 255)  # red for rest of the players
+
+            # coordinates_tracking.append({
+            #     "class": names[int(class_id)],
+            #     "x": center_x,
+            #     "y": center_y,
+            #     "isBallHolder": playerWithTheBall
+            # })
             
             # Output the arrow to show the direction
             if SHOW_DIRECTION_ARROW:
@@ -237,7 +239,7 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
             if SHOW_CENTER_POINTS:
                 cv2.circle(frame, (center_x, center_y), 3, (0, 0, 255), -1)
 
-    return player_with_the_ball_center_point, prev_person_center_points, players_list_indexes_direction_playerWithTheBasll, ball_indexes, frames_counter, coordinates_tracking
+    return player_with_the_ball_center_point, prev_person_center_points, players_list_indexes_direction_playerWithTheBasll, ball_indexes, frames_counter
 
 
 def _find_nearest_player_to_the_ball(ball_center_point, all_detections, names):

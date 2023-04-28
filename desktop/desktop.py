@@ -33,7 +33,6 @@ def create_games():
             }
 
             result = collection.insert_one(document)
-            print(result)
             if result.inserted_id:
                 # Erase the current row from the file by overwriting it with an empty string
                 f.write(i)
