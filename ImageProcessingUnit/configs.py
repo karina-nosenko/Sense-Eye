@@ -8,7 +8,7 @@ MODE = 'video'
 CAMERA_INDEX = 0
 VIDEO_PATH = APPEND_PATH + '/videos/two_players_orange_yellow.mp4'
 # VIDEO_PATH = APPEND_PATH + '/videos/single_player_yellow.mp4'
-GAME_MODE = 2
+GAME_MODE = 3
 
 #colors id
 YELLOW_COLOR = 0
@@ -34,8 +34,8 @@ options  = {
 }
 
 SHOW_COLORS = False
-SHOW_CENTER_POINTS = False
-SHOW_DIRECTION_ARROW = True
+SHOW_CENTER_POINTS = True
+SHOW_DIRECTION_ARROW = False
 SHOW_DIRECTION_LABEL = False
 SHOW_CLASS_LABEL = False
 SHOW_RECOMMENDATION_ARROW = False

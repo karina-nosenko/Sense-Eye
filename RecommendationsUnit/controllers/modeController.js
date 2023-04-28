@@ -54,7 +54,7 @@ const getClockDirection = (player, pointX, pointY) => { // clock direction
     return clockNumber;
 }
 
-const getClockDirectionToGoal = (player, goal) => { // TODO for yuval function returns between 1-12
+const getClockDirectionToGoal = (player, goal) => {
     const clockToLeftGoalSide = getClockDirection(player, goal.x1, goal.y1);
     const clockToRightGoalSide = getClockDirection(player, goal.x2, goal.y2);
 
@@ -73,6 +73,20 @@ const calculateDistanceToGoal = (player, goals) => {
     const goalCenterX = (goals[goalIndex].x1 + goals[goalIndex].x2) / 2;
     const goalCenterY = (goals[goalIndex].y1 + goals[goalIndex].y2) / 2;
     return calculateEuclideanDistance(goalCenterX, goalCenterY, player.x, player.y);
+}
+
+//TODO return true if the ball_holder is close to goal
+const is_close_to_goal = (player, goals) => {
+    const goalIndex = player.team;
+    const goalCenterX = (goals[goalIndex].x1 + goals[goalIndex].x2) / 2;
+    const goalCenterY = (goals[goalIndex].y1 + goals[goalIndex].y2) / 2;
+    const wrongGoalCenterX = (goals[!goalIndex].x1 + goals[!goalIndex].x2) / 2;
+    const wrongGoalWrongCenterY = (goals[!goalIndex].y1 + goals[!goalIndex].y2) / 2;
+    const distance_player_from_goal = calculateEuclideanDistance(goalCenterX, goalCenterY, player.x, player.y);
+    const distance_player_from_wrong_goal = calculateEuclideanDistance(wrongGoalCenterX, wrongGoalWrongCenterY, player.x, player.y);
+    if (distance_player_from_goal < distance_player_from_wrong_goal)
+        return true;
+    else return false;
 }
 
 const isPlayerInsideTriangle = (player, point1, point2, point3) => {
@@ -110,9 +124,21 @@ const getTeammates = (ballHolder, players) => {
     return players.filter(player => (player.id != ballHolder.id) && (player.team == ballHolder.team));
 }
 
-const calculateDistanceBetweenPlayers = (player1, player2) => {
-    return calculateEuclideanDistance(player1.x, player1.y, player2.x, player2.y)
-}
+// const calculateDistanceBetweenPlayers = (player1, player2) => {
+//     return calculateEuclideanDistance(player1.x, player1.y, player2.x, player2.y)
+// }
+
+
+//YUVAL
+const calculateDistanceBetweenPlayers = (player1, ...points) => {
+    let distances = [];
+    for (let i = 0; i < points.length; i += 2) {
+        let x2 = points[i];
+        let y2 = points[i + 1];
+        distances.push(calculateEuclideanDistance(player1.x1, player1.y1, x2, y2));
+    }
+    return distances;
+};
 
 const pathToGoalIsFree = (ballHolder, teammates, goal) => {
     const point1 = { x: goal.x1, y: goal.y1 };
@@ -134,10 +160,38 @@ const playerInSightRange = (ballHolder, player) => {
     return [9, 10, 11, 12, 1, 2, 3].includes(output_state);
 }
 
+
+// const sortedTeammates = (teammatesDistance) => {
+//     let distances = [];
+//     for (let i = 0; i < teammatesDistance.length; i++) {
+//         distances.push({ index: i, distance: teammatesDistance[i] });
+//     }
+//     distances.sort((a, b) => a.distance - b.distance);
+//     let sortedTeammates = [];
+//     for (let i = 0; i < distances.length; i++) {
+//         sortedTeammates.push([teammates[(distances[i].index * 2)], teammates[(distances[i].index * 2) + 1]]);
+//     }
+//     return sortedTeammates;
+// };
+
+
 const sortByDistance = (teammatesDistance) => {
     // TODO
     return teammatesDistance;
 }
+
+//YUVAL
+const sortPlayersByDistance = (players, playersDistance) => {
+    // Combine each player with their corresponding distance as a tuple
+    const tuples = players.map((player, i) => [player, playersDistance[i]]);
+
+    // Sort the tuples based on the distance (second element in each tuple)
+    tuples.sort((a, b) => a[1] - b[1]);
+
+    // Extract only the sorted players (first element in each tuple)
+    return tuples.map(tuple => tuple[0]);
+};
+
 
 const recommendMovingAwayFromGoal = (res, ballHolder, goal) => {
     let output_state = getClockDirectionToGoal(ballHolder, goal)
@@ -196,6 +250,7 @@ const recommendMovingTowardsGoal = (res, ballHolder, goal) => {
 }
 
 const recommendDirectShotOnGoal = (res, ballHolder, goal) => {
+    console.log("recommendDirectShotOnGoal");
     let output_state = getClockDirectionToGoal(ballHolder, goal)
 
     const color = getColorNameById(ballHolder.id);
@@ -210,10 +265,10 @@ const recommendDirectShotOnGoal = (res, ballHolder, goal) => {
 }
 
 const recommendPassToTeammate = (res, ballHolder, teammate) => {
+    console.log("recommendPassToTeammate");
     let output_state = getClockDirection(ballHolder, teammate.x, teammate.y)
 
     const color = getColorNameById(ballHolder.id);
-
     // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=pass`)
     //     .then(function (response) {
     //         res.status(200).json({'color': color,'output_state':output_state,'state':'pass'});
@@ -225,7 +280,9 @@ const recommendPassToTeammate = (res, ballHolder, teammate) => {
 }
 
 const recommendKeepTheBall = (res, ballHolder) => {
+    console.log("recommendKeepTheBall");
     const color = getColorNameById(ballHolder.id);
+    return res.status(200).json({ 'color': color, 'output_state': 0, 'state': 'move' });
     // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${0}&state=move`)
     //     .then(function (response) {
     //         res.status(200).json({ 'color': color, 'output_state': 0, 'state': 'move' });
@@ -233,7 +290,7 @@ const recommendKeepTheBall = (res, ballHolder) => {
     //     .catch(function (error) {
     //         res.status(200).json({ 'color': '', 'output_state': '', 'state': '' });
     //     })
-    return res.status(200).json({ 'color': color, 'output_state': 0, 'state': 'move' });
+    // return res.status(200).json({ 'color': color, 'output_state': 0, 'state': 'move' });
 }
 
 const doNothing = (res) => {
@@ -263,7 +320,7 @@ exports.modeController = {
         }
 
         const teammates = getTeammates(ballHolder, body.players);
-        const teammateDistance = calculateDistanceBetweenPlayers(ballHolder, teammates[0]);
+        const teammateDistance = calculateEuclideanDistance(ballHolder.x, ballHolder.y, teammates[0].x, teammates[0].y);
         const goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
         const goalIndex = ballHolder.team;
 
@@ -311,15 +368,19 @@ exports.modeController = {
         if (!ballHolder) {
             return doNothing(res);    // No player with ball
         }
-        
+
         const goalIndex = ballHolder.team;
+
         let opponent_team_index = !ballHolder.team
         let opponent = getPlayerOpponent(body.players, opponent_team_index);
         let opponentDistance = calculateEuclideanDistance(ballHolder, opponent);
         let goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
 
+
         if (isBetween(goalDistance, MIN_GOAL_PASSING_DISTANCE, MAX_GOAL_PASSING_DISTANCE) &&
-            goalInSightRange(ballHolder, body.goals[goalIndex]))
+            goalInSightRange(ballHolder, body.goals[goalIndex])
+            &&
+            pathToGoalIsFree(ballHolder, teammates, body.goals[goalIndex]))
             return recommendDirectShotOnGoal(res, ballHolder, body.goals[goalIndex]);
         else if (opponentDistance <= MAX_OPPONENT_DISTANCE &&
             playerInSightRange(ballHolder, opponent))
@@ -329,8 +390,27 @@ exports.modeController = {
     },
     differentTeamsModeB(req, res) {
         const { body } = req;
-
-        res.status(200).json({ "differentTeamsModeB": "not implemented." });
+        ballHolder = getPlayerWithBall(body.players);
+        const goalIndex = ballHolder.team;
+        teammates = getTeammates(ballHolder, body.players);
+        console.log(teammates);
+        teammatesDistance = calculateDistanceBetweenPlayers(ballHolder, teammates);
+        opponent = getPlayerOpponent(body.players, !ballHolder.team);
+        goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
+        if (isBetween(goalDistance, MIN_GOAL_PASSING_DISTANCE,
+            MAX_GOAL_PASSING_DISTANCE)
+            && pathToGoalIsFree(ballHolder, teammates, body.goals[goalIndex]))
+            return recommendDirectShotOnGoal(res, ballHolder, goal);
+        sortedTeammates = sortPlayersByDistance(teammates, teammatesDistance);
+        for (teammate in sortedTeammates) {
+            teammateToOpponentDistance = calculateEuclideanDistance(teammate, opponent);
+            teammateToBallHolderDistance = calculateEuclideanDistance(teammate, ballHolder);
+            if (playerInSightRange(ballHolder, teammate)
+                && teammateToOpponentDistance > teammateToBallHolderDistance)
+                return recommendPassToTeammate(res, ballholder, teammate);
+        }
+        return recommendKeepTheBall(res, ballHolder);
+        // res.status(200).json({ "differentTeamsModeB": "not implemented." });
     },
     fullGameMode(req, res) {
         const { body } = req;
