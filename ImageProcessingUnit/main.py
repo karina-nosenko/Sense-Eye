@@ -142,14 +142,15 @@ with torch.no_grad():
         elif (GAME_MODE == 2 or GAME_MODE == 3):
             if(len(players_list)==2 and len(ball_indexes)>0 and ball_indexes[0]['x'] and ball_indexes[0]['y']):
                 yellow_player, orange_player = find_indexes_of_two_players(players_list, player_caps_index)
-                yellow_player.update({"team":0})
                 yellow_player['id'] = 0
-                orange_player.update({"team":0})
                 orange_player['id'] = 1
 
+                yellow_player.update({"team":0})
                 if GAME_MODE == 2:
+                    orange_player.update({"team":0})
                     data = recommendation_two_players_same_team(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
                 else:
+                    orange_player.update({"team":1})
                     data = recommendation_two_players_different_teams(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
 
         if "color" in data and "output_state" in data and "state"  in data:
