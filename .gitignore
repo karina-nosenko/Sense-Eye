@@ -5,3 +5,5 @@ desktop.spec
 *.ogv
 materials/recommendations/*
 materials/traces/*
+!materials/recommendations/.gitkeep
+!materials/traces/.gitkeep
