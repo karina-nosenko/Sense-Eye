@@ -22,11 +22,16 @@ LAST_FRAME = cv2.imread('')
 
 def save_traces_records(players_list, ball_indexes):
     # Get the path to the traces file
-    file_path = os.path.join("..", "materials", "traces.json")
+    path = '../materials/traces/' + CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H-%M-%S')
     
+    traces_path = os.path.join(path, "traces.json")
+    
+    # Create the directory for the traces file
+    os.makedirs(os.path.dirname(traces_path), exist_ok=True)
+
     # Load the data from the traces file, or create a new list if the file doesn't exist
-    if os.path.exists(file_path):
-        with open(file_path, 'r') as f:
+    if os.path.exists(traces_path):
+        with open(traces_path, 'r') as f:
             data = json.load(f)
     else:
         data = []
@@ -50,7 +55,7 @@ def save_traces_records(players_list, ball_indexes):
         data.append(player_obj)
     
     # Save the updated data list to the traces file
-    with open(file_path, 'w') as f:
+    with open(traces_path, 'w') as f:
         json.dump(data, f)
 
 def initialize_capture():

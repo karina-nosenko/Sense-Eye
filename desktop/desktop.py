@@ -11,6 +11,7 @@ from PyQt5.QtGui import *
 from multiprocessing import Process
 
 from mainWindow import *
+from personalized_frames import create_personalized_frames
 
 def create_games():
     client = pymongo.MongoClient("mongodb+srv://yosef:sense111@cluster0.bmxfx.mongodb.net/sense-eye")
@@ -99,6 +100,11 @@ def start_sending_materials_process():
     # Keep sending materials to the internet each time
     # there's an internet connection (in a separate process)
     p = Process(target=syncronize)
+    p.daemon = True
+    p.start()
+
+def start_creating_frames_process():
+    p = Process(target=create_personalized_frames)
     p.daemon = True
     p.start()
 
