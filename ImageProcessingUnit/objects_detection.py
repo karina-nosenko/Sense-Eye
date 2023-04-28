@@ -176,6 +176,13 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
                 class_name = 'ball'
             else:
                 text_color = (0, 0, 255)  # red for rest of the players
+
+            # coordinates_tracking.append({
+            #     "class": names[int(class_id)],
+            #     "x": center_x,
+            #     "y": center_y,
+            #     "isBallHolder": playerWithTheBall
+            # })
             
             # Output the arrow to show the direction
             if SHOW_DIRECTION_ARROW:

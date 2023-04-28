@@ -13,7 +13,7 @@ import subprocess
 
 from videoWindow import *
 from styles import *
-from desktop import start_sending_materials_process
+from desktop import start_sending_materials_process, start_creating_frames_process
 
 
 #== Main Page ==#
@@ -158,6 +158,8 @@ class MainPage(QMainWindow):
         self.process3 = None
 
         print("All subprocesses terminated.")
+
+        start_creating_frames_process()
 
         start_sending_materials_process()
 

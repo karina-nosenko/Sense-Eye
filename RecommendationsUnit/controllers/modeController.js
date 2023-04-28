@@ -269,7 +269,6 @@ const recommendPassToTeammate = (res, ballHolder, teammate) => {
     let output_state = getClockDirection(ballHolder, teammate.x, teammate.y)
 
     const color = getColorNameById(ballHolder.id);
-
     // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=pass`)
     //     .then(function (response) {
     //         res.status(200).json({'color': color,'output_state':output_state,'state':'pass'});

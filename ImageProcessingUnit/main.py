@@ -7,16 +7,56 @@ from configs import APPEND_PATH, MODE, CAMERA_INDEX, VIDEO_PATH, options, GAME_M
 import colors_detection as cd
 from datetime import datetime
 import math
+import json
 
 # Settings
 sys.path.append(APPEND_PATH)
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 from image_functions import rescale_frame
-from recommendation_api_helpers import recommendation_single_player, recommendation_two_players_same_team
+from recommendation_api_helpers import recommendation_single_player, recommendation_two_players_same_team, recommendation_two_players_different_teams, find_indexes_of_two_players
 from objects_detection import initialize_player_detection_model, detect_objects
 
 CURRENT_TIMESTAMP = datetime.now()
+LAST_FRAME = cv2.imread('')
+
+def save_traces_records(players_list, ball_indexes):
+    # Get the path to the traces file
+    path = '../materials/traces/' + CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H-%M-%S')
+    
+    traces_path = os.path.join(path, "traces.json")
+    
+    # Create the directory for the traces file
+    os.makedirs(os.path.dirname(traces_path), exist_ok=True)
+
+    # Load the data from the traces file, or create a new list if the file doesn't exist
+    if os.path.exists(traces_path):
+        with open(traces_path, 'r') as f:
+            data = json.load(f)
+    else:
+        data = []
+    
+    # Create a new ball object and add it to the data list
+    if ball_indexes:
+        ball = {
+            "gameId": CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H:%M:%S'),
+            "class": "ball",
+            "properties": ball_indexes[0]
+        }
+        data.append(ball)
+    
+    # Create a new player object for each player, add a color attribute, and add it to the data list
+    for player in players_list:
+        player_obj = {
+            "gameId": CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H:%M:%S'),
+            "class": "person",
+            "properties": player
+        }
+        data.append(player_obj)
+    
+    # Save the updated data list to the traces file
+    with open(traces_path, 'w') as f:
+        json.dump(data, f)
 
 def initialize_capture():
         if (MODE == 'video'):
@@ -60,6 +100,8 @@ state_recommendation = ''
 previous_recommendation_label = ''
 frames_counter = 1
 data = {}
+yellow_player = {}
+orange_player = {}
 
 # Initializing model and setting it for inference
 torch.cuda.empty_cache()
@@ -67,16 +109,18 @@ with torch.no_grad():
     player_with_the_ball_center_point = None
     prev_person_center_points = None
     weights, img_size, device, use_half_precision, model, stride, names, classes = initialize_player_detection_model()
-    frames_range = range(nframes) if (MODE == 'video') else itertools.count()  
+    frames_range = range(nframes) if (MODE == 'video') else itertools.count()
 
     for frame_index in frames_range:
         ret, frame = capture.read()  
         if not ret:
             break
 
+        LAST_FRAME = frame
+
         (player_with_the_ball_center_point,
         prev_person_center_points,
-        playersList,
+        players_list,
         ball_indexes,
         frames_counter) = detect_objects(
             frame,
@@ -89,8 +133,7 @@ with torch.no_grad():
             stride,
             names,
             classes,
-            frames_counter
-        )
+            frames_counter)
         ball_prev_indexes = []
         if(len(ball_indexes)>0):
             ball_prev_indexes = ball_indexes
@@ -98,17 +141,29 @@ with torch.no_grad():
 
         # Single player
         if (GAME_MODE == 1):
-            if(len(ball_prev_indexes)>0 and len(playersList)>0 and len(playersList[0])>3 and playersList[0]['x'] and playersList[0]['y'] and playersList[0]['holdsBall'] and playersList[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
-                data = recommendation_single_player(YELLOW_COLOR, playersList[0]['x'], playersList[0]['y'], playersList[0]['holdsBall'], playersList[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
+            if(len(ball_prev_indexes)>0 and len(players_list)>0 and len(players_list[0])>3 and players_list[0]['x'] and players_list[0]['y'] and players_list[0]['holdsBall'] and players_list[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
+                data = recommendation_single_player(YELLOW_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
         # Two players from the same team
-        elif (GAME_MODE == 2):
-            if(len(playersList)==2 and len(ball_indexes)>0 and ball_indexes[0]['x'] and ball_indexes[0]['y']):
-                data = recommendation_two_players_same_team(playersList, player_caps_index, ball_indexes[0]['x'], ball_indexes[0]['y'])
+        elif (GAME_MODE == 2 or GAME_MODE == 3):
+            if(len(players_list)==2 and len(ball_indexes)>0 and ball_indexes[0]['x'] and ball_indexes[0]['y']):
+                yellow_player, orange_player = find_indexes_of_two_players(players_list, player_caps_index)
+                yellow_player['id'] = 0
+                orange_player['id'] = 1
 
-        if "color" in data and "output_state"  in data and "state"  in data:
+                yellow_player.update({"team":0})
+                if GAME_MODE == 2:
+                    orange_player.update({"team":0})
+                    data = recommendation_two_players_same_team(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
+                else:
+                    orange_player.update({"team":1})
+                    data = recommendation_two_players_different_teams(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
+
+        if "color" in data and "output_state" in data and "state"  in data:
             color_recommendation = data['color']
             output_state_recommendation = str(data['output_state'])
             state_recommendation = data['state']
+
+            save_traces_records(players_list, ball_indexes)
 
         # Output recommendation label
         recommendation_label = color_recommendation + ": " + state_recommendation + " " + output_state_recommendation
@@ -147,6 +202,7 @@ with torch.no_grad():
         if key == 27:
             break
 
+# Release resources
 output.release()
 cv2.destroyAllWindows()
 capture.release()
