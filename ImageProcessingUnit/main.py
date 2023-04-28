@@ -14,7 +14,7 @@ sys.path.append(APPEND_PATH)
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 from image_functions import rescale_frame
-from recommendation_api_helpers import recommendation_single_player, recommendation_two_players_same_team, find_indexes_of_two_players
+from recommendation_api_helpers import recommendation_single_player, recommendation_two_players_same_team, recommendation_two_players_different_teams, find_indexes_of_two_players
 from objects_detection import initialize_player_detection_model, detect_objects
 
 CURRENT_TIMESTAMP = datetime.now()
@@ -139,14 +139,18 @@ with torch.no_grad():
             if(len(ball_prev_indexes)>0 and len(players_list)>0 and len(players_list[0])>3 and players_list[0]['x'] and players_list[0]['y'] and players_list[0]['holdsBall'] and players_list[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
                 data = recommendation_single_player(YELLOW_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
         # Two players from the same team
-        elif (GAME_MODE == 2):
+        elif (GAME_MODE == 2 or GAME_MODE == 3):
             if(len(players_list)==2 and len(ball_indexes)>0 and ball_indexes[0]['x'] and ball_indexes[0]['y']):
                 yellow_player, orange_player = find_indexes_of_two_players(players_list, player_caps_index)
                 yellow_player.update({"team":0})
                 yellow_player['id'] = 0
                 orange_player.update({"team":0})
                 orange_player['id'] = 1
-                data = recommendation_two_players_same_team(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
+
+                if GAME_MODE == 2:
+                    data = recommendation_two_players_same_team(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
+                else:
+                    data = recommendation_two_players_different_teams(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
 
         if "color" in data and "output_state" in data and "state"  in data:
             color_recommendation = data['color']
