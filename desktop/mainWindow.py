@@ -106,6 +106,20 @@ class MainPage(QMainWindow):
         self.statusLabel.show()
         self.buttonEnd.show()
 
+        # release ports
+        # os.system("fuser -k 5000/tcp")
+        # os.system("fuser -k 8080/tcp")
+        subprocess.run("fuser -k 5000/tcp", shell=True)
+        subprocess.run("fuser -k 8080/tcp", shell=True)
+        # give the user 10 seconds to connect the components
+        self.statusLabel.setText('Attempting to connect to the components...')
+        QApplication.processEvents()
+        self.process1 = subprocess.Popen(['python3','main.py'],cwd='../', shell=True) 
+        # time.sleep(10)
+        self.statusLabel.setText('Please wait! The video window will pop up in a minute.')
+
+        self.process2 = subprocess.Popen(['npm','run','dev'],cwd='../RecommendationsUnit/', shell=True)
+        self.process3 = subprocess.Popen(['python3','main.py'],cwd='../ImageProcessingUnit/', shell=True)
         if platform.system() == "Linux":
             # release ports
             os.system("sudo fuser -k 5000/tcp")
@@ -136,7 +150,6 @@ class MainPage(QMainWindow):
             self.process2 = subprocess.Popen(['npm','run','dev'],cwd='../RecommendationsUnit/', shell=True)
             self.process3 = subprocess.Popen(['python','main.py'],cwd='../ImageProcessingUnit/', shell=True)
         
-
     def end_process(self):
         self.buttonStart.show()
         self.statusLabel.hide()
