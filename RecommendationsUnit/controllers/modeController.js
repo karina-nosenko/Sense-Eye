@@ -364,18 +364,21 @@ exports.modeController = {
         const { body } = req;
 
         const ballHolder = getPlayerWithBall(body.players);
+        console.log(ballHolder);
         if (!ballHolder) {
             return doNothing(res);    // No player with ball
         }
 
         const goalIndex = ballHolder.team;
-
-        let opponent_team_index = !ballHolder.team
+        const teammates = getTeammates(ballHolder, body.players);
+        let opponent_team_index = ballHolder.team
         let opponent = getPlayerOpponent(body.players, opponent_team_index);
         let opponentDistance = calculateEuclideanDistance(ballHolder, opponent);
         let goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
 
-
+        if (opponent_team_index == 0)
+            opponent_team_index = 1;
+        else opponent_team_index = 0;
         if (isBetween(goalDistance, MIN_GOAL_PASSING_DISTANCE, MAX_GOAL_PASSING_DISTANCE) &&
             goalInSightRange(ballHolder, body.goals[goalIndex])
             &&
