@@ -3,6 +3,7 @@ import os
 import pymongo
 import platform
 import base64
+import requests
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtWebEngineWidgets import *
@@ -13,9 +14,13 @@ from mainWindow import *
 from personalized_frames import create_personalized_frames
 
 def create_games():
-    client = pymongo.MongoClient("mongodb+srv://yosef:sense111@cluster0.bmxfx.mongodb.net/sense-eye")
-    db = client["sense-eye"]
-    collection = db["games"]
+    api_url = "https://sense-eye-backend.onrender.com/api/games"
+
+    # Uncomment to delete all the games from db
+    # client = pymongo.MongoClient("mongodb+srv://yosef:sense111@cluster0.bmxfx.mongodb.net/sense-eye")
+    # db = client["sense-eye"]
+    # collection = db["games"]
+    # collection.delete_many({})
 
     path = os.path.join("../materials", "games.txt")
     if not os.path.exists(path):
@@ -26,14 +31,14 @@ def create_games():
         f.seek(0)
         for i in d:
             game_id, game_mode = i.strip().split()
-            document = {
+            request_body = {
                 "timestamp": game_id,
                 "mode": game_mode,
                 "orgName": "shenkar"
             }
 
-            result = collection.insert_one(document)
-            if result.inserted_id:
+            response = requests.post(api_url, json=request_body)
+            if response.status_code >= 200 or response.status_code < 300:
                 # Erase the current row from the file by overwriting it with an empty string
                 f.write(i)
                 f.truncate()
@@ -44,28 +49,33 @@ def create_games():
         os.remove(path)
 
 def send_recommendations_to_db():
-    client = pymongo.MongoClient("mongodb+srv://yosef:sense111@cluster0.bmxfx.mongodb.net/sense-eye")
-    db = client["sense-eye"]
-    collection = db["recomendations"]
+    api_url = "https://sense-eye-backend.onrender.com/api/rec"
 
     # Uncomment to delete all the recommendations from db
+    # client = pymongo.MongoClient("mongodb+srv://yosef:sense111@cluster0.bmxfx.mongodb.net/sense-eye")
+    # db = client["sense-eye"]
+    # collection = db["recomendations"]
     # collection.delete_many({})
 
     # Send the recommendations
     path = "../materials/recommendations"
     for foldername in os.listdir(path):
+        full_path = os.path.join(path, foldername)
+        if not os.path.isdir(full_path):
+            continue
+        
         for filename in os.listdir(os.path.join(path, foldername)):
             with open(os.path.join(path, foldername, filename), "rb") as f:
                 encoded_string = base64.b64encode(f.read())
-                data = {
+                request_body = {
                     "status": 0,
                     "frame": encoded_string,
                     "orgName": "shenkar",
                     "gameID": foldername
                 }
 
-                result = collection.insert_one(data)
-                if result.inserted_id:
+                response = requests.post(api_url, json=request_body)
+                if response.status_code >= 200 or response.status_code < 300:
                     # Successful insert - delete the frame locally
                     os.remove(os.path.join(path, foldername, filename))
                 else:
