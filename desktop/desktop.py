@@ -64,8 +64,9 @@ def send_recommendations_to_db():
         if not os.path.isdir(full_path):
             continue
         
-        for filename in os.listdir(os.path.join(path, foldername)):
-            with open(os.path.join(path, foldername, filename), "rb") as f:
+        for filename in os.listdir(full_path):
+            print(f'full_path:{full_path}, filename:{filename}')
+            with open(os.path.join(full_path, filename), "rb") as f:
                 encoded_string = base64.b64encode(f.read())
                 request_body = {
                     "status": 0,
@@ -76,9 +77,11 @@ def send_recommendations_to_db():
 
                 response = requests.post(api_url, json=request_body)
                 if response.status_code >= 200 or response.status_code < 300:
+                    print('success')
                     # Successful insert - delete the frame locally
-                    os.remove(os.path.join(path, foldername, filename))
+                    os.remove(os.path.join(full_path, filename))
                 else:
+                    print('failure')
                     # Unsuccessful insert - stop iterating
                     return
         
