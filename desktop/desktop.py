@@ -101,13 +101,13 @@ def is_internet_connection():
 def syncronize():
     while True:
         if is_internet_connection():
-            print('Ping to Google successful!')
+            print('Ping to server successful!')
 
             create_games() 
             send_recommendations_to_db()
 
         else:
-            print('No ping response from Google.')
+            print('No ping response from the server.')
         time.sleep(10) # wait for 10 seconds before checking again
 
 def start_sending_materials_process():
