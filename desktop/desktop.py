@@ -88,10 +88,10 @@ def send_recommendations_to_db():
 def is_internet_connection():
     ping_process = None
     if platform.system() == "Linux":
-        ping_process = subprocess.run(['ping', '-c', '1', 'google.com'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ping_process = subprocess.run(['ping', '-c', '1', '216.24.57.253'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     else:
         # TODO: make sure it works on Windows
-        ping_process = subprocess.run(['ping', '-n', '1', 'google.com'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        ping_process = subprocess.run(['ping', '-n', '1', '216.24.57.253'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
     if '1 received' in ping_process.stdout.decode():
         return True
