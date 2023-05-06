@@ -1,5 +1,6 @@
 # The Python file contains functions for initializing and using a PyTorch model to detect objects in a frame.
 
+import os
 import cv2
 import math
 import torch
@@ -55,7 +56,7 @@ def initialize_player_detection_model():
     return weights, img_size, device, use_half_precision, model, stride, names, classes
 
 
-def detect_objects(frame, prev_person_center_points, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes, frames_counter, prev_angles):
+def detect_objects(frame, prev_person_center_points, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes, frames_counter, prev_angles, FIRST_FRAME_SAVED, CURRENT_TIMESTAMP):
     """
     Detects objects in a frame using a PyTorch model.
 
@@ -148,6 +149,12 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
     for detection in all_detections:
         detection[:, :4] = scale_coords(img.shape[2:], detection[:, :4], frame.shape).round() 
 
+    if not FIRST_FRAME_SAVED:
+        path = '../materials/traces/' + CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H-%M-%S') + '/first_frame.jpg'
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        cv2.imwrite(path, frame)
+        FIRST_FRAME_SAVED = True
+
     # Plotting the detections
     players_list_indexes_direction_playerWithTheBasll = []
     ball_indexes = []
@@ -214,7 +221,8 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
                     "holdsBall": True,
                     "x": center_x,
                     "y": int(y1),
-                    "sightDirection": float(angles[i])
+                    "sightDirection": float(angles[i]),
+                    "center_y": center_y
                 }
                 players_list_indexes_direction_playerWithTheBasll.append(
                     player)
@@ -224,7 +232,8 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
                     "holdsBall": False,
                     "x": center_x,
                     "y": int(y1),
-                    "sightDirection": float(angles[i])
+                    "sightDirection": float(angles[i]),
+                    "center_y": center_y
                 }
                 players_list_indexes_direction_playerWithTheBasll.append(
                     player)
@@ -233,7 +242,7 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
             if SHOW_CENTER_POINTS:
                 cv2.circle(frame, (center_x, center_y), 3, (0, 0, 255), -1)
 
-    return player_with_the_ball_center_point, prev_person_center_points, players_list_indexes_direction_playerWithTheBasll, ball_indexes, frames_counter, angles
+    return player_with_the_ball_center_point, prev_person_center_points, players_list_indexes_direction_playerWithTheBasll, ball_indexes, frames_counter, angles, FIRST_FRAME_SAVED
 
 
 def _find_nearest_player_to_the_ball(ball_center_point, all_detections, names):

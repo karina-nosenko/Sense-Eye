@@ -115,19 +115,14 @@ with torch.no_grad():
         ret, frame = capture.read()  
         if not ret:
             break
-        
-        if not FIRST_FRAME_SAVED:
-            path = '../materials/traces/' + CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H-%M-%S') + '/first_frame.jpg'
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-            cv2.imwrite(path, cv2.resize(frame, (1600, 901)))
-            FIRST_FRAME_SAVED = True
 
         (player_with_the_ball_center_point,
         prev_person_center_points,
         players_list,
         ball_indexes,
         frames_counter,
-        angles) = detect_objects(
+        angles,
+        FIRST_FRAME_SAVED) = detect_objects(
             frame,
             prev_person_center_points,
             player_with_the_ball_center_point,
@@ -139,18 +134,25 @@ with torch.no_grad():
             names,
             classes,
             frames_counter,
-            angles)
+            angles,
+            FIRST_FRAME_SAVED,
+            CURRENT_TIMESTAMP)
         ball_prev_indexes = []
         if(len(ball_indexes)>0):
             ball_prev_indexes = ball_indexes
-        player_caps_index = cd.detect_colors(frame)
+        player_caps_index = cd.detect_colors(frame) 
 
         # Single player
         if (GAME_MODE == 1):
+            if len(players_list)>0:
+                players_list[0]['id'] = 0
             if(len(ball_prev_indexes)>0 and len(players_list)>0 and len(players_list[0])>3 and players_list[0]['x'] and players_list[0]['y'] and players_list[0]['holdsBall'] and players_list[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
                 data = recommendation_single_player(YELLOW_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
         # Two players from the same team
         elif (GAME_MODE == 2 or GAME_MODE == 3):
+            yellow_player, orange_player = find_indexes_of_two_players(players_list, player_caps_index)
+            yellow_player['id'] = 0
+            orange_player['id'] = 1
             if(len(players_list)==2 and len(ball_indexes)>0 and ball_indexes[0]['x'] and ball_indexes[0]['y']):
                 yellow_player, orange_player = find_indexes_of_two_players(players_list, player_caps_index)
                 yellow_player['id'] = 0
@@ -169,7 +171,7 @@ with torch.no_grad():
             output_state_recommendation = str(data['output_state'])
             state_recommendation = data['state']
 
-            save_traces_records(players_list, ball_indexes)
+        save_traces_records(players_list, ball_indexes)
 
         # Output recommendation label
         recommendation_label = color_recommendation + ": " + state_recommendation + " " + output_state_recommendation
