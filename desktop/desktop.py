@@ -117,6 +117,6 @@ if __name__ == '__main__':
 
     # Start the application
     app = QApplication(sys.argv)
-    window = MainPage()
+    window = LoginPage()
     window.show()
     sys.exit(app.exec_())
