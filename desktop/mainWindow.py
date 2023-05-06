@@ -44,6 +44,7 @@ class LoginPage(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle('SenseEye Login')
+        self.setStyleSheet("background-color: #f7f7f7;")
 
         # get screen size
         screen_size = QDesktopWidget().screenGeometry()
@@ -113,22 +114,6 @@ class LoginPage(QMainWindow):
         # set the central widget on the main window
         self.setCentralWidget(central_widget)
 
-    # def login(self):
-    #     # Get the organization name and password entered by the user
-    #     org_name = self.organizationInput.text()
-    #     password = self.passwordInput.text()
-
-    #     # Check if the organization name and password are correct
-    #     if org_name == "shenkar" and password == "1234567890":
-    #         # Connect the user to the main window
-    #         self.main_window = MainPage()
-    #         self.main_window.show()
-    #         # self.main_window.initUI()
-    #         self.close()
-    #     else:
-    #         # Display an error message
-    #         QMessageBox.warning(self, "Error", "Invalid organization name or password.")
-
     def login(self):
         # get organization name and password from inputs
         org_name = self.organizationInput.text()
@@ -137,11 +122,9 @@ class LoginPage(QMainWindow):
         # connect to MongoDB
         client = MongoClient(DB_HOST)
         db = client["sense-eye"]
-        org_collection = db["organizations"]
-
-        # query the organization collection for the given organization name and password
+        collection = db["organizations"]
         query = {"name": org_name, "password": password}
-        result = org_collection.find_one(query)
+        result = collection.find_one(query)
 
         # close the MongoDB connection
         client.close()
@@ -153,28 +136,21 @@ class LoginPage(QMainWindow):
             # Connect the user to the main window
             self.main_window = MainPage()
             self.main_window.show()
-            # self.main_window.initUI()
             self.close()
         else:
             # display error message or do something else
             print("Invalid organization name or password")
             QMessageBox.warning(self, "Error", "Invalid organization name or password.")
 
-
-
 #== Main Page ==#
 class MainPage(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.initUI()
-    # def __init__(self):
-    #     super().__init__()
-    #     # create login page and set as central widget
-    #     loginPage = LoginPage()
-    #     self.setCentralWidget(loginPage)    
+        self.initUI()    
 
     def initUI(self):        
         self.setWindowTitle('SenseEye Desktop Application')
+        self.setStyleSheet("background-color: #f7f7f7;")
 
         # calculate the width and height of the window in percentages
         width_percent = 60
