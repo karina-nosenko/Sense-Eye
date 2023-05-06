@@ -3,7 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtGui import *
-
+from pymongo import MongoClient
 import subprocess
 import os
 import signal
@@ -16,12 +16,162 @@ from videoWindow import *
 from styles import *
 from desktop import start_sending_materials_process, start_creating_frames_process
 
+from dotenv import load_dotenv
+import os
+
+# Load the .env file
+load_dotenv()
+
+# Access the environment variables
+DB_HOST = os.getenv('DB_HOST')
+
+
+inputStyle = """
+    QLineEdit {
+        background-color: #f2f2f2;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        padding: 10px;
+    }
+"""
+
+# == Login Page ==#
+class LoginPage(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle('SenseEye Login')
+
+        # get screen size
+        screen_size = QDesktopWidget().screenGeometry()
+
+        # set the geometry of the window
+        width_percent = 60
+        height_percent = 60
+        width = int(screen_size.width() * width_percent / 100)
+        height = int(screen_size.height() * height_percent / 100)
+        self.setGeometry(0, 0, width, height)
+
+        # create a logo label
+        self.logoLabel = QLabel(self)
+        self.logoLabel.setGeometry(QRect(0, 0, width, height * 0.2))
+        self.logoLabel.setPixmap(QPixmap("logo.jfif"))
+        self.logoLabel.setScaledContents(True)
+
+        # create organization name input
+        self.organizationLabel = QLabel(self)
+        self.organizationLabel.setText('Organization Name:')
+        self.organizationLabel.setStyleSheet(labelStyle)
+        self.organizationLabel.setAlignment(Qt.AlignVCenter)
+
+        self.organizationInput = QLineEdit(self)
+        self.organizationInput.setStyleSheet(inputStyle + "background-color: white;")
+        self.organizationInput.setFixedWidth(width * 0.3)
+        self.organizationInput.setFixedHeight(height * 0.05)
+        self.organizationInput.setAlignment(Qt.AlignVCenter)
+
+        # create password input
+        self.passwordLabel = QLabel(self)
+        self.passwordLabel.setText('Password:')
+        self.passwordLabel.setStyleSheet(labelStyle)
+        self.passwordLabel.setAlignment(Qt.AlignVCenter)
+
+        self.passwordInput = QLineEdit(self)
+        self.passwordInput.setStyleSheet(inputStyle + "background-color: white;")
+        self.passwordInput.setFixedWidth(width * 0.3)
+        self.passwordInput.setFixedHeight(height * 0.05)
+        self.passwordInput.setEchoMode(QLineEdit.Password)
+        self.passwordInput.setAlignment(Qt.AlignVCenter)
+
+        # create a "login" button
+        self.buttonLogin = QPushButton('Login', self)
+        self.buttonLogin.clicked.connect(self.login)
+        self.buttonLogin.setFixedWidth(width * 0.3)
+        self.buttonLogin.setFixedHeight(height * 0.05)
+        self.buttonLogin.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonLogin.setStyleSheet(buttonStyle)
+
+        # create a vertical layout and add the widgets to it
+        layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.logoLabel)
+        layout.addStretch()
+        layout.addWidget(self.organizationLabel)
+        layout.addWidget(self.organizationInput)
+        layout.addWidget(self.passwordLabel)
+        layout.addWidget(self.passwordInput)
+        layout.addWidget(self.buttonLogin)
+        layout.addStretch()
+
+        # create a central widget and set the layout on it
+        central_widget = QWidget()
+        central_widget.setLayout(layout)
+
+        # set the central widget on the main window
+        self.setCentralWidget(central_widget)
+
+    # def login(self):
+    #     # Get the organization name and password entered by the user
+    #     org_name = self.organizationInput.text()
+    #     password = self.passwordInput.text()
+
+    #     # Check if the organization name and password are correct
+    #     if org_name == "shenkar" and password == "1234567890":
+    #         # Connect the user to the main window
+    #         self.main_window = MainPage()
+    #         self.main_window.show()
+    #         # self.main_window.initUI()
+    #         self.close()
+    #     else:
+    #         # Display an error message
+    #         QMessageBox.warning(self, "Error", "Invalid organization name or password.")
+
+    def login(self):
+        # get organization name and password from inputs
+        org_name = self.organizationInput.text()
+        password = self.passwordInput.text()
+
+        # connect to MongoDB
+        client = MongoClient(DB_HOST)
+        db = client["sense-eye"]
+        org_collection = db["organizations"]
+
+        # query the organization collection for the given organization name and password
+        query = {"name": org_name, "password": password}
+        result = org_collection.find_one(query)
+
+        # close the MongoDB connection
+        client.close()
+
+        # if result is not None, the organization name and password are valid
+        if result is not None:
+            # connect to main window or do something else
+            print("Valid organization name and password")
+            # Connect the user to the main window
+            self.main_window = MainPage()
+            self.main_window.show()
+            # self.main_window.initUI()
+            self.close()
+        else:
+            # display error message or do something else
+            print("Invalid organization name or password")
+            QMessageBox.warning(self, "Error", "Invalid organization name or password.")
+
+
 
 #== Main Page ==#
 class MainPage(QMainWindow):
     def __init__(self):
         super().__init__()
         self.initUI()
+    # def __init__(self):
+    #     super().__init__()
+    #     # create login page and set as central widget
+    #     loginPage = LoginPage()
+    #     self.setCentralWidget(loginPage)    
 
     def initUI(self):        
         self.setWindowTitle('SenseEye Desktop Application')
