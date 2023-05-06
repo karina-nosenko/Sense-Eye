@@ -65,7 +65,6 @@ def send_recommendations_to_db():
             continue
         
         for filename in os.listdir(full_path):
-            print(f'full_path:{full_path}, filename:{filename}')
             with open(os.path.join(full_path, filename), "rb") as f:
                 encoded_string = base64.b64encode(f.read())
                 request_body = {
@@ -77,16 +76,15 @@ def send_recommendations_to_db():
 
                 response = requests.post(api_url, json=request_body)
                 if response.status_code >= 200 or response.status_code < 300:
-                    print('success')
                     # Successful insert - delete the frame locally
                     os.remove(os.path.join(full_path, filename))
                 else:
-                    print('failure')
                     # Unsuccessful insert - stop iterating
                     return
         
-        # Delete the folder after sending its contents
-        os.rmdir(os.path.join(path, foldername))
+        # Delete the folder after sending its contents (if the folder is empty)
+        if len(os.listdir(os.path.join(path, foldername))) == 0:
+            os.rmdir(os.path.join(path, foldername))
 
 def is_internet_connection():
     ping_process = None
