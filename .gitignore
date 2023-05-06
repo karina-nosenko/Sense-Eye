@@ -8,3 +8,4 @@ materials/traces/*
 !materials/recommendations/.gitkeep
 !materials/traces/.gitkeep
 myenv
+.env
