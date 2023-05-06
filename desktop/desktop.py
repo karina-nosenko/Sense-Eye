@@ -111,6 +111,13 @@ def syncronize():
             print('No ping response from the server.')
         time.sleep(10) # wait for 10 seconds before checking again
 
+def send_frames():
+    while True:
+        if is_internet_connection():
+            create_personalized_frames()
+
+        time.sleep(10) # wait for 10 seconds before checking again
+
 def start_sending_materials_process():
     # Keep sending materials to the internet each time
     # there's an internet connection (in a separate process)
@@ -119,12 +126,13 @@ def start_sending_materials_process():
     p.start()
 
 def start_creating_frames_process():
-    p = Process(target=create_personalized_frames)
+    p = Process(target=send_frames)
     p.daemon = True
     p.start()
 
 if __name__ == '__main__':
     start_sending_materials_process()
+    start_creating_frames_process()
 
     # Start the application
     app = QApplication(sys.argv)

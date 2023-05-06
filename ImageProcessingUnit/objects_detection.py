@@ -306,7 +306,6 @@ def _detect_players_moving_direction(frame, prev_players_center_points, curr_pla
 
     # If no players detected or the frame count is odd - assume the missing players are in the same coordinates
     # (we're skipping each second frame for better direction accuracy)
-    # TODO: missing players must have the same angles from the previous frame
     if not len(curr_players_center_points) or (frames_counter % 2 != 0):
         return prev_players_center_points, prev_angles, frames_counter    # PROBLEM IS HERE, I'M RETURNING 000000
 

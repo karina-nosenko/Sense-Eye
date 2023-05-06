@@ -188,10 +188,9 @@ class MainPage(QMainWindow):
         self.process3 = None
 
         print("All subprocesses terminated.")
-
-        start_creating_frames_process()
-
+ 
         start_sending_materials_process()
+        start_creating_frames_process()
 
 
     def show_history_page(self):
