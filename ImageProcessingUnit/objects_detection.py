@@ -233,13 +233,6 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
             if SHOW_CENTER_POINTS:
                 cv2.circle(frame, (center_x, center_y), 3, (0, 0, 255), -1)
 
-    # print(f'''Returning:
-    # player_with_the_ball_center_point:{player_with_the_ball_center_point}
-    # prev_person_center_points:{prev_person_center_points}
-    # players_list_indexes_direction_playerWithTheBasll:{players_list_indexes_direction_playerWithTheBasll}
-    # ball_indexes:{ball_indexes}
-    # frames_counter:{frames_counter}
-    # angles:{angles}''')
     return player_with_the_ball_center_point, prev_person_center_points, players_list_indexes_direction_playerWithTheBasll, ball_indexes, frames_counter, angles
 
 
@@ -309,24 +302,12 @@ def _detect_players_moving_direction(frame, prev_players_center_points, curr_pla
 
     # It's the first frame
     if prev_players_center_points is None:
-        # print(f'''first frame return in moving direction:
-        # curr_players_center_points:{curr_players_center_points}
-        # [0] * len(curr_players_center_points):{[0] * len(curr_players_center_points)}''')
         return curr_players_center_points, [0] * len(curr_players_center_points), frames_counter
-    
-    # print(f'''
-    # prev_players_center_points:{prev_players_center_points}
-    # curr_players_center_points:{curr_players_center_points}
-    # frames_counter:{frames_counter}
-    #       ''')
 
     # If no players detected or the frame count is odd - assume the missing players are in the same coordinates
     # (we're skipping each second frame for better direction accuracy)
     # TODO: missing players must have the same angles from the previous frame
     if not len(curr_players_center_points) or (frames_counter % 2 != 0):
-        # print(f'''second frame return in moving direction:
-        # prev_players_center_points:{prev_players_center_points}
-        # prev_angles:{prev_angles}''')
         return prev_players_center_points, prev_angles, frames_counter    # PROBLEM IS HERE, I'M RETURNING 000000
 
     # Find the index of the closest point in the first vector for each point in the second vector
@@ -363,7 +344,4 @@ def _detect_players_moving_direction(frame, prev_players_center_points, curr_pla
 
         angles.append(angle_degrees)
 
-    # print(f'''normal return in moving direction:
-    #     curr_players_center_points:{curr_players_center_points}
-    #     angles:{angles}''')
     return curr_players_center_points, angles, frames_counter
