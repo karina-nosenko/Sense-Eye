@@ -81,7 +81,6 @@ def initialize_output(capture):
     formatted_timestamp = CURRENT_TIMESTAMP.strftime('%Y-%m-%d %H:%M:%S')
     return cv2.VideoWriter(f'../output_videos/{formatted_timestamp}.ogv', cv2.VideoWriter_fourcc(*'THEO'), fps , (w,h))
 
-
 capture = initialize_capture()
 
 output = initialize_output(capture)

@@ -13,7 +13,6 @@ from yolov7.utils.torch_utils import time_synchronized, select_device
 from configs import options, MODE, SHOW_CENTER_POINTS, SHOW_DIRECTION_ARROW, SHOW_DIRECTION_LABEL, SHOW_CLASS_LABEL
 from image_functions import adjust_image_to_desired_shape
 
-
 def initialize_player_detection_model():
     """
     Initializes the player detection model with the provided weights and configuration options.
@@ -160,6 +159,7 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
             detection, names, player_with_the_ball_center_point)
         prev_person_center_points, angles, frames_counter  = _detect_players_moving_direction(frame,
             prev_person_center_points, person_detection_results, frames_counter)
+        
         # Draw the class name label and center point for each object
         for i, (x1, y1, x2, y2, confidence_score, class_id) in enumerate(detection):
             center_x = int((x1 + x2) // 2)
@@ -176,13 +176,6 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
                 class_name = 'ball'
             else:
                 text_color = (0, 0, 255)  # red for rest of the players
-
-            # coordinates_tracking.append({
-            #     "class": names[int(class_id)],
-            #     "x": center_x,
-            #     "y": center_y,
-            #     "isBallHolder": playerWithTheBall
-            # })
             
             # Output the arrow to show the direction
             if SHOW_DIRECTION_ARROW:
