@@ -3,7 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtGui import *
-
+from pymongo import MongoClient
 import subprocess
 import os
 import signal
@@ -15,6 +15,17 @@ import platform
 from videoWindow import *
 from styles import *
 from desktop import start_sending_materials_process, start_creating_frames_process
+
+from dotenv import load_dotenv
+import os
+
+# Load the .env file
+load_dotenv()
+
+# Access the environment variables
+DB_HOST = os.getenv('DB_HOST')
+
+
 inputStyle = """
     QLineEdit {
         background-color: #f2f2f2;
@@ -102,24 +113,54 @@ class LoginPage(QMainWindow):
         # set the central widget on the main window
         self.setCentralWidget(central_widget)
 
+    # def login(self):
+    #     # Get the organization name and password entered by the user
+    #     org_name = self.organizationInput.text()
+    #     password = self.passwordInput.text()
+
+    #     # Check if the organization name and password are correct
+    #     if org_name == "shenkar" and password == "1234567890":
+    #         # Connect the user to the main window
+    #         self.main_window = MainPage()
+    #         self.main_window.show()
+    #         # self.main_window.initUI()
+    #         self.close()
+    #     else:
+    #         # Display an error message
+    #         QMessageBox.warning(self, "Error", "Invalid organization name or password.")
+
     def login(self):
-        # Get the organization name and password entered by the user
+        # get organization name and password from inputs
         org_name = self.organizationInput.text()
         password = self.passwordInput.text()
 
-        # Check if the organization name and password are correct
-        if org_name == "shenkar" and password == "1234567890":
-            # Display a success message
-            QMessageBox.information(self, "Success", "Login successful!")
-            
+        # connect to MongoDB
+        client = MongoClient(DB_HOST)
+        db = client["sense-eye"]
+        org_collection = db["organizations"]
+
+        # query the organization collection for the given organization name and password
+        query = {"name": org_name, "password": password}
+        result = org_collection.find_one(query)
+
+        # close the MongoDB connection
+        client.close()
+
+        # if result is not None, the organization name and password are valid
+        if result is not None:
+            # connect to main window or do something else
+            print("Valid organization name and password")
             # Connect the user to the main window
             self.main_window = MainPage()
             self.main_window.show()
             # self.main_window.initUI()
             self.close()
         else:
-            # Display an error message
+            # display error message or do something else
+            print("Invalid organization name or password")
             QMessageBox.warning(self, "Error", "Invalid organization name or password.")
+
+
 
 #== Main Page ==#
 class MainPage(QMainWindow):
