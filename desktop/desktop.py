@@ -106,16 +106,10 @@ def syncronize():
 
             create_games() 
             send_recommendations_to_db()
+            # TODO: send traces
 
         else:
             print('No ping response from the server.')
-        time.sleep(10) # wait for 10 seconds before checking again
-
-def send_frames():
-    while True:
-        if is_internet_connection():
-            create_personalized_frames()
-
         time.sleep(10) # wait for 10 seconds before checking again
 
 def start_sending_materials_process():
@@ -126,7 +120,7 @@ def start_sending_materials_process():
     p.start()
 
 def start_creating_frames_process():
-    p = Process(target=send_frames)
+    p = Process(target=create_personalized_frames)
     p.daemon = True
     p.start()
 
