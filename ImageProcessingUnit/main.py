@@ -81,7 +81,6 @@ def initialize_output(capture):
     formatted_timestamp = CURRENT_TIMESTAMP.strftime('%Y-%m-%d %H:%M:%S')
     return cv2.VideoWriter(f'../output_videos/{formatted_timestamp}.ogv', cv2.VideoWriter_fourcc(*'THEO'), fps , (w,h))
 
-
 capture = initialize_capture()
 
 output = initialize_output(capture)
@@ -102,6 +101,7 @@ frames_counter = 1
 data = {}
 yellow_player = {}
 orange_player = {}
+angles = []
 
 # Initializing model and setting it for inference
 torch.cuda.empty_cache()
@@ -126,7 +126,8 @@ with torch.no_grad():
         prev_person_center_points,
         players_list,
         ball_indexes,
-        frames_counter) = detect_objects(
+        frames_counter,
+        angles) = detect_objects(
             frame,
             prev_person_center_points,
             player_with_the_ball_center_point,
@@ -137,7 +138,8 @@ with torch.no_grad():
             stride,
             names,
             classes,
-            frames_counter)
+            frames_counter,
+            angles)
         ball_prev_indexes = []
         if(len(ball_indexes)>0):
             ball_prev_indexes = ball_indexes

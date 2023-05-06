@@ -260,7 +260,7 @@ const recommendDirectShotOnGoal = (res, ballHolder, goal) => {
     //     .catch(function (error) {
     //         res.status(200).json({'color': '','output_state':'','state':''});
     //     })
-    return res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'pass' });
+    return res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'kick' });
 }
 
 const recommendPassToTeammate = (res, ballHolder, teammate) => {
@@ -364,7 +364,6 @@ exports.modeController = {
         const { body } = req;
 
         const ballHolder = getPlayerWithBall(body.players);
-        console.log(ballHolder);
         if (!ballHolder) {
             return doNothing(res);    // No player with ball
         }

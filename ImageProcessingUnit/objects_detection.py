@@ -13,7 +13,6 @@ from yolov7.utils.torch_utils import time_synchronized, select_device
 from configs import options, MODE, SHOW_CENTER_POINTS, SHOW_DIRECTION_ARROW, SHOW_DIRECTION_LABEL, SHOW_CLASS_LABEL
 from image_functions import adjust_image_to_desired_shape
 
-
 def initialize_player_detection_model():
     """
     Initializes the player detection model with the provided weights and configuration options.
@@ -56,7 +55,7 @@ def initialize_player_detection_model():
     return weights, img_size, device, use_half_precision, model, stride, names, classes
 
 
-def detect_objects(frame, prev_person_center_points, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes, frames_counter):
+def detect_objects(frame, prev_person_center_points, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes, frames_counter, prev_angles):
     """
     Detects objects in a frame using a PyTorch model.
 
@@ -152,6 +151,7 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
     # Plotting the detections
     players_list_indexes_direction_playerWithTheBasll = []
     ball_indexes = []
+    angles = []
     for detection in all_detections:
         if not len(detection):
             continue
@@ -159,7 +159,8 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
         player_with_the_ball_center_point = _detect_player_with_the_ball(
             detection, names, player_with_the_ball_center_point)
         prev_person_center_points, angles, frames_counter  = _detect_players_moving_direction(frame,
-            prev_person_center_points, person_detection_results, frames_counter)
+            prev_person_center_points, person_detection_results, frames_counter, prev_angles)
+        
         # Draw the class name label and center point for each object
         for i, (x1, y1, x2, y2, confidence_score, class_id) in enumerate(detection):
             center_x = int((x1 + x2) // 2)
@@ -176,13 +177,6 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
                 class_name = 'ball'
             else:
                 text_color = (0, 0, 255)  # red for rest of the players
-
-            # coordinates_tracking.append({
-            #     "class": names[int(class_id)],
-            #     "x": center_x,
-            #     "y": center_y,
-            #     "isBallHolder": playerWithTheBall
-            # })
             
             # Output the arrow to show the direction
             if SHOW_DIRECTION_ARROW:
@@ -215,7 +209,7 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
             if(class_name == 'ball'):
                 ball_indexes.append({"x":center_x, "y":center_y})
                 
-            if playerWithTheBall == True and class_name == 'person':
+            if playerWithTheBall == True and class_name == 'person' and len(angles) > i:
                 player = {
                     "holdsBall": True,
                     "x": center_x,
@@ -225,7 +219,7 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
                 players_list_indexes_direction_playerWithTheBasll.append(
                     player)
 
-            elif playerWithTheBall == False and class_name == 'person':
+            elif playerWithTheBall == False and class_name == 'person' and len(angles) > i:
                 player = {
                     "holdsBall": False,
                     "x": center_x,
@@ -239,7 +233,7 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
             if SHOW_CENTER_POINTS:
                 cv2.circle(frame, (center_x, center_y), 3, (0, 0, 255), -1)
 
-    return player_with_the_ball_center_point, prev_person_center_points, players_list_indexes_direction_playerWithTheBasll, ball_indexes, frames_counter
+    return player_with_the_ball_center_point, prev_person_center_points, players_list_indexes_direction_playerWithTheBasll, ball_indexes, frames_counter, angles
 
 
 def _find_nearest_player_to_the_ball(ball_center_point, all_detections, names):
@@ -298,7 +292,7 @@ def _detect_player_with_the_ball(detection, names, player_with_the_ball_center_p
     return player_with_the_ball_center_point
 
 
-def _detect_players_moving_direction(frame, prev_players_center_points, curr_players, frames_counter):
+def _detect_players_moving_direction(frame, prev_players_center_points, curr_players, frames_counter, prev_angles):
     # Calculate center points of current person objects
     curr_players_xyxy = curr_players[0][:, :4]
     curr_players_center_points = [[((bbox[0]+bbox[2])//2), ((bbox[1]+bbox[3])//2)]
@@ -314,7 +308,7 @@ def _detect_players_moving_direction(frame, prev_players_center_points, curr_pla
     # (we're skipping each second frame for better direction accuracy)
     # TODO: missing players must have the same angles from the previous frame
     if not len(curr_players_center_points) or (frames_counter % 2 != 0):
-        return prev_players_center_points, [0] * len(curr_players_center_points), frames_counter
+        return prev_players_center_points, prev_angles, frames_counter    # PROBLEM IS HERE, I'M RETURNING 000000
 
     # Find the index of the closest point in the first vector for each point in the second vector
     closest_indices = np.argmin(
