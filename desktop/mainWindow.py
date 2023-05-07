@@ -23,7 +23,7 @@ import os
 load_dotenv()
 
 # Access the environment variables
-DB_HOST = os.getenv('DB_HOST')
+# DB_HOST = os.getenv('DB_HOST')
 
 
 inputStyle = """
@@ -120,7 +120,7 @@ class LoginPage(QMainWindow):
         password = self.passwordInput.text()
 
         # connect to MongoDB
-        client = MongoClient(DB_HOST)
+        client = MongoClient('mongodb+srv://yosef:sense111@cluster0.bmxfx.mongodb.net/sense-eye')
         db = client["sense-eye"]
         collection = db["organizations"]
         query = {"name": org_name, "password": password}
@@ -233,8 +233,6 @@ class MainPage(QMainWindow):
         self.buttonEnd.show()
 
         # release ports
-        # os.system("fuser -k 5000/tcp")
-        # os.system("fuser -k 8080/tcp")
         subprocess.run("fuser -k 5000/tcp", shell=True)
         subprocess.run("fuser -k 8080/tcp", shell=True)
         # give the user 10 seconds to connect the components

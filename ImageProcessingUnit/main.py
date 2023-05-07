@@ -88,7 +88,7 @@ output = initialize_output(capture)
 # Add a new game record to the materials
 file_path = os.path.join("../materials", "games.txt")
 with open(file_path, "a") as f:
-    f.write(f"{CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H:%M:%S')} {GAME_MODE}\n")
+    f.write(f"{CURRENT_TIMESTAMP.strftime('%Y-%m-%d_%H-%M-%S')} {GAME_MODE}\n")
 
 if (MODE == 'video'):
     nframes = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
