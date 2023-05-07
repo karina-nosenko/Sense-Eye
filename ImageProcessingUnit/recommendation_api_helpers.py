@@ -149,6 +149,48 @@ def recommendation_two_players_different_teams(player1, player2, ball_x, ball_y)
     response = requests.post(api_url, data=json.dumps(data), headers=headers)
     return response.json()
 
+def alert_close_to_game_single(color_id, player_x, player_y, holds_ball, direction, ball_x, ball_y):
+    api_url = RECOMMENDATIONS_API_ADDRESS + "/alertCloseToGate"
+    data = {
+        "goals": goals,
+        "players": [
+            {
+                "id": color_id,
+                "x": player_x,
+                "y": player_y,
+                "team": 0,
+                "holdsBall": holds_ball,
+                "sightDirection":direction 
+            }
+        ],
+        "ball": {
+            "x": ball_x,
+            "y": ball_y
+        }
+    }
+
+    headers = {"Content-Type":"application/json"}
+    response = requests.post(api_url, data=json.dumps(data), headers=headers)
+    return response.json()
+
+def alert_close_to_game_two(player1, player2, ball_x, ball_y):
+    api_url = RECOMMENDATIONS_API_ADDRESS + "/alertCloseToGate"
+    data = {
+        "goals": goals,
+        "players": [
+            player1,
+            player2
+        ],
+        "ball": {
+            "x": ball_x,
+            "y": ball_y
+        }
+    }
+
+    headers =  {"Content-Type":"application/json"}
+    response = requests.post(api_url, data=json.dumps(data), headers=headers)
+    return response.json()
+
 def find_indexes_of_two_players(player_caps_index, playersList):
     yellow_player = {}
     orange_player = {}

@@ -14,7 +14,7 @@ sys.path.append(APPEND_PATH)
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 from image_functions import rescale_frame
-from recommendation_api_helpers import recommendation_single_player, recommendation_two_players_same_team, recommendation_two_players_different_teams, find_indexes_of_two_players
+from recommendation_api_helpers import recommendation_single_player, recommendation_two_players_same_team, recommendation_two_players_different_teams, find_indexes_of_two_players, alert_close_to_game_single, alert_close_to_game_two
 from objects_detection import initialize_player_detection_model, detect_objects
 
 CURRENT_TIMESTAMP = datetime.now()
@@ -102,6 +102,7 @@ data = {}
 yellow_player = {}
 orange_player = {}
 angles = []
+alert = {}
 
 # Initializing model and setting it for inference
 torch.cuda.empty_cache()
@@ -148,6 +149,7 @@ with torch.no_grad():
                 players_list[0]['id'] = 0
             if(len(ball_prev_indexes)>0 and len(players_list)>0 and len(players_list[0])>3 and players_list[0]['x'] and players_list[0]['y'] and players_list[0]['holdsBall'] and players_list[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
                 data = recommendation_single_player(YELLOW_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
+                alert = alert_close_to_game_single(YELLOW_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
         # Two players from the same team
         elif (GAME_MODE == 2 or GAME_MODE == 3):
             yellow_player, orange_player = find_indexes_of_two_players(players_list, player_caps_index)
@@ -165,6 +167,8 @@ with torch.no_grad():
                 else:
                     orange_player.update({"team":1})
                     data = recommendation_two_players_different_teams(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
+                
+                alert = alert_close_to_game_two(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
 
         if "color" in data and "output_state" in data and "state"  in data:
             color_recommendation = data['color']
@@ -174,8 +178,14 @@ with torch.no_grad():
         save_traces_records(players_list, ball_indexes)
 
         # Output recommendation label
+        if color_recommendation == 'yellow':
+            color_recommendation = 'pink'
         recommendation_label = color_recommendation + ": " + state_recommendation + " " + output_state_recommendation
         cv2.putText(frame, recommendation_label, (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1)
+
+        # Output alert label
+        alert_label = alert['result']
+        cv2.putText(frame, alert_label, (40, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1)
 
         # Output recommendation arrow
         if SHOW_RECOMMENDATION_ARROW:

@@ -418,4 +418,44 @@ exports.modeController = {
 
         res.status(200).json({ "fullGameMode": "not implemented." });
     },
+    alertCloseToGate(req, res) {
+        const { body } = req;
+
+        let players = body.players;
+
+        let topGoalY = body.goals[1].y1;
+        let bottomGoalY = body.goals[0].y1;
+
+        let shift = (bottomGoalY - topGoalY)/13
+
+        // we're adding shift to each value because of the perspective
+        let middleY = (bottomGoalY - topGoalY)/2 + topGoalY - shift
+        let topQuarterY = (middleY - topGoalY)/2 + topGoalY - shift
+        let bottomQuarterY = (bottomGoalY - middleY)/2 + middleY - shift
+
+        console.log(`shift:${shift} top:${topGoalY} middle:${middleY} bottom:${bottomGoalY}`)
+
+        result = ''
+
+        for(player of players) {
+            console.log(`y:${player.y}`)
+            let color = getColorNameById(player.id);
+            if (isBetween(player.y, middleY - shift, middleY + shift)) { 
+                //axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=1&state=alert`)
+                if(color == 'yellow'){
+                    color = 'pink'
+                }
+                result += `[${color} passed middle]`
+            } else if (isBetween(player.y, topQuarterY - shift, topQuarterY + shift) ||
+                    isBetween(player.y, bottomQuarterY - shift, bottomQuarterY + shift)) { 
+                //axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=2&state=alert`)
+                if(color == 'yellow'){
+                    color = 'pink'
+                }
+                result += `[${color} passed quarter]`
+            }
+        }
+
+        res.status(200).json({ "result": result });
+    }
 }

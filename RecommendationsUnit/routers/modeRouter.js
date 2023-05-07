@@ -9,5 +9,6 @@ modeRouter.post('/sameTeamModeB', modeController.sameTeamModeB);
 modeRouter.post('/differentTeamsModeA', modeController.differentTeamsModeA);
 modeRouter.post('/differentTeamsModeB', modeController.differentTeamsModeB);
 modeRouter.post('/fullGameMode', modeController.fullGameMode);
+modeRouter.post('/alertCloseToGate', modeController.alertCloseToGate);
 
 module.exports = { modeRouter };
