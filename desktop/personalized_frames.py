@@ -32,12 +32,19 @@ def create_personalized_frames():
         df = pd.DataFrame.from_dict(data, orient='columns')
         df = df.dropna(subset=['gameId'])
 
-        players_df = df.copy()  # Create a copy of the original DataFrame
+        # Fiter the df to include only players
+        filtered_data = [obj for obj in data if obj.get('class') == 'person' and 'properties' in obj and all(key in obj['properties'] for key in ['holdsBall', 'x', 'y', 'sightDirection', 'center_y', 'id', 'team'])]
+        filtered_df = pd.DataFrame(filtered_data)
+
+        # Create a copy of the original DataFrame
+        players_df = df.copy()
 
         if 'properties' in players_df and 'id' in players_df['properties']:
             players_df['properties']['id'] = players_df['properties']['id'].astype(str).apply(lambda x: defined_strings.get(int(x), x))
 
+        # Create the frames with insights
         create_ball_holders_percentages(game_path, df)
+        create_correlations(game_path, filtered_df)
 
 def create_ball_holders_percentages(game_path, df):
     default_color = 'gray'  # Default color for IDs not found in defined_strings
@@ -107,3 +114,28 @@ def create_ball_holders_percentages(game_path, df):
         plt.tight_layout()
 
         plt.savefig(game_path + '/ball_holders.png')
+
+def create_correlations(game_path, filtered_df):
+    # Create a DataFrame from the filtered data
+    df = pd.DataFrame(filtered_df)
+
+    # Select the relevant numeric fields for correlation analysis
+    numeric_fields = ['x', 'y', 'sightDirection', 'id', 'team']
+    subset_df = df['properties'].apply(lambda x: pd.Series({field: x[field] for field in numeric_fields}))
+
+    # Calculate the correlation matrix
+    corr_matrix = subset_df.corr()
+
+    # Rename the 'id' label to 'color' in the correlation matrix
+    corr_matrix = corr_matrix.rename(columns={'id': 'color'})
+    corr_matrix = corr_matrix.rename(index={'id': 'color'})
+
+    # Create a mask for the upper triangular portion
+    mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
+
+    # Plot the correlation heatmap with triangular mask
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', mask=mask)
+    plt.title('Correlation Heatmap')
+
+    plt.savefig(game_path + '/correlations.png')
