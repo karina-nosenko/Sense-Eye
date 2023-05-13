@@ -108,7 +108,7 @@ def detect_colors(frame):
             y1 = int(moments["m01"] / moments["m00"])
 
             player_index = {
-                "id":"orange",
+                "id": 0,
                 "x":x1,
                 "y":y1,                
             }
@@ -135,9 +135,9 @@ def detect_colors(frame):
             y1 = int(moments["m01"] / moments["m00"])
 
             player_index = {
-                "id":"yellow",
-                "x":x1,
-                "y":y1,                
+                "id": 1,
+                "x": x1,
+                "y": y1,                
             }
 
             framePlayersIndexes.append(player_index)

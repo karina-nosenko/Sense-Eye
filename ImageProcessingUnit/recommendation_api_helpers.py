@@ -196,7 +196,7 @@ def find_indexes_of_two_players(player_caps_index, playersList):
     orange_player = {}
     result = _find_closest_objects(playersList, player_caps_index)
     if(len(result)==2):
-        if(result[0]['id']=='yellow'):
+        if(result[0]['id'] == 1):
             yellow_player = result[0]
             orange_player = result[1]
         else:

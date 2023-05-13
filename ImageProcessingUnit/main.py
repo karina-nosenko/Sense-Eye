@@ -145,9 +145,11 @@ with torch.no_grad():
             angles,
             FIRST_FRAME_SAVED,
             CURRENT_TIMESTAMP)
+        
         ball_prev_indexes = []
         if(len(ball_indexes)>0):
             ball_prev_indexes = ball_indexes
+
         player_caps_index = cd.detect_colors(frame) 
 
         # Single player
