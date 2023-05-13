@@ -32,12 +32,71 @@ def create_personalized_frames():
             data = json.load(f)
 
         # Create the frames with insights
-        create_ball_holders_percentages(data).savefig(game_path + '/ball_holders.png')
+        create_players_traces(game_path, data)
+        create_holds_the_ball_traces(game_path, data)
+        create_ball_holders_percentages(data).savefig(game_path + '/ball_holders_percentages.png')
         create_correlations(data).savefig(game_path + '/correlations.png')
         create_ball_movement_pattern(data).savefig(game_path + '/ball_movement.png')
         create_player_movement_pattern(game_path, data).savefig(game_path + '/players_movement.png')
         create_players_heatmap(game_path, data).savefig(game_path + '/players_heatmap.png')   #todo: flip vertically
         create_ball_heatmap(game_path, data).savefig(game_path + '/ball_heatmap.png')   #todo: flip vertically
+
+def create_players_traces(game_path, trace_data):    
+        # Read the first frame image for this game
+        frame_file_path = os.path.join(game_path, "first_frame.jpg")
+        if not os.path.exists(frame_file_path):
+            return
+        
+        frame_img = cv2.imread(frame_file_path)
+
+        # Iterate over all the objects in the trace file
+        for trace_obj in trace_data:
+            if trace_obj["class"] == "person":
+                # Extract the x and y coordinates for this person
+                x = trace_obj["properties"]["x"]
+                y = trace_obj["properties"]["center_y"]
+                id = trace_obj["properties"].get("id", None)
+
+                # Set the circle color based on the person's ID
+                if id == 0:
+                    circle_color = (0, 255, 255)  # yellow
+                    cv2.circle(frame_img, (x, y), 1, circle_color, -1)
+                elif id == 1:
+                    circle_color = (0, 165, 255)  # orange
+                    cv2.circle(frame_img, (x, y), 1, circle_color, -1)   
+
+        # Save the image with the traces drawn
+        output_file_path = os.path.join(game_path, "traces.jpg")
+        cv2.imwrite(output_file_path, frame_img)
+
+def create_holds_the_ball_traces(game_path, trace_data):
+        # Read the first frame image for this game
+        frame_file_path = os.path.join(game_path, "first_frame.jpg")
+        if not os.path.exists(frame_file_path):
+            return
+        
+        frame_img = cv2.imread(frame_file_path)
+
+        # Iterate over all the objects in the trace file
+        for trace_obj in trace_data:
+            if trace_obj["class"] == "person":
+                # Extract the x and y coordinates for this person
+                x = trace_obj["properties"]["x"]
+                y = trace_obj["properties"]["center_y"]
+                id = trace_obj["properties"].get("id", None)
+                holds_ball = trace_obj["properties"].get("holdsBall", None)
+
+                # Set the circle color based on the person's ID
+                if id == 0 and holds_ball == True:
+                    circle_color = (0, 255, 255)  # yellow
+                    cv2.circle(frame_img, (x, y), 1, circle_color, -1)
+                elif id == 1 and holds_ball == True:
+                    circle_color = (0, 165, 255)  # orange
+                    cv2.circle(frame_img, (x, y), 1, circle_color, -1)   
+
+        # Save the image with the traces drawn
+        output_file_path = os.path.join(game_path, "ball_holders_traces.jpg")
+        cv2.imwrite(output_file_path, frame_img)
 
 def create_ball_holders_percentages(data):
     default_color = 'gray'  # Default color for IDs not found in defined_strings
