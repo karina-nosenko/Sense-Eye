@@ -26,7 +26,9 @@ def create_players_traces():
         trace_file_path = os.path.join(game_path, "traces.json")
         if not os.path.exists(trace_file_path):
             continue
+        print(trace_file_path)
         with open(trace_file_path, "r") as trace_file:
+            print(trace_file)
             trace_data = json.load(trace_file)
 
         # Read the first frame image for this game

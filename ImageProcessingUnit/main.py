@@ -184,8 +184,9 @@ with torch.no_grad():
         cv2.putText(frame, recommendation_label, (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1)
 
         # Output alert label
-        alert_label = alert['result']
-        cv2.putText(frame, alert_label, (40, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1)
+        if 'result' in alert:
+            alert_label = alert['result']
+            cv2.putText(frame, alert_label, (40, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1)
 
         # Output recommendation arrow
         if SHOW_RECOMMENDATION_ARROW:

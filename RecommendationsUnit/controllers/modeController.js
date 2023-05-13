@@ -264,7 +264,6 @@ const recommendDirectShotOnGoal = (res, ballHolder, goal) => {
 }
 
 const recommendPassToTeammate = (res, ballHolder, teammate) => {
-    console.log("recommendPassToTeammate");
     let output_state = getClockDirection(ballHolder, teammate.x, teammate.y)
 
     const color = getColorNameById(ballHolder.id);
@@ -279,7 +278,6 @@ const recommendPassToTeammate = (res, ballHolder, teammate) => {
 }
 
 const recommendKeepTheBall = (res, ballHolder) => {
-    console.log("recommendKeepTheBall");
     const color = getColorNameById(ballHolder.id);
     return res.status(200).json({ 'color': color, 'output_state': 0, 'state': 'move' });
     // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${0}&state=move`)
@@ -289,7 +287,6 @@ const recommendKeepTheBall = (res, ballHolder) => {
     //     .catch(function (error) {
     //         res.status(200).json({ 'color': '', 'output_state': '', 'state': '' });
     //     })
-    // return res.status(200).json({ 'color': color, 'output_state': 0, 'state': 'move' });
 }
 
 const doNothing = (res) => {
@@ -394,7 +391,6 @@ exports.modeController = {
         ballHolder = getPlayerWithBall(body.players);
         const goalIndex = ballHolder.team;
         teammates = getTeammates(ballHolder, body.players);
-        console.log(teammates);
         teammatesDistance = calculateDistanceBetweenPlayers(ballHolder, teammates);
         opponent = getPlayerOpponent(body.players, !ballHolder.team);
         goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
@@ -426,19 +422,16 @@ exports.modeController = {
         let topGoalY = body.goals[1].y1;
         let bottomGoalY = body.goals[0].y1;
 
-        let shift = (bottomGoalY - topGoalY)/13
+        let shift = (bottomGoalY - topGoalY)/14
 
         // we're adding shift to each value because of the perspective
         let middleY = (bottomGoalY - topGoalY)/2 + topGoalY - shift
         let topQuarterY = (middleY - topGoalY)/2 + topGoalY - shift
         let bottomQuarterY = (bottomGoalY - middleY)/2 + middleY - shift
 
-        console.log(`shift:${shift} top:${topGoalY} middle:${middleY} bottom:${bottomGoalY}`)
-
         result = ''
 
         for(player of players) {
-            console.log(`y:${player.y}`)
             let color = getColorNameById(player.id);
             if (isBetween(player.y, middleY - shift, middleY + shift)) { 
                 //axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=1&state=alert`)
