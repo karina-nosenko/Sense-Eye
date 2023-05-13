@@ -26,7 +26,6 @@ load_dotenv()
 # Access the environment variables
 # DB_HOST = os.getenv('DB_HOST')
 
-
 inputStyle = """
     QLineEdit {
         background-color: #f2f2f2;
@@ -34,6 +33,35 @@ inputStyle = """
         border-radius: 10px;
         font-size: 16px;
         padding: 10px;
+    }
+"""
+
+selectorStyle = """
+    QComboBox {
+                background-color: #F0F0F0;
+                color: #000000;
+                border: 1px solid #CCCCCC;
+                border-radius: 5px;
+                padding: 5px;
+    }
+    
+    QComboBox::drop-down {
+        subcontrol-origin: padding;
+        subcontrol-position: top right;
+        width: 20px;
+        
+        border-left-width: 1px;
+        border-left-color: #CCCCCC;
+        border-left-style: solid;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+    }
+    
+    QComboBox::down-arrow {
+        image: url(icons/down_arrow.png);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 5px 5px;
     }
 """
 
@@ -181,6 +209,7 @@ class MainPage(QMainWindow):
         self.modeSelector = QComboBox()
         self.modeSelector.addItems(["Single Player", "Two Players Same Team", "Two Players Different Teams"])
         self.modeSelector.currentIndexChanged.connect( self.change_mode )
+        self.modeSelector.setStyleSheet(selectorStyle)     
   
         # create a "start" button
         self.buttonStart = QPushButton('Start', self) 

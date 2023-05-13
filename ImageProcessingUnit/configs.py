@@ -6,12 +6,7 @@ APPEND_PATH = 'yolov7'
 MODE = 'video'
 
 # Camera index for realtime: 0-webcam, 4/0 - camera
-# Video path for video
 CAMERA_INDEX = 0
-# VIDEO_PATH = APPEND_PATH + '/videos/two_players_orange_yellow.mp4'
-# VIDEO_PATH = APPEND_PATH + '/videos/Untitled.mp4'
-# VIDEO_PATH = APPEND_PATH + '/videos/single_player_yellow.mp4'
-# GAME_MODE = 2
 
 #colors id
 YELLOW_COLOR = 0
