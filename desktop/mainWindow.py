@@ -11,6 +11,7 @@ import psutil
 import time
 import subprocess
 import platform
+import json
 
 from videoWindow import *
 from styles import *
@@ -175,6 +176,11 @@ class MainPage(QMainWindow):
         self.heading.setText('My Camera Feed')
         self.heading.setAlignment(Qt.AlignVCenter) 
         self.heading.setStyleSheet(headingStyle)  
+
+        # create the mode selector
+        self.modeSelector = QComboBox()
+        self.modeSelector.addItems(["Single Player", "Two Players Same Team", "Two Players Different Teams"])
+        self.modeSelector.currentIndexChanged.connect( self.change_mode )
   
         # create a "start" button
         self.buttonStart = QPushButton('Start', self) 
@@ -210,6 +216,8 @@ class MainPage(QMainWindow):
         layout.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.heading)
         layout.addSpacing(40)
+        layout.addWidget(self.modeSelector)
+        layout.addSpacing(20)
         layout.addWidget(self.buttonStart)
         layout.addSpacing(20)
         layout.addWidget(self.statusLabel)
@@ -228,9 +236,22 @@ class MainPage(QMainWindow):
         # initialize subprocess variables to None
         self.process1 = None
         self.process2 = None
-        self.process3 = None
+        self.process3 = None  
 
-        
+    def change_mode(self, mode):
+        with open('../configs.json') as json_file:
+            data = json.load(json_file)
+
+        new_mode = int(mode) + 1
+        data["game_mode"] = new_mode
+        if new_mode == 1:
+            data["video_path"] = "yolov7/videos/single_player_yellow.mp4"
+        else:
+            data["video_path"] = "yolov7/videos/two_players_orange_yellow.mp4"
+
+        with open('../configs.json', 'w') as json_file:
+            json.dump(data, json_file, indent=4)
+
     def start_process(self):
         self.buttonStart.hide()
         self.statusLabel.show()
@@ -257,7 +278,7 @@ class MainPage(QMainWindow):
             self.statusLabel.setText('Attempting to connect to the components...')
             QApplication.processEvents()
             self.process1 = subprocess.Popen(['sudo', 'python3','main.py'],cwd='../') 
-            time.sleep(10)
+            #time.sleep(10)
             self.statusLabel.setText('Please wait! The video window will pop up in a minute.')
 
             self.process2 = subprocess.Popen(['npm','run','dev'],cwd='../RecommendationsUnit/')

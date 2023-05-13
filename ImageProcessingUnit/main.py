@@ -3,10 +3,11 @@ import cv2
 import torch
 import itertools
 import os
-from configs import APPEND_PATH, MODE, CAMERA_INDEX, VIDEO_PATH, options, GAME_MODE, YELLOW_COLOR, ORANGE_COLOR, SHOW_RECOMMENDATION_ARROW
+from configs import APPEND_PATH, MODE, CAMERA_INDEX, options, YELLOW_COLOR, ORANGE_COLOR, SHOW_RECOMMENDATION_ARROW
 import colors_detection as cd
 from datetime import datetime
 import math
+import json
 import json
 
 # Settings
@@ -16,6 +17,12 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 from image_functions import rescale_frame
 from recommendation_api_helpers import recommendation_single_player, recommendation_two_players_same_team, recommendation_two_players_different_teams, find_indexes_of_two_players, alert_close_to_game_single, alert_close_to_game_two
 from objects_detection import initialize_player_detection_model, detect_objects
+
+# Read parameters from the configs
+with open('../configs.json') as json_file:
+    data = json.load(json_file)
+GAME_MODE = data["game_mode"]
+VIDEO_PATH = data["video_path"]
 
 CURRENT_TIMESTAMP = datetime.now()
 FIRST_FRAME_SAVED = False
