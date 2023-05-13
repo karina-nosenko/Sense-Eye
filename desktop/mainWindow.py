@@ -209,7 +209,12 @@ class MainPage(QMainWindow):
         self.modeSelector = QComboBox()
         self.modeSelector.addItems(["Single Player", "Two Players Same Team", "Two Players Different Teams"])
         self.modeSelector.currentIndexChanged.connect( self.change_mode )
-        self.modeSelector.setStyleSheet(selectorStyle)     
+        self.modeSelector.setStyleSheet(selectorStyle)
+
+        # set the current selected mode as the last that was selected
+        with open('../configs.json') as json_file:
+            data = json.load(json_file)
+        self.modeSelector.setCurrentIndex(data["game_mode"] - 1)
   
         # create a "start" button
         self.buttonStart = QPushButton('Start', self) 
