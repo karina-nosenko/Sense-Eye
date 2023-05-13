@@ -117,19 +117,15 @@ const isPlayerInsideTriangle = (player, point1, point2, point3) => {
 const getPlayerWithBall = (players) => {
     return players.find(player => player.holdsBall) || null;
 }
+
 const getPlayerOpponent = (players, opponent_team_index) => {
     return players.find(player => (player.team == opponent_team_index));
 }
+
 const getTeammates = (ballHolder, players) => {
     return players.filter(player => (player.id != ballHolder.id) && (player.team == ballHolder.team));
 }
 
-// const calculateDistanceBetweenPlayers = (player1, player2) => {
-//     return calculateEuclideanDistance(player1.x, player1.y, player2.x, player2.y)
-// }
-
-
-//YUVAL
 const calculateDistanceBetweenPlayers = (player1, ...points) => {
     let distances = [];
     for (let i = 0; i < points.length; i += 2) {
@@ -160,27 +156,11 @@ const playerInSightRange = (ballHolder, player) => {
     return [9, 10, 11, 12, 1, 2, 3].includes(output_state);
 }
 
-
-// const sortedTeammates = (teammatesDistance) => {
-//     let distances = [];
-//     for (let i = 0; i < teammatesDistance.length; i++) {
-//         distances.push({ index: i, distance: teammatesDistance[i] });
-//     }
-//     distances.sort((a, b) => a.distance - b.distance);
-//     let sortedTeammates = [];
-//     for (let i = 0; i < distances.length; i++) {
-//         sortedTeammates.push([teammates[(distances[i].index * 2)], teammates[(distances[i].index * 2) + 1]]);
-//     }
-//     return sortedTeammates;
-// };
-
-
 const sortByDistance = (teammatesDistance) => {
     // TODO
     return teammatesDistance;
 }
 
-//YUVAL
 const sortPlayersByDistance = (players, playersDistance) => {
     // Combine each player with their corresponding distance as a tuple
     const tuples = players.map((player, i) => [player, playersDistance[i]]);
@@ -191,7 +171,6 @@ const sortPlayersByDistance = (players, playersDistance) => {
     // Extract only the sorted players (first element in each tuple)
     return tuples.map(tuple => tuple[0]);
 };
-
 
 const recommendMovingAwayFromGoal = (res, ballHolder, goal) => {
     let output_state = getClockDirectionToGoal(ballHolder, goal)
@@ -205,14 +184,18 @@ const recommendMovingAwayFromGoal = (res, ballHolder, goal) => {
 
     const color = getColorNameById(ballHolder.id);
 
-    return res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'move' });
-    // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=move`)
-    //     .then(function (response) {
-    //         res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'move' });
-    //     })
-    //     .catch(function (error) {
-    //         res.status(200).json({ 'color': '', 'output_state': '', 'state': '' });
-    //     })
+    if (process.env.ENV === 'development') {
+        return res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'move' });
+    }
+    
+    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=move`)
+        .then(function (response) {
+            res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'move' });
+        })
+        .catch(function (error) {
+            console.log(error)
+            res.status(200).json({ 'color': '', 'output_state': '', 'state': '' });
+        })
 }
 
 const recommendMovingAwayFromOpponent = (res, ballHolder, opponent) => { //TODO yuval
@@ -223,70 +206,90 @@ const recommendMovingAwayFromOpponent = (res, ballHolder, opponent) => { //TODO 
         output_state += 6;
     else
         output_state -= 6;
+   
+    if (process.env.ENV === 'development') {
+        return res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'move' });
+    }
 
-    return res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'move' });
-    // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=move`)
-    //     .then(function (response) {
-    //         res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'move' });
-    //     })
-    //     .catch(function (error) {
-    //         res.status(200).json({ 'color': '', 'output_state': '', 'state': '' });
-    //     })
+    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=move`)
+        .then(function (response) {
+            res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'move' });
+        })
+        .catch(function (error) {
+            console.log(error)
+            res.status(200).json({ 'color': '', 'output_state': '', 'state': '' });
+        })
 }
 
 const recommendMovingTowardsGoal = (res, ballHolder, goal) => {
     let output_state = getClockDirectionToGoal(ballHolder, goal)
 
     const color = getColorNameById(ballHolder.id);
-
-    return res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'move' });
-    // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=move`)
-    //     .then(function (response) {
-    //         res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'move' });
-    //     })
-    //     .catch(function (error) {
-    //         res.status(200).json({ 'color': '', 'output_state': '', 'state': '' });
-    //     })
+    if (process.env.ENV === 'development') {
+        return res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'move' });
+    }
+    
+    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=move`)
+    .then(function (response) {
+        res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'move' });
+    })
+    .catch(function (error) {
+        console.log(error)
+        res.status(200).json({ 'color': '', 'output_state': '', 'state': '' });
+    })
 }
 
 const recommendDirectShotOnGoal = (res, ballHolder, goal) => {
     let output_state = getClockDirectionToGoal(ballHolder, goal)
 
     const color = getColorNameById(ballHolder.id);
-    // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=kick`)
-    //     .then(function (response) {
-    //         res.status(200).json({'color': color,'output_state':output_state,'state':'kick'});
-    //     })
-    //     .catch(function (error) {
-    //         res.status(200).json({'color': '','output_state':'','state':''});
-    //     })
-    return res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'kick' });
+    if (process.env.ENV === 'development') {
+        return res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'kick' });
+    }
+
+    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=kick`)
+    .then(function (response) {
+        res.status(200).json({'color': color,'output_state':output_state,'state':'kick'});
+    })
+    .catch(function (error) {
+        console.log(error)
+        res.status(200).json({'color': '','output_state':'','state':''});
+    })
 }
 
 const recommendPassToTeammate = (res, ballHolder, teammate) => {
     let output_state = getClockDirection(ballHolder, teammate.x, teammate.y)
 
     const color = getColorNameById(ballHolder.id);
-    // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=pass`)
-    //     .then(function (response) {
-    //         res.status(200).json({'color': color,'output_state':output_state,'state':'pass'});
-    //     })
-    //     .catch(function (error) {
-    //         res.status(200).json({'color': '','output_state':'','state':''});
-    //     })
-    return res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'pass' });
+    if (process.env.ENV === 'development') {
+        return res.status(200).json({ 'color': color, 'output_state': output_state, 'state': 'pass' });
+    }
+
+    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${output_state}&state=pass`)
+        .then(function (response) {
+            res.status(200).json({'color': color,'output_state':output_state,'state':'pass'});
+        })
+        .catch(function (error) {
+            console.log(error)
+            res.status(200).json({'color': '','output_state':'','state':''});
+        })
 }
 
 const recommendKeepTheBall = (res, ballHolder) => {
     const color = getColorNameById(ballHolder.id);
-    return res.status(200).json({ 'color': color, 'output_state': 0, 'state': 'move' });
-    // return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${0}&state=move`)
-    //     .then(function (response) {
-    //         res.status(200).json({ 'color': color, 'output_state': 0, 'state': 'move' });
-    //     })
-    //     .catch(function (error) {
-    //         res.status(200).json({ 'color': '', 'output_state': '', 'state': '' });
-    //     })
+    
+    if (process.env.ENV === 'development') {
+        return res.status(200).json({ 'color': color, 'output_state': 0, 'state': 'move' });
+    }
+    
+    return axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=${0}&state=move`)
+        .then(function (response) {
+            res.status(200).json({ 'color': color, 'output_state': 0, 'state': 'move' });
+        })
+        .catch(function (error) {
+            console.log(error)
+            res.status(200).json({ 'color': '', 'output_state': '', 'state': '' });
+        })
 }
 
 const doNothing = (res) => {
@@ -433,15 +436,20 @@ exports.modeController = {
 
         for(player of players) {
             let color = getColorNameById(player.id);
-            if (isBetween(player.y, middleY - shift, middleY + shift)) { 
-                //axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=1&state=alert`)
+            if (isBetween(player.y, middleY - shift, middleY + shift)) {
+                if (process.env.ENV != 'development') {
+                    axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=1&state=alert`)
+                }
+
                 if(color == 'yellow'){
                     color = 'pink'
                 }
                 result += `[${color} passed middle]`
             } else if (isBetween(player.y, topQuarterY - shift, topQuarterY + shift) ||
                     isBetween(player.y, bottomQuarterY - shift, bottomQuarterY + shift)) { 
-                //axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=2&state=alert`)
+                if (process.env.ENV != 'development') {
+                    axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=2&state=alert`)
+                }
                 if(color == 'yellow'){
                     color = 'pink'
                 }

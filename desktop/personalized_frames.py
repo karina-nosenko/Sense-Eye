@@ -36,8 +36,8 @@ def create_personalized_frames():
         create_holds_the_ball_traces(game_path, data)
         create_ball_holders_percentages(data).savefig(game_path + '/ball_holders_percentages.png')
         create_correlations(data).savefig(game_path + '/correlations.png')
-        create_ball_movement_pattern(data).savefig(game_path + '/ball_movement.png')
-        create_player_movement_pattern(game_path, data).savefig(game_path + '/players_movement.png')
+        create_ball_movement_pattern(data).savefig(game_path + '/ball_movement.png')   #todo: flip vertically
+        create_player_movement_pattern(game_path, data).savefig(game_path + '/players_movement.png')   #todo: flip vertically
         create_players_heatmap(game_path, data).savefig(game_path + '/players_heatmap.png')   #todo: flip vertically
         create_ball_heatmap(game_path, data).savefig(game_path + '/ball_heatmap.png')   #todo: flip vertically
 
