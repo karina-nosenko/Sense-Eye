@@ -11,7 +11,7 @@ MODE = 'video'
 CAMERA_INDEX = 0
 
 #colors id
-YELLOW_COLOR = 0
+PINK_COLOR = 0
 ORANGE_COLOR = 1
 
 device = '0' if platform.system() == "Linux" else 'cpu'

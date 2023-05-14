@@ -33,14 +33,14 @@ def detect_colors(frame):
     orange_upper = np.array([20, 255, 255], np.uint8)
     orange_mask = cv2.inRange(hsvFrame, orange_lower, orange_upper)
 
-    # Set range for yellow color and
+    # Set range for pink color and
     # define mask
-    yellow_lower = np.array([20, 70, 200], np.uint8)
-    yellow_upper = np.array([35, 255, 255], np.uint8)
-    yellow_mask = cv2.inRange(hsvFrame, yellow_lower, yellow_upper)
-    # yellow_lower = np.array( [140, 50, 180], np.uint8)
-    # yellow_upper = np.array( [170, 255, 255], np.uint8)
-    # yellow_mask = cv2.inRange(hsvFrame, yellow_lower, yellow_upper)
+    pink_lower = np.array([20, 70, 200], np.uint8)
+    pink_upper = np.array([35, 255, 255], np.uint8)
+    pink_mask = cv2.inRange(hsvFrame, pink_lower, pink_upper)
+    # pink_lower = np.array( [140, 50, 180], np.uint8)
+    # pink_upper = np.array( [170, 255, 255], np.uint8)
+    # pink_mask = cv2.inRange(hsvFrame, pink_lower, pink_upper)
 
     # Set range for blue color and
     # define mask
@@ -59,10 +59,10 @@ def detect_colors(frame):
     res_red = cv2.bitwise_and(frame, frame,
                               mask=red_mask)
 
-    # For yellow color
-    yellow_mask = cv2.dilate(yellow_mask, kernal)
-    yellow_red = cv2.bitwise_and(frame, frame,
-                                 mask=yellow_mask)
+    # For pink color
+    pink_mask = cv2.dilate(pink_mask, kernal)
+    pink_red = cv2.bitwise_and(frame, frame,
+                                 mask=pink_mask)
     # For orange color
     orange_mask = cv2.dilate(orange_mask, kernal)
     res_orange = cv2.bitwise_and(frame, frame, mask=orange_mask)
@@ -118,8 +118,8 @@ def detect_colors(frame):
 
             framePlayersIndexes.append(player_index)
 
-    # Creating contour to track yellow color
-    contours, hierarchy = cv2.findContours(yellow_mask,
+    # Creating contour to track pink color
+    contours, hierarchy = cv2.findContours(pink_mask,
                                            cv2.RETR_TREE,
                                            cv2.CHAIN_APPROX_SIMPLE)
 

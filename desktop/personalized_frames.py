@@ -63,7 +63,7 @@ def create_players_traces(game_path, trace_data):
 
                 # Set the circle color based on the person's ID
                 if id == 0:
-                    circle_color = (0, 255, 255)  # yellow
+                    circle_color = (140, 50, 180)  # pink
                     cv2.circle(frame_img, (x, y), 1, circle_color, -1)
                 elif id == 1:
                     circle_color = (0, 165, 255)  # orange
@@ -92,7 +92,7 @@ def create_holds_the_ball_traces(game_path, trace_data):
 
                 # Set the circle color based on the person's ID
                 if id == 0 and holds_ball == True:
-                    circle_color = (0, 255, 255)  # yellow
+                    circle_color = (140, 50, 180)  # pink
                     cv2.circle(frame_img, (x, y), 1, circle_color, -1)
                 elif id == 1 and holds_ball == True:
                     circle_color = (0, 165, 255)  # orange

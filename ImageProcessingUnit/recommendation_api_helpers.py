@@ -207,18 +207,18 @@ def alert(players, ball_x, ball_y):
     return response.json()
 
 def find_indexes_of_two_players(player_caps_index, playersList):
-    yellow_player = {}
+    pink_player = {}
     orange_player = {}
     result = _find_closest_objects(playersList, player_caps_index)
     if(len(result)==2):
         if(result[0]['id'] == 1):
-            yellow_player = result[0]
+            pink_player = result[0]
             orange_player = result[1]
         else:
-            yellow_player = result[1]
+            pink_player = result[1]
             orange_player = result[0]
 
-    return yellow_player, orange_player
+    return pink_player, orange_player
 
 def _find_closest_objects(arr1, arr2):
     results = []

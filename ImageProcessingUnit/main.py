@@ -3,7 +3,7 @@ import cv2
 import torch
 import itertools
 import os
-from configs import APPEND_PATH, MODE, CAMERA_INDEX, options, YELLOW_COLOR, ORANGE_COLOR, SHOW_RECOMMENDATION_ARROW, MAX_PLAYERS_NUMBER
+from configs import APPEND_PATH, MODE, CAMERA_INDEX, options, PINK_COLOR, ORANGE_COLOR, SHOW_RECOMMENDATION_ARROW, MAX_PLAYERS_NUMBER
 import colors_detection as cd
 from datetime import datetime
 import math
@@ -108,7 +108,7 @@ state_recommendation = ''
 previous_recommendation_label = ''
 frames_counter = 1
 data = {}
-yellow_player = {}
+pink_player = {}
 orange_player = {}
 angles = []
 alert_result = {}
@@ -160,31 +160,31 @@ with torch.no_grad():
                 players_list[0]['id'] = 0
                 players_list[0]['team'] = 0
             if(len(ball_prev_indexes)>0 and len(players_list)>0 and len(players_list[0])>3 and players_list[0]['x'] and players_list[0]['y'] and players_list[0]['holdsBall'] and players_list[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
-                data = recommendation_single_player(YELLOW_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
+                data = recommendation_single_player(PINK_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
                 
                 if not PLAYERS_GOT_ALERT[players_list[0]['id']]:
                     alert_result = alert([players_list[0]], ball_indexes[0]['x'], ball_indexes[0]['y'])
         # Two players from the same team
         elif (GAME_MODE == 2 or GAME_MODE == 3):
-            yellow_player, orange_player = find_indexes_of_two_players(players_list, player_caps_index)
-            yellow_player['id'] = 0
+            pink_player, orange_player = find_indexes_of_two_players(players_list, player_caps_index)
+            pink_player['id'] = 0
             orange_player['id'] = 1
             if(len(players_list)==2 and len(ball_indexes)>0 and ball_indexes[0]['x'] and ball_indexes[0]['y']):
-                yellow_player, orange_player = find_indexes_of_two_players(players_list, player_caps_index)
-                yellow_player['id'] = 0
+                pink_player, orange_player = find_indexes_of_two_players(players_list, player_caps_index)
+                pink_player['id'] = 0
                 orange_player['id'] = 1
 
-                yellow_player.update({"team":0})
+                pink_player.update({"team":0})
                 if GAME_MODE == 2:
                     orange_player.update({"team":0})
-                    data = recommendation_two_players_same_team(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
+                    data = recommendation_two_players_same_team(pink_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
                 else:
                     orange_player.update({"team":1})
-                    data = recommendation_two_players_different_teams(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
+                    data = recommendation_two_players_different_teams(pink_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
                 
                 playersToAlert = []
-                if not PLAYERS_GOT_ALERT[yellow_player['id']]:
-                    playersToAlert.append(yellow_player)
+                if not PLAYERS_GOT_ALERT[pink_player['id']]:
+                    playersToAlert.append(pink_player)
                 if not PLAYERS_GOT_ALERT[orange_player['id']]:
                     playersToAlert.append(orange_player)
 
@@ -199,8 +199,6 @@ with torch.no_grad():
         save_traces_records(players_list, ball_indexes)
 
         # Output recommendation label
-        if color_recommendation == 'yellow':
-            color_recommendation = 'pink'
         recommendation_label = color_recommendation + ": " + state_recommendation + " " + output_state_recommendation
         cv2.putText(frame, recommendation_label, (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1)
 
@@ -226,7 +224,7 @@ with torch.no_grad():
                 x2 = int(player_with_the_ball_center_point[0] + delta_x)
                 y2 = int(player_with_the_ball_center_point[1] - delta_y)
                 end_arrow = (x2, y2)
-                color = (255, 191, 0) if color_recommendation == 'yellow' else (5, 100, 100)
+                color = (255, 191, 0) if color_recommendation == 'pink' else (5, 100, 100)
                 cv2.arrowedLine(frame, start_arrow, end_arrow, color, thickness = 2, tipLength = 0.5)
 
         # Save the frame with the recommendation to materials
