@@ -423,12 +423,12 @@ exports.modeController = {
         let topGoalY = body.goals[1].y1;
         let bottomGoalY = body.goals[0].y1;
 
-        let shift = (bottomGoalY - topGoalY)/14
+        let shift = (bottomGoalY - topGoalY)/20
 
         // we're adding shift to each value because of the perspective
-        let middleY = (bottomGoalY - topGoalY)/2 + topGoalY - shift
-        let topQuarterY = (middleY - topGoalY)/2 + topGoalY - shift
-        let bottomQuarterY = (bottomGoalY - middleY)/2 + middleY - shift
+        let middleY = (bottomGoalY - topGoalY)/2 + topGoalY - 3 * shift
+        let topQuarterY = (middleY - topGoalY)/2 + topGoalY - 3 * shift
+        let bottomQuarterY = (bottomGoalY - middleY)/2 + middleY - 3 * shift
 
         result = ''
         idsAlerted = []

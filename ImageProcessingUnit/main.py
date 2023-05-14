@@ -161,7 +161,7 @@ with torch.no_grad():
                 players_list[0]['team'] = 0
             if(len(ball_prev_indexes)>0 and len(players_list)>0 and len(players_list[0])>3 and players_list[0]['x'] and players_list[0]['y'] and players_list[0]['holdsBall'] and players_list[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
                 data = recommendation_single_player(PINK_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
-                
+
                 if not PLAYERS_GOT_ALERT[players_list[0]['id']]:
                     alert_result = alert([players_list[0]], ball_indexes[0]['x'], ball_indexes[0]['y'])
         # Two players from the same team
@@ -188,6 +188,7 @@ with torch.no_grad():
                 if not PLAYERS_GOT_ALERT[orange_player['id']]:
                     playersToAlert.append(orange_player)
 
+                print('calling wrong alert...')
                 alert_result = alert(playersToAlert, ball_indexes[0]['x'], ball_indexes[0]['y'])
                 playersToAlert = []
 
@@ -203,15 +204,15 @@ with torch.no_grad():
         cv2.putText(frame, recommendation_label, (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1)
 
         # Output alert label
+        PLAYERS_GOT_ALERT = MAX_PLAYERS_NUMBER * [False]
         if 'result' in alert_result and 'idsAlerted' in alert_result:
             alert_label = alert_result['result']
             cv2.putText(frame, alert_label, (40, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1)
 
-            PLAYERS_GOT_ALERT = MAX_PLAYERS_NUMBER * [False]
             for id in alert_result['idsAlerted']:
                 PLAYERS_GOT_ALERT[id] = True
             
-            
+            alert_result = {}
 
         # Output recommendation arrow
         if SHOW_RECOMMENDATION_ARROW:
