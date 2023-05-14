@@ -12,11 +12,9 @@ const { MAX_GOAL_PASSING_DISTANCE,
 const getColorNameById = (id) => {
     switch (id) {
         case 0:
-            return 'yellow';
+            return 'pink';
         case 1:
             return 'orange';
-        case 2:
-            return 'blue';
         default:
             return 'undefined';
     }
@@ -433,30 +431,28 @@ exports.modeController = {
         let bottomQuarterY = (bottomGoalY - middleY)/2 + middleY - shift
 
         result = ''
+        idsAlerted = []
 
         for(player of players) {
             let color = getColorNameById(player.id);
             if (isBetween(player.y, middleY - shift, middleY + shift)) {
                 if (process.env.ENV != 'development') {
-                    axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=1&state=alert`)
+                    axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=1&state=alert`);
                 }
 
-                if(color == 'yellow'){
-                    color = 'pink'
-                }
-                result += `[${color} passed middle]`
+                result += `[${color} passed middle]`;
+                idsAlerted.push(player.id);
             } else if (isBetween(player.y, topQuarterY - shift, topQuarterY + shift) ||
                     isBetween(player.y, bottomQuarterY - shift, bottomQuarterY + shift)) { 
                 if (process.env.ENV != 'development') {
-                    axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=2&state=alert`)
+                    axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=2&state=alert`);
                 }
-                if(color == 'yellow'){
-                    color = 'pink'
-                }
-                result += `[${color} passed quarter]`
+
+                result += `[${color} passed quarter]`;
+                idsAlerted.push(player.id);
             }
         }
 
-        res.status(200).json({ "result": result });
+        res.status(200).json({ "result": result, "idsAlerted": idsAlerted});
     }
 }

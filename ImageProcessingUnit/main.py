@@ -15,7 +15,7 @@ sys.path.append(APPEND_PATH)
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 from image_functions import rescale_frame
-from recommendation_api_helpers import recommendation_single_player, recommendation_two_players_same_team, recommendation_two_players_different_teams, find_indexes_of_two_players, alert_close_to_gate_single, alert_close_to_gate_two
+from recommendation_api_helpers import recommendation_single_player, recommendation_two_players_same_team, recommendation_two_players_different_teams, find_indexes_of_two_players, alert
 from objects_detection import initialize_player_detection_model, detect_objects
 
 # Read parameters from the configs
@@ -111,7 +111,7 @@ data = {}
 yellow_player = {}
 orange_player = {}
 angles = []
-alert = {}
+alert_result = {}
 
 # Initializing model and setting it for inference
 torch.cuda.empty_cache()
@@ -162,8 +162,8 @@ with torch.no_grad():
             if(len(ball_prev_indexes)>0 and len(players_list)>0 and len(players_list[0])>3 and players_list[0]['x'] and players_list[0]['y'] and players_list[0]['holdsBall'] and players_list[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
                 data = recommendation_single_player(YELLOW_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
                 
-                # if not PLAYERS_GOT_ALERT[players_list[0]['id']]:
-                alert = alert_close_to_gate_single(YELLOW_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
+                if not PLAYERS_GOT_ALERT[players_list[0]['id']]:
+                    alert_result = alert([players_list[0]], ball_indexes[0]['x'], ball_indexes[0]['y'])
         # Two players from the same team
         elif (GAME_MODE == 2 or GAME_MODE == 3):
             yellow_player, orange_player = find_indexes_of_two_players(players_list, player_caps_index)
@@ -182,7 +182,14 @@ with torch.no_grad():
                     orange_player.update({"team":1})
                     data = recommendation_two_players_different_teams(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
                 
-                alert = alert_close_to_gate_two(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
+                playersToAlert = []
+                if not PLAYERS_GOT_ALERT[yellow_player['id']]:
+                    playersToAlert.append(yellow_player)
+                if not PLAYERS_GOT_ALERT[orange_player['id']]:
+                    playersToAlert.append(orange_player)
+
+                alert_result = alert(playersToAlert, ball_indexes[0]['x'], ball_indexes[0]['y'])
+                playersToAlert = []
 
         if "color" in data and "output_state" in data and "state"  in data:
             color_recommendation = data['color']
@@ -198,10 +205,15 @@ with torch.no_grad():
         cv2.putText(frame, recommendation_label, (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1)
 
         # Output alert label
-        if 'result' in alert:
-            alert_label = alert['result']
+        if 'result' in alert_result and 'idsAlerted' in alert_result:
+            alert_label = alert_result['result']
             cv2.putText(frame, alert_label, (40, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1)
-            # PLAYERS_GOT_ALERT[players_list[0]['id']] = False
+
+            PLAYERS_GOT_ALERT = MAX_PLAYERS_NUMBER * [False]
+            for id in alert_result['idsAlerted']:
+                PLAYERS_GOT_ALERT[id] = True
+            
+            
 
         # Output recommendation arrow
         if SHOW_RECOMMENDATION_ARROW:

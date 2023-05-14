@@ -191,6 +191,21 @@ def alert_close_to_gate_two(player1, player2, ball_x, ball_y):
     response = requests.post(api_url, data=json.dumps(data), headers=headers)
     return response.json()
 
+def alert(players, ball_x, ball_y):
+    api_url = RECOMMENDATIONS_API_ADDRESS + "/alertCloseToGate"
+    data = {
+        "goals": goals,
+        "players": players,
+        "ball": {
+            "x": ball_x,
+            "y": ball_y
+        }
+    }
+
+    headers =  {"Content-Type":"application/json"}
+    response = requests.post(api_url, data=json.dumps(data), headers=headers)
+    return response.json()
+
 def find_indexes_of_two_players(player_caps_index, playersList):
     yellow_player = {}
     orange_player = {}
