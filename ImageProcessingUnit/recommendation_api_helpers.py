@@ -149,7 +149,7 @@ def recommendation_two_players_different_teams(player1, player2, ball_x, ball_y)
     response = requests.post(api_url, data=json.dumps(data), headers=headers)
     return response.json()
 
-def alert_close_to_game_single(color_id, player_x, player_y, holds_ball, direction, ball_x, ball_y):
+def alert_close_to_gate_single(color_id, player_x, player_y, holds_ball, direction, ball_x, ball_y):
     api_url = RECOMMENDATIONS_API_ADDRESS + "/alertCloseToGate"
     data = {
         "goals": goals,
@@ -173,7 +173,7 @@ def alert_close_to_game_single(color_id, player_x, player_y, holds_ball, directi
     response = requests.post(api_url, data=json.dumps(data), headers=headers)
     return response.json()
 
-def alert_close_to_game_two(player1, player2, ball_x, ball_y):
+def alert_close_to_gate_two(player1, player2, ball_x, ball_y):
     api_url = RECOMMENDATIONS_API_ADDRESS + "/alertCloseToGate"
     data = {
         "goals": goals,

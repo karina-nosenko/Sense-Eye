@@ -3,7 +3,7 @@ import cv2
 import torch
 import itertools
 import os
-from configs import APPEND_PATH, MODE, CAMERA_INDEX, options, YELLOW_COLOR, ORANGE_COLOR, SHOW_RECOMMENDATION_ARROW
+from configs import APPEND_PATH, MODE, CAMERA_INDEX, options, YELLOW_COLOR, ORANGE_COLOR, SHOW_RECOMMENDATION_ARROW, MAX_PLAYERS_NUMBER
 import colors_detection as cd
 from datetime import datetime
 import math
@@ -15,7 +15,7 @@ sys.path.append(APPEND_PATH)
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 from image_functions import rescale_frame
-from recommendation_api_helpers import recommendation_single_player, recommendation_two_players_same_team, recommendation_two_players_different_teams, find_indexes_of_two_players, alert_close_to_game_single, alert_close_to_game_two
+from recommendation_api_helpers import recommendation_single_player, recommendation_two_players_same_team, recommendation_two_players_different_teams, find_indexes_of_two_players, alert_close_to_gate_single, alert_close_to_gate_two
 from objects_detection import initialize_player_detection_model, detect_objects
 
 # Read parameters from the configs
@@ -24,8 +24,10 @@ with open('../configs.json') as json_file:
 GAME_MODE = data["game_mode"]
 VIDEO_PATH = data["video_path"]
 
+# Some constants
 CURRENT_TIMESTAMP = datetime.now()
 FIRST_FRAME_SAVED = False
+PLAYERS_GOT_ALERT = MAX_PLAYERS_NUMBER * [False]
 
 def save_traces_records(players_list, ball_indexes):
     # Get the path to the traces file
@@ -159,7 +161,9 @@ with torch.no_grad():
                 players_list[0]['team'] = 0
             if(len(ball_prev_indexes)>0 and len(players_list)>0 and len(players_list[0])>3 and players_list[0]['x'] and players_list[0]['y'] and players_list[0]['holdsBall'] and players_list[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
                 data = recommendation_single_player(YELLOW_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
-                alert = alert_close_to_game_single(YELLOW_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
+                
+                # if not PLAYERS_GOT_ALERT[players_list[0]['id']]:
+                alert = alert_close_to_gate_single(YELLOW_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
         # Two players from the same team
         elif (GAME_MODE == 2 or GAME_MODE == 3):
             yellow_player, orange_player = find_indexes_of_two_players(players_list, player_caps_index)
@@ -178,7 +182,7 @@ with torch.no_grad():
                     orange_player.update({"team":1})
                     data = recommendation_two_players_different_teams(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
                 
-                alert = alert_close_to_game_two(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
+                alert = alert_close_to_gate_two(yellow_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
 
         if "color" in data and "output_state" in data and "state"  in data:
             color_recommendation = data['color']
@@ -197,6 +201,7 @@ with torch.no_grad():
         if 'result' in alert:
             alert_label = alert['result']
             cv2.putText(frame, alert_label, (40, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1)
+            # PLAYERS_GOT_ALERT[players_list[0]['id']] = False
 
         # Output recommendation arrow
         if SHOW_RECOMMENDATION_ARROW:
