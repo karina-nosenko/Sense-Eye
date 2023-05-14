@@ -9,15 +9,26 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtGui import *
 from multiprocessing import Process
+from imagekitio import ImageKit
+from dotenv import load_dotenv
 
 from mainWindow import *
 from personalized_frames import create_personalized_frames
+
+load_dotenv()
+
+# create the object to host images
+imagekit = ImageKit(
+    private_key=os.environ['PRIVATE_KEY'],
+    public_key=os.environ['PUBLIC_KEY'],
+    url_endpoint=os.environ['URL_ENDPOINT']
+)
 
 def create_games():
     api_url = "https://sense-eye-backend.onrender.com/api/games"
 
     # Uncomment to delete all the games from db
-    # client = pymongo.MongoClient("mongodb+srv://yosef:sense111@cluster0.bmxfx.mongodb.net/sense-eye")
+    # client = pymongo.MongoClient(os.environ['DB_HOST'])
     # db = client["sense-eye"]
     # collection = db["games"]
     # collection.delete_many({})
@@ -52,7 +63,7 @@ def send_recommendations_to_db():
     api_url = "https://sense-eye-backend.onrender.com/api/rec"
 
     # Uncomment to delete all the recommendations from db
-    # client = pymongo.MongoClient("mongodb+srv://yosef:sense111@cluster0.bmxfx.mongodb.net/sense-eye")
+    # client = pymongo.MongoClient(os.environ['DB_HOST'])
     # db = client["sense-eye"]
     # collection = db["recomendations"]
     # collection.delete_many({})
@@ -65,22 +76,31 @@ def send_recommendations_to_db():
             continue
         
         for filename in os.listdir(full_path):
-            with open(os.path.join(full_path, filename), "rb") as f:
-                encoded_string = base64.b64encode(f.read())
-                request_body = {
-                    "status": 0,
-                    "frame": encoded_string,
-                    "orgName": "shenkar",
-                    "gameID": foldername
-                }
 
-                response = requests.post(api_url, json=request_body)
-                if response.status_code >= 200 or response.status_code < 300:
-                    # Successful insert - delete the frame locally
-                    os.remove(os.path.join(full_path, filename))
-                else:
-                    # Unsuccessful insert - stop iterating
-                    return
+            # Host the recommendation image
+            with open(os.path.join(full_path, filename), mode="rb") as img:
+                imgstr = base64.b64encode(img.read())
+
+            upload = imagekit.upload(
+                file = imgstr,
+                file_name = filename
+            )
+
+            image_url = upload.response_metadata.raw['url']
+
+            # Save the recommendation object to db
+            request_body = {
+                "status": 0,
+                "frame": image_url,
+                "orgName": "shenkar",
+                "gameID": foldername
+            }
+
+            response = requests.post(api_url, json=request_body)
+            if response.status_code >= 200 or response.status_code < 300:
+                os.remove(os.path.join(full_path, filename))    # Successful insert - delete the frame locally
+            else:
+                return  # Unsuccessful insert - stop iterating
         
         # Delete the folder after sending its contents (if the folder is empty)
         if len(os.listdir(os.path.join(path, foldername))) == 0:
