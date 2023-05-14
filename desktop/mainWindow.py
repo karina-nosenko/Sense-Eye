@@ -405,7 +405,18 @@ class HistoryPage(QMainWindow):
         row = 0
         column = 0
         video_folder = "../output_videos"
-        for filename in sorted(os.listdir(video_folder)):
+
+        # delete videos if their number exceeds the specified value
+        videos_list = sorted(os.listdir(video_folder))
+        if len(videos_list) > 27:
+            videos_to_delete = videos_list[:-27]
+            for video in videos_to_delete:
+                video_path = os.path.join(video_folder, video)
+                os.remove(video_path)
+
+        # create the videos
+        videos_list = sorted(os.listdir(video_folder))
+        for filename in videos_list:
             if filename.endswith(".ogv"):
                 video_path = os.path.join(video_folder, filename)
                 button = QPushButton(filename[:-4], self) 
