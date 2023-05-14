@@ -38,6 +38,9 @@ def detect_colors(frame):
     yellow_lower = np.array([20, 70, 200], np.uint8)
     yellow_upper = np.array([35, 255, 255], np.uint8)
     yellow_mask = cv2.inRange(hsvFrame, yellow_lower, yellow_upper)
+    # yellow_lower = np.array( [140, 50, 180], np.uint8)
+    # yellow_upper = np.array( [170, 255, 255], np.uint8)
+    # yellow_mask = cv2.inRange(hsvFrame, yellow_lower, yellow_upper)
 
     # Set range for blue color and
     # define mask
@@ -128,7 +131,7 @@ def detect_colors(frame):
             if SHOW_COLORS:
                 frame = cv2.rectangle(frame, (x, y),
                                     (x + w, y + h),
-                                    (0, 239, 255), 2)
+                                    (140, 50, 180), 2)
                 
             moments = cv2.moments(contour)
             x1 = int(moments["m10"] / moments["m00"])
