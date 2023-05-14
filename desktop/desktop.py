@@ -28,7 +28,7 @@ def create_games():
     api_url = "https://sense-eye-backend.onrender.com/api/games"
 
     # Uncomment to delete all the games from db
-    # client = pymongo.MongoClient(os.environ['DB_HOST'])
+    client = pymongo.MongoClient(os.environ['DB_HOST'])
     # db = client["sense-eye"]
     # collection = db["games"]
     # collection.delete_many({})
@@ -76,8 +76,9 @@ def send_recommendations_to_db():
             continue
         
         for filename in os.listdir(full_path):
-
             # Host the recommendation image
+            if not os.path.exists(os.path.join(full_path, filename)):
+                continue
             with open(os.path.join(full_path, filename), mode="rb") as img:
                 imgstr = base64.b64encode(img.read())
 
@@ -98,7 +99,63 @@ def send_recommendations_to_db():
 
             response = requests.post(api_url, json=request_body)
             if response.status_code >= 200 or response.status_code < 300:
-                os.remove(os.path.join(full_path, filename))    # Successful insert - delete the frame locally
+                if os.path.exists(os.path.join(full_path, filename)):
+                    os.remove(os.path.join(full_path, filename))    # Successful insert - delete the frame locally
+            else:
+                return  # Unsuccessful insert - stop iterating
+        
+        # Delete the folder after sending its contents (if the folder is empty)
+        if len(os.listdir(os.path.join(path, foldername))) == 0:
+            os.rmdir(os.path.join(path, foldername))
+
+def send_statistics_to_db():
+    api_url = "https://sense-eye-backend.onrender.com/api/statistics"
+
+    # Uncomment to delete all the traces from db
+    # client = pymongo.MongoClient(os.environ['DB_HOST'])
+    # db = client["sense-eye"]
+    # collection = db["statistics"]
+    # collection.delete_many({})
+
+    # Send the traces
+    path = "../materials/traces"
+    for foldername in os.listdir(path):
+        # if directory not exists - skip
+        full_path = os.path.join(path, foldername)
+        if not os.path.isdir(full_path):
+            continue
+        
+        # if traces not finished processing - skip
+        files_list = os.listdir(full_path)
+        if "traces.json" in files_list or "first_frame.jpg" in files_list:
+            continue
+        
+        # send statistics
+        for filename in files_list:
+            # Host the statistics image
+            if not os.path.exists(os.path.join(full_path, filename)):
+                continue
+            with open(os.path.join(full_path, filename), mode="rb") as img:
+                imgstr = base64.b64encode(img.read())
+
+            upload = imagekit.upload(
+                file = imgstr,
+                file_name = filename
+            )
+
+            image_url = upload.response_metadata.raw['url']
+
+            # Save the recommendation object to db
+            request_body = {
+                "frame": image_url,
+                "orgName": "shenkar",
+                "gameID": foldername
+            }
+
+            response = requests.post(api_url, json=request_body)
+            if response.status_code >= 200 or response.status_code < 300:
+                if os.path.exists(os.path.join(full_path, filename)):
+                    os.remove(os.path.join(full_path, filename))    # Successful insert - delete the frame locally
             else:
                 return  # Unsuccessful insert - stop iterating
         
@@ -126,7 +183,7 @@ def syncronize():
 
             create_games() 
             send_recommendations_to_db()
-            # TODO: send traces
+            send_statistics_to_db()
 
         else:
             print('No ping response from the server.')

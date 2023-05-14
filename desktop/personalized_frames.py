@@ -41,6 +41,10 @@ def create_personalized_frames():
         create_players_heatmap(game_path, data).savefig(game_path + '/players_heatmap.png')   #todo: flip vertically
         create_ball_heatmap(game_path, data).savefig(game_path + '/ball_heatmap.png')   #todo: flip vertically
 
+        # Delete unused files
+        os.remove(os.path.join(game_path, "traces.json"))
+        os.remove(os.path.join(game_path, "first_frame.jpg"))
+
 def create_players_traces(game_path, trace_data):    
         # Read the first frame image for this game
         frame_file_path = os.path.join(game_path, "first_frame.jpg")
@@ -66,7 +70,7 @@ def create_players_traces(game_path, trace_data):
                     cv2.circle(frame_img, (x, y), 1, circle_color, -1)   
 
         # Save the image with the traces drawn
-        output_file_path = os.path.join(game_path, "traces.jpg")
+        output_file_path = os.path.join(game_path, "traces.png")
         cv2.imwrite(output_file_path, frame_img)
 
 def create_holds_the_ball_traces(game_path, trace_data):
@@ -95,7 +99,7 @@ def create_holds_the_ball_traces(game_path, trace_data):
                     cv2.circle(frame_img, (x, y), 1, circle_color, -1)   
 
         # Save the image with the traces drawn
-        output_file_path = os.path.join(game_path, "ball_holders_traces.jpg")
+        output_file_path = os.path.join(game_path, "ball_holders_traces.png")
         cv2.imwrite(output_file_path, frame_img)
 
 def create_ball_holders_percentages(data):
@@ -188,7 +192,7 @@ def create_correlations(data):
     df = pd.DataFrame(filtered_df)
 
     # Select the relevant numeric fields for correlation analysis
-    numeric_fields = ['x', 'y', 'sightDirection', 'id', 'team']
+    numeric_fields = ['x', 'y', 'sightDirection', 'id', 'team'] 
     subset_df = df['properties'].apply(lambda x: pd.Series({field: x[field] for field in numeric_fields}))
 
     # Calculate the correlation matrix

@@ -156,6 +156,7 @@ with torch.no_grad():
         if (GAME_MODE == 1):
             if len(players_list)>0:
                 players_list[0]['id'] = 0
+                players_list[0]['team'] = 0
             if(len(ball_prev_indexes)>0 and len(players_list)>0 and len(players_list[0])>3 and players_list[0]['x'] and players_list[0]['y'] and players_list[0]['holdsBall'] and players_list[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
                 data = recommendation_single_player(YELLOW_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
                 alert = alert_close_to_game_single(YELLOW_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
