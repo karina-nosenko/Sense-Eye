@@ -3,6 +3,7 @@ import platform
 # some constants
 APPEND_PATH = 'yolov7'
 MAX_PLAYERS_NUMBER = 10
+EXTERNAL_CAMERA = True
 
 # realtime/video
 MODE = 'video'

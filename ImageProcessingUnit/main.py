@@ -3,7 +3,7 @@ import cv2
 import torch
 import itertools
 import os
-from configs import APPEND_PATH, MODE, CAMERA_INDEX, options, PINK_COLOR, ORANGE_COLOR, SHOW_RECOMMENDATION_ARROW, MAX_PLAYERS_NUMBER
+from configs import EXTERNAL_CAMERA, APPEND_PATH, MODE, CAMERA_INDEX, options, PINK_COLOR, ORANGE_COLOR, SHOW_RECOMMENDATION_ARROW, MAX_PLAYERS_NUMBER
 import colors_detection as cd
 from datetime import datetime
 import math
@@ -72,11 +72,12 @@ def initialize_capture():
             capture = cv2.VideoCapture(VIDEO_PATH) 
         elif (MODE == 'realtime'):
             capture = cv2.VideoCapture(CAMERA_INDEX)
-            capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H264'))
+            # capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H264'))
+            capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
-        # Relevant when using an external usb camera
-        # capture.set(3, 1280)  # width (max - 3840)
-        # capture.set(4, 720)  # height (max - 2160)
+            if (EXTERNAL_CAMERA):
+                capture.set(3, 1280)  # width (max - 3840)
+                capture.set(4, 720)  # height (max - 2160)
         else: 
             raise ValueError('MODE constant must contain "realtime" or "video" value')
         
@@ -188,7 +189,6 @@ with torch.no_grad():
                 if not PLAYERS_GOT_ALERT[orange_player['id']]:
                     playersToAlert.append(orange_player)
 
-                print('calling wrong alert...')
                 alert_result = alert(playersToAlert, ball_indexes[0]['x'], ball_indexes[0]['y'])
                 playersToAlert = []
 
@@ -242,7 +242,12 @@ with torch.no_grad():
             print(f"{frame_index+1}/{nframes} frames processed")
 
         output.write(frame)
-        cv2.imshow("Frame", rescale_frame(frame, scale=1)) # for usb camera scale=0.6667
+
+        scale = 1
+        if (EXTERNAL_CAMERA and MODE == 'realtime'):
+            scale = 0.6667
+
+        cv2.imshow("Frame", rescale_frame(frame, scale=scale))
         key = cv2.waitKey(1)
         if key == 27:
             break
