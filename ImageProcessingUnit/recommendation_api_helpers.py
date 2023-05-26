@@ -116,10 +116,12 @@ def recommendation_two_players_different_teams(player1, player2, ball_x, ball_y,
     response = requests.post(api_url, data=json.dumps(data), headers=headers)
     return response.json()
 
-def alert(players, ball_x, ball_y, goals):
+def alert(players, ball_x, ball_y, goals, single_alert_lines, double_alert_lines):
     api_url = RECOMMENDATIONS_API_ADDRESS + "/alertCloseToGate"
     data = {
         "goals": goals,
+        "singleAlertLines": single_alert_lines,
+        "doubleAlertLines": double_alert_lines,
         "players": players,
         "ball": {
             "x": ball_x,

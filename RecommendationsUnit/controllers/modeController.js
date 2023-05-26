@@ -395,11 +395,13 @@ exports.modeController = {
         teammatesDistance = calculateDistanceBetweenPlayers(ballHolder, teammates);
         opponent = getPlayerOpponent(body.players, !ballHolder.team);
         goalDistance = calculateDistanceToGoal(ballHolder, body.goals);
+
         if (isBetween(goalDistance, MIN_GOAL_PASSING_DISTANCE,
             MAX_GOAL_PASSING_DISTANCE)
             && pathToGoalIsFree(ballHolder, teammates, body.goals[goalIndex]))
             return recommendDirectShotOnGoal(res, ballHolder, goal);
         sortedTeammates = sortPlayersByDistance(teammates, teammatesDistance);
+        
         for (teammate in sortedTeammates) {
             teammateToOpponentDistance = calculateEuclideanDistance(teammate, opponent);
             teammateToBallHolderDistance = calculateEuclideanDistance(teammate, ballHolder);
@@ -407,8 +409,8 @@ exports.modeController = {
                 && teammateToOpponentDistance > teammateToBallHolderDistance)
                 return recommendPassToTeammate(res, ballholder, teammate);
         }
+
         return recommendKeepTheBall(res, ballHolder);
-        // res.status(200).json({ "differentTeamsModeB": "not implemented." });
     },
     fullGameMode(req, res) {
         const { body } = req;
@@ -423,33 +425,37 @@ exports.modeController = {
         let topGoalY = body.goals[1].y1;
         let bottomGoalY = body.goals[0].y1;
 
-        let shift = (bottomGoalY - topGoalY)/20
+        let singleAlertLines = body.singleAlertLines
+        let doubleAlertLines = body.doubleAlertLines
 
-        // we're adding shift to each value because of the perspective
-        let middleY = (bottomGoalY - topGoalY)/2 + topGoalY - 3 * shift
-        let topQuarterY = (middleY - topGoalY)/2 + topGoalY - 3 * shift
-        let bottomQuarterY = (bottomGoalY - middleY)/2 + middleY - 3 * shift
+        let shift = (bottomGoalY - topGoalY)/20
 
         result = ''
         idsAlerted = []
 
         for(player of players) {
             let color = getColorNameById(player.id);
-            if (isBetween(player.y, middleY - shift, middleY + shift)) {
-                if (process.env.ENV != 'development') {
-                    axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=1&state=alert`);
-                }
 
-                result += `[${color} passed middle]`;
-                idsAlerted.push(player.id);
-            } else if (isBetween(player.y, topQuarterY - shift, topQuarterY + shift) ||
-                    isBetween(player.y, bottomQuarterY - shift, bottomQuarterY + shift)) { 
-                if (process.env.ENV != 'development') {
-                    axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=2&state=alert`);
+            for(line of singleAlertLines) {
+                if (isBetween(player.y, line.y1 - shift, line.y2 + shift)) {
+                    if (process.env.ENV != 'development') {
+                        axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=1&state=alert`);
+                    }
+    
+                    result += `[${color} passed middle]`;
+                    idsAlerted.push(player.id);
                 }
+            }
 
-                result += `[${color} passed quarter]`;
-                idsAlerted.push(player.id);
+            for(line of doubleAlertLines) {
+                if (isBetween(player.y, line.y1 - shift, line.y2 + shift)) { 
+                    if (process.env.ENV != 'development') {
+                        axios.get(`http://${HARDWARE_API_ADDRESS}/recommend?color=${color}&output_state=2&state=alert`);
+                    }
+    
+                    result += `[${color} passed quarter]`;
+                    idsAlerted.push(player.id);
+                }
             }
         }
 
