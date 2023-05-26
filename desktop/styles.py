@@ -13,6 +13,13 @@ buttonCustomizeStyle = '''padding: 10px;
 			border-radius: 10px;
             border: 2px solid #1e517b;'''
 
+buttonSelectedCustomizeStyle = '''padding: 10px;
+			font-size: 16px;
+			background-color: #1e517b;
+			color: #fff;
+			border-radius: 10px;
+            border: 2px solid #1e517b;'''
+
 buttonGreenActionStyle = '''padding: 10px;
 			font-size: 16px;
 			background-color: #333;

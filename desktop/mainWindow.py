@@ -664,6 +664,8 @@ class FieldPage(QMainWindow):
         self.draw_goals()
         self.draw_single_alert_lines()
         self.draw_double_alert_lines()
+        self.unselect_buttons()
+        self.buttonFieldCorners.setStyleSheet(buttonSelectedCustomizeStyle)
         self.update_field_image()
 
         # handle click events
@@ -690,6 +692,8 @@ class FieldPage(QMainWindow):
         self.draw_field_corners()
         self.draw_single_alert_lines()
         self.draw_double_alert_lines()
+        self.unselect_buttons()
+        self.buttonGatesCorners.setStyleSheet(buttonSelectedCustomizeStyle)
         self.update_field_image()
 
         # handle click events
@@ -735,6 +739,8 @@ class FieldPage(QMainWindow):
         self.draw_field_corners()
         self.draw_goals()
         self.draw_double_alert_lines()
+        self.unselect_buttons()
+        self.buttonSingleAlert.setStyleSheet(buttonSelectedCustomizeStyle)
         self.update_field_image()
 
         # handle click events
@@ -767,6 +773,8 @@ class FieldPage(QMainWindow):
         self.draw_field_corners()
         self.draw_goals()
         self.draw_single_alert_lines()
+        self.unselect_buttons()
+        self.buttonDoubleAlert.setStyleSheet(buttonSelectedCustomizeStyle)
         self.update_field_image()
 
         # handle click events
@@ -796,6 +804,9 @@ class FieldPage(QMainWindow):
         return ("x1" in line) and ("y1" in line) and ("x2" in line) and ("y2" in line)
     
     def save(self):
+        self.unselect_buttons()
+        self.update_field_image()
+
         # load the configs file
         with open('../configs.json') as json_file:
             data = json.load(json_file)
@@ -818,6 +829,12 @@ class FieldPage(QMainWindow):
         message_box.setWindowTitle("Success")
         message_box.setStandardButtons(QMessageBox.Ok)
         message_box.exec_()
+
+    def unselect_buttons(self):
+        self.buttonFieldCorners.setStyleSheet(buttonCustomizeStyle)
+        self.buttonGatesCorners.setStyleSheet(buttonCustomizeStyle)
+        self.buttonSingleAlert.setStyleSheet(buttonCustomizeStyle)
+        self.buttonDoubleAlert.setStyleSheet(buttonCustomizeStyle)
 
     def show_main_window_page(self):
         self.heading.hide()
