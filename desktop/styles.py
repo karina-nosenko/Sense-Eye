@@ -6,6 +6,27 @@ buttonStyle = '''padding: 10px;
 			color: #fff;
 			border-radius: 4px;'''
 
+buttonCustomizeStyle = '''padding: 10px;
+			font-size: 16px;
+			background-color: #fff;
+			color: #000;
+			border-radius: 10px;
+            border: 2px solid #1e517b;'''
+
+buttonGreenActionStyle = '''padding: 10px;
+			font-size: 16px;
+			background-color: #333;
+			color: #fff;
+			border-radius: 4px;
+            border: 2px solid #87d37c;'''
+
+buttonRedActionStyle = '''padding: 10px;
+			font-size: 16px;
+			background-color: #333;
+			color: #fff;
+			border-radius: 4px;
+            border: 2px solid #ec644b;'''
+
 headingStyle = '''font-size: 50px;
 			font-weight: bold;
             font-family: sans-serif;

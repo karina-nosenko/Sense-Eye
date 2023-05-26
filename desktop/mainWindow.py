@@ -184,7 +184,7 @@ class MainPage(QMainWindow):
         self.buttonStart.clicked.connect(self.start_process)
         self.buttonStart.setFixedSize(200, 50)
         self.buttonStart.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        self.buttonStart.setStyleSheet(buttonStyle)
+        self.buttonStart.setStyleSheet(buttonGreenActionStyle)
 
         # create a "status" label
         self.statusLabel = QLabel()
@@ -198,7 +198,7 @@ class MainPage(QMainWindow):
         self.buttonEnd.clicked.connect(self.end_process)
         self.buttonEnd.setFixedSize(200, 50)
         self.buttonEnd.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        self.buttonEnd.setStyleSheet(buttonStyle)
+        self.buttonEnd.setStyleSheet(buttonRedActionStyle)
         self.buttonEnd.hide()
 
         # create a "customize field" button
@@ -503,35 +503,35 @@ class FieldPage(QMainWindow):
         self.buttonFieldCorners.clicked.connect(self.update_field)
         self.buttonFieldCorners.setFixedSize(200, 50)
         self.buttonFieldCorners.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        self.buttonFieldCorners.setStyleSheet(buttonStyle)
+        self.buttonFieldCorners.setStyleSheet(buttonCustomizeStyle)
 
         # create an "update gates" button
         self.buttonGatesCorners = QPushButton('Update Gates', self) 
         self.buttonGatesCorners.clicked.connect(self.update_goals)
         self.buttonGatesCorners.setFixedSize(200, 50)
         self.buttonGatesCorners.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        self.buttonGatesCorners.setStyleSheet(buttonStyle)
+        self.buttonGatesCorners.setStyleSheet(buttonCustomizeStyle)
 
         # create an "update single alert" button
         self.buttonSingleAlert = QPushButton('Update Single Alert', self) 
         self.buttonSingleAlert.clicked.connect(self.update_single_alert_lines)
         self.buttonSingleAlert.setFixedSize(200, 50)
         self.buttonSingleAlert.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        self.buttonSingleAlert.setStyleSheet(buttonStyle)
+        self.buttonSingleAlert.setStyleSheet(buttonCustomizeStyle)
 
         # create an "update double alert" button
         self.buttonDoubleAlert = QPushButton('Update Double Alert', self) 
         self.buttonDoubleAlert.clicked.connect(self.update_double_alert_lines)
         self.buttonDoubleAlert.setFixedSize(200, 50)
         self.buttonDoubleAlert.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        self.buttonDoubleAlert.setStyleSheet(buttonStyle)
+        self.buttonDoubleAlert.setStyleSheet(buttonCustomizeStyle)
 
         # create a "save" button
         self.buttonSave = QPushButton('Save', self) 
         self.buttonSave.clicked.connect(self.save)
         self.buttonSave.setFixedSize(200, 50)
         self.buttonSave.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        self.buttonSave.setStyleSheet(buttonStyle)
+        self.buttonSave.setStyleSheet(buttonGreenActionStyle)
 
         # create a "back" button
         self.buttonBack = QPushButton('Back', self) 
@@ -540,6 +540,17 @@ class FieldPage(QMainWindow):
         self.buttonBack.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.buttonBack.setStyleSheet(buttonStyle)
 
+        # create a horizontal layout and add customization buttons to it
+        horizontal_layout = QHBoxLayout()
+        horizontal_layout.setAlignment(Qt.AlignCenter)
+        horizontal_layout.addWidget(self.buttonFieldCorners)
+        horizontal_layout.addSpacing(10)
+        horizontal_layout.addWidget(self.buttonGatesCorners)
+        horizontal_layout.addSpacing(10)
+        horizontal_layout.addWidget(self.buttonSingleAlert)
+        horizontal_layout.addSpacing(10)
+        horizontal_layout.addWidget(self.buttonDoubleAlert)
+
         # create a vertical layout and add the widgets to it
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
@@ -547,13 +558,7 @@ class FieldPage(QMainWindow):
         layout.addSpacing(40)
         layout.addWidget(self.field_image)
         layout.addSpacing(40)
-        layout.addWidget(self.buttonFieldCorners)
-        layout.addSpacing(10)
-        layout.addWidget(self.buttonGatesCorners)
-        layout.addSpacing(10)
-        layout.addWidget(self.buttonSingleAlert)
-        layout.addSpacing(10)
-        layout.addWidget(self.buttonDoubleAlert)
+        layout.addLayout(horizontal_layout)
         layout.addSpacing(40)
         layout.addWidget(self.buttonSave)
         layout.addSpacing(20)
@@ -818,6 +823,14 @@ class FieldPage(QMainWindow):
         self.heading.hide()
         self.buttonBack.hide()
 
+        self.cleanup()
+
         self.setCentralWidget(MainPage())
 
+    def cleanup(self):
+        if os.path.exists(self.field_path):
+            os.remove(self.field_path)
+
+        if os.path.exists(self.initial_field_path):
+            os.remove(self.initial_field_path)
         
