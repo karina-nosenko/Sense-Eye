@@ -28,45 +28,6 @@ load_dotenv()
 # Access the environment variables
 # DB_HOST = os.getenv('DB_HOST')
 
-inputStyle = """
-    QLineEdit {
-        background-color: #f2f2f2;
-        border: none;
-        border-radius: 10px;
-        font-size: 16px;
-        padding: 10px;
-    }
-"""
-
-selectorStyle = """
-    QComboBox {
-                background-color: #F0F0F0;
-                color: #000000;
-                border: 1px solid #CCCCCC;
-                border-radius: 5px;
-                padding: 5px;
-    }
-    
-    QComboBox::drop-down {
-        subcontrol-origin: padding;
-        subcontrol-position: top right;
-        width: 20px;
-        
-        border-left-width: 1px;
-        border-left-color: #CCCCCC;
-        border-left-style: solid;
-        border-top-right-radius: 5px;
-        border-bottom-right-radius: 5px;
-    }
-    
-    QComboBox::down-arrow {
-        image: url(icons/down_arrow.png);
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: 5px 5px;
-    }
-"""
-
 # == Login Page ==#
 class LoginPage(QMainWindow):
     def __init__(self):
@@ -557,7 +518,7 @@ class FieldPage(QMainWindow):
 
         # create a "save" button
         self.buttonSave = QPushButton('Save', self) 
-        self.buttonSave.clicked.connect(self.show_main_window_page)
+        self.buttonSave.clicked.connect(self.save)
         self.buttonSave.setFixedSize(200, 50)
         self.buttonSave.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.buttonSave.setStyleSheet(buttonStyle)
@@ -715,6 +676,28 @@ class FieldPage(QMainWindow):
 
     def isGoalComplete(self, goal):
         return ("x1" in goal) and ("y1" in goal) and ("x2" in goal) and ("y2" in goal)
+    
+    def save(self):
+        # load the configs file
+        with open('../configs.json') as json_file:
+            data = json.load(json_file)
+        
+        # update the values in the data object
+        data["goals"] = self.GOALS
+        data["field_coordinates"] = self.FIELD_COORDINATES
+
+        # write the updated data back to the configs file
+        with open('../configs.json', 'w') as json_file:
+            json.dump(data, json_file, indent=4)
+
+        # Show an alert dialog
+        message_box = QMessageBox()
+        message_box.setIconPixmap(QIcon("icons/success.png").pixmap(64, 64))
+        message_box.setStyleSheet(alertStyle)
+        message_box.setText("The new coordinates saved successfully!")
+        message_box.setWindowTitle("Success")
+        message_box.setStandardButtons(QMessageBox.Ok)
+        message_box.exec_()
 
     def show_main_window_page(self):
         self.heading.hide()
