@@ -2,42 +2,9 @@ import requests
 import json
 import math
 
-from configs import MODE
-
 RECOMMENDATIONS_API_ADDRESS = "http://localhost:8080/api/mode"
 
-if MODE == "realtime":
-    goals = [
-        {
-            "x1": 650,
-            "y1": 638,
-            "x2": 860,
-            "y2": 632
-        },
-        {
-            "x1": 735,
-            "y1": 90,
-            "x2": 938,
-            "y2": 90
-        }
-    ]
-else:
-    goals = [
-        {
-            "x1": 473,
-            "y1": 428,
-            "x2": 573,
-            "y2": 428
-        },
-        {
-            "x1": 530,
-            "y1": 60,
-            "x2": 625,
-            "y2": 60
-        }
-    ]
-
-def recommendation_single_player(color_id, player_x, player_y, holds_ball, direction, ball_x, ball_y):
+def recommendation_single_player(color_id, player_x, player_y, holds_ball, direction, ball_x, ball_y, goals):
     """
     Calls an API endpoint with player data and returns a recommendation for a single player mode.
 
@@ -79,7 +46,7 @@ def recommendation_single_player(color_id, player_x, player_y, holds_ball, direc
     response = requests.post(api_url, data=json.dumps(data), headers=headers)
     return response.json()
 
-def recommendation_two_players_same_team(player1, player2, ball_x, ball_y):
+def recommendation_two_players_same_team(player1, player2, ball_x, ball_y, goals):
     """
     Calls an API endpoint with player data and returns a recommendation for a same team mode.
 
@@ -114,7 +81,7 @@ def recommendation_two_players_same_team(player1, player2, ball_x, ball_y):
     response = requests.post(api_url, data=json.dumps(data), headers=headers)
     return response.json()
 
-def recommendation_two_players_different_teams(player1, player2, ball_x, ball_y):
+def recommendation_two_players_different_teams(player1, player2, ball_x, ball_y, goals):
     """
     Calls an API endpoint with player data and returns a recommendation for a different team mode.
 
@@ -149,49 +116,7 @@ def recommendation_two_players_different_teams(player1, player2, ball_x, ball_y)
     response = requests.post(api_url, data=json.dumps(data), headers=headers)
     return response.json()
 
-def alert_close_to_gate_single(color_id, player_x, player_y, holds_ball, direction, ball_x, ball_y):
-    api_url = RECOMMENDATIONS_API_ADDRESS + "/alertCloseToGate"
-    data = {
-        "goals": goals,
-        "players": [
-            {
-                "id": color_id,
-                "x": player_x,
-                "y": player_y,
-                "team": 0,
-                "holdsBall": holds_ball,
-                "sightDirection":direction 
-            }
-        ],
-        "ball": {
-            "x": ball_x,
-            "y": ball_y
-        }
-    }
-
-    headers = {"Content-Type":"application/json"}
-    response = requests.post(api_url, data=json.dumps(data), headers=headers)
-    return response.json()
-
-def alert_close_to_gate_two(player1, player2, ball_x, ball_y):
-    api_url = RECOMMENDATIONS_API_ADDRESS + "/alertCloseToGate"
-    data = {
-        "goals": goals,
-        "players": [
-            player1,
-            player2
-        ],
-        "ball": {
-            "x": ball_x,
-            "y": ball_y
-        }
-    }
-
-    headers =  {"Content-Type":"application/json"}
-    response = requests.post(api_url, data=json.dumps(data), headers=headers)
-    return response.json()
-
-def alert(players, ball_x, ball_y):
+def alert(players, ball_x, ball_y, goals):
     api_url = RECOMMENDATIONS_API_ADDRESS + "/alertCloseToGate"
     data = {
         "goals": goals,

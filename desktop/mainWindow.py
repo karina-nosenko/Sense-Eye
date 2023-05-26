@@ -652,25 +652,25 @@ class FieldPage(QMainWindow):
 
         if goals_number == 0:
             self.GOALS.append({"x1": x, "y1": y})
-            cv2.circle(self.frame, (x, y), 1, (0, 0, 255), -1)
+            cv2.circle(self.frame, (x, y), 2, (0, 0, 255), -1)
 
         elif goals_number == 1 and not self.isGoalComplete(self.GOALS[0]):
             self.GOALS[0]["x2"] = x
             self.GOALS[0]["y2"] = y
             goal_point1 = (self.GOALS[0]["x1"], self.GOALS[0]["y1"])
             goal_point2 = (self.GOALS[0]["x2"], self.GOALS[0]["y2"])
-            cv2.line(self.frame, goal_point1, goal_point2, (0, 0, 255), 1)
+            cv2.line(self.frame, goal_point1, goal_point2, (0, 0, 255), 2)
 
         elif goals_number == 1:
             self.GOALS.append({"x1": x, "y1": y})
-            cv2.circle(self.frame, (x, y), 1, (0, 0, 255), -1)
+            cv2.circle(self.frame, (x, y), 2, (0, 0, 255), -1)
 
         elif goals_number == 2:
             self.GOALS[1]["x2"] = x
             self.GOALS[1]["y2"] = y
             goal_point1 = (self.GOALS[1]["x1"], self.GOALS[1]["y1"])
             goal_point2 = (self.GOALS[1]["x2"], self.GOALS[1]["y2"])
-            cv2.line(self.frame, goal_point1, goal_point2, (0, 0, 255), 1)
+            cv2.line(self.frame, goal_point1, goal_point2, (0, 0, 255), 2)
 
         self.update_field_image()
 

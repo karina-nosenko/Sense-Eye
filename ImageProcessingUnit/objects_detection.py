@@ -11,7 +11,7 @@ from yolov7.models.experimental import attempt_load
 from yolov7.utils.general import non_max_suppression, scale_coords, check_img_size
 from yolov7.utils.torch_utils import time_synchronized, select_device
 
-from configs import options, MODE, SHOW_CENTER_POINTS, SHOW_DIRECTION_ARROW, SHOW_DIRECTION_LABEL, SHOW_CLASS_LABEL
+from configs import options, SHOW_CENTER_POINTS, SHOW_DIRECTION_ARROW, SHOW_DIRECTION_LABEL, SHOW_CLASS_LABEL
 from image_functions import adjust_image_to_desired_shape
 
 def initialize_player_detection_model():
@@ -56,7 +56,23 @@ def initialize_player_detection_model():
     return weights, img_size, device, use_half_precision, model, stride, names, classes
 
 
-def detect_objects(frame, prev_person_center_points, player_with_the_ball_center_point, img_size, device, use_half_precision, model, stride, names, classes, frames_counter, prev_angles, FIRST_FRAME_SAVED, CURRENT_TIMESTAMP):
+def detect_objects(
+        frame,
+        prev_person_center_points,
+        player_with_the_ball_center_point,
+        img_size,
+        device,
+        use_half_precision,
+        model,
+        stride,
+        names,
+        classes,
+        frames_counter,
+        prev_angles,
+        FIRST_FRAME_SAVED,
+        CURRENT_TIMESTAMP,
+        FIELD_COORDINATES,
+        GOALS):
     """
     Detects objects in a frame using a PyTorch model.
 
@@ -104,42 +120,15 @@ def detect_objects(frame, prev_person_center_points, player_with_the_ball_center
         torch.cat((person_detection_results[0], ball_detection_results[0]))]
     t2 = time_synchronized()
 
-    if MODE == "realtime":
-        # Draw field corners circles
-        top_left = (597, 96)
-        top_right = (1065, 83)
-        bottom_left = (457, 638)
-        bottom_right = (1050, 625)
-        cv2.circle(frame, top_left, 3, (0, 0, 255), -1)
-        cv2.circle(frame, top_right, 3, (0, 0, 255), -1)
-        cv2.circle(frame, bottom_left, 3, (0, 0, 255), -1)
-        cv2.circle(frame, bottom_right, 3, (0, 0, 255), -1)
+    # Draw field coordinates circles
+    for coordinate in FIELD_COORDINATES:
+        cv2.circle(frame, (coordinate["x"], coordinate["y"]), 3, (0, 0, 255), -1)
 
-        # Draw gates
-        top_left = (735, 90)
-        top_right = (938, 90)
-        bottom_left = (650, 638)
-        bottom_right = (860, 632)
-        cv2.line(frame, top_left, top_right, (0, 0, 255), 1)
-        cv2.line(frame, bottom_left, bottom_right, (0, 0, 255), 1)
-    else:
-        # Draw field corners circles
-        top_left = (440, 64)
-        top_right = (710, 55)
-        bottom_left = (335, 425)
-        bottom_right = (700, 440)
-        cv2.circle(frame, top_left, 3, (0, 0, 255), -1)
-        cv2.circle(frame, top_right, 3, (0, 0, 255), -1)
-        cv2.circle(frame, bottom_left, 3, (0, 0, 255), -1)
-        cv2.circle(frame, bottom_right, 3, (0, 0, 255), -1)
-
-        # Draw gates
-        top_left = (530, 60)
-        top_right = (625, 60)
-        bottom_left = (473, 428)
-        bottom_right = (573, 428)
-        cv2.line(frame, top_left, top_right, (0, 0, 255), 1)
-        cv2.line(frame, bottom_left, bottom_right, (0, 0, 255), 1)
+    # Draw goals
+    for goal in GOALS:
+        goal_point1 = (goal["x1"], goal["y1"])
+        goal_point2 = (goal["x2"], goal["y2"])
+        cv2.line(frame, goal_point1, goal_point2, (0, 0, 255), 1)
 
     # Scale box coordinates to the size of current frame
     for detection in person_detection_results:

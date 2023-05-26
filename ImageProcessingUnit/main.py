@@ -26,6 +26,8 @@ VIDEO_PATH = data["video_path"]
 EXTERNAL_CAMERA = data["external_camera"]
 CAMERA_INDEX = data["camera_index"]
 MODE = data["mode"]
+FIELD_COORDINATES = data["field_coordinates"]
+GOALS = data["goals"]
 
 # Some constants
 CURRENT_TIMESTAMP = datetime.now()
@@ -150,7 +152,9 @@ with torch.no_grad():
             frames_counter,
             angles,
             FIRST_FRAME_SAVED,
-            CURRENT_TIMESTAMP)
+            CURRENT_TIMESTAMP,
+            FIELD_COORDINATES,
+            GOALS)
         
         ball_prev_indexes = []
         if(len(ball_indexes)>0):
@@ -164,10 +168,10 @@ with torch.no_grad():
                 players_list[0]['id'] = 0
                 players_list[0]['team'] = 0
             if(len(ball_prev_indexes)>0 and len(players_list)>0 and len(players_list[0])>3 and players_list[0]['x'] and players_list[0]['y'] and players_list[0]['holdsBall'] and players_list[0]['sightDirection'] and ball_indexes[0]['x'] and ball_indexes[0]['y']):
-                data = recommendation_single_player(PINK_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'])
+                data = recommendation_single_player(PINK_COLOR, players_list[0]['x'], players_list[0]['y'], players_list[0]['holdsBall'], players_list[0]['sightDirection'], ball_indexes[0]['x'], ball_indexes[0]['y'], GOALS)
 
                 if not PLAYERS_GOT_ALERT[players_list[0]['id']]:
-                    alert_result = alert([players_list[0]], ball_indexes[0]['x'], ball_indexes[0]['y'])
+                    alert_result = alert([players_list[0]], ball_indexes[0]['x'], ball_indexes[0]['y'], GOALS)
         # Two players from the same team
         elif (GAME_MODE == 2 or GAME_MODE == 3):
             pink_player, orange_player = find_indexes_of_two_players(players_list, player_caps_index)
@@ -181,10 +185,10 @@ with torch.no_grad():
                 pink_player.update({"team":0})
                 if GAME_MODE == 2:
                     orange_player.update({"team":0})
-                    data = recommendation_two_players_same_team(pink_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
+                    data = recommendation_two_players_same_team(pink_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'], GOALS)
                 else:
                     orange_player.update({"team":1})
-                    data = recommendation_two_players_different_teams(pink_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'])
+                    data = recommendation_two_players_different_teams(pink_player, orange_player, ball_indexes[0]['x'], ball_indexes[0]['y'], GOALS)
                 
                 playersToAlert = []
                 if not PLAYERS_GOT_ALERT[pink_player['id']]:
@@ -192,7 +196,7 @@ with torch.no_grad():
                 if not PLAYERS_GOT_ALERT[orange_player['id']]:
                     playersToAlert.append(orange_player)
 
-                alert_result = alert(playersToAlert, ball_indexes[0]['x'], ball_indexes[0]['y'])
+                alert_result = alert(playersToAlert, ball_indexes[0]['x'], ball_indexes[0]['y'], GOALS)
                 playersToAlert = []
 
         if "color" in data and "output_state" in data and "state"  in data:
