@@ -12,6 +12,8 @@ import time
 import subprocess
 import platform
 import json
+import cv2
+import itertools
 
 from videoWindow import *
 from styles import *
@@ -238,6 +240,13 @@ class MainPage(QMainWindow):
         self.buttonEnd.setStyleSheet(buttonStyle)
         self.buttonEnd.hide()
 
+        # create a "customize field" button
+        self.buttonField = QPushButton('Customize Field', self)
+        self.buttonField.clicked.connect(self.show_field_page)
+        self.buttonField.setFixedSize(200, 50)
+        self.buttonField.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonField.setStyleSheet(buttonStyle)
+
         # create a "view history" button
         self.buttonHistory = QPushButton('View History', self)
         self.buttonHistory.clicked.connect(self.show_history_page)
@@ -257,6 +266,8 @@ class MainPage(QMainWindow):
         layout.addWidget(self.statusLabel)
         layout.addSpacing(20)
         layout.addWidget(self.buttonEnd)
+        layout.addSpacing(20)
+        layout.addWidget(self.buttonField)
         layout.addSpacing(20)
         layout.addWidget(self.buttonHistory)
         
@@ -375,15 +386,25 @@ class MainPage(QMainWindow):
         start_sending_materials_process()
         start_creating_frames_process()
 
-
     def show_history_page(self):
         self.heading.hide()
         self.buttonStart.hide()
         self.buttonEnd.hide()
+        self.buttonField.hide()
         self.buttonHistory.hide()
         self.statusLabel.hide()
 
         self.setCentralWidget(HistoryPage())
+
+    def show_field_page(self):
+        self.heading.hide()
+        self.buttonStart.hide()
+        self.buttonEnd.hide()
+        self.buttonField.hide()
+        self.buttonHistory.hide()
+        self.statusLabel.hide()
+
+        self.setCentralWidget(FieldPage())
 
 
 #== History Page ==#
@@ -462,3 +483,243 @@ class HistoryPage(QMainWindow):
         self.buttonBack.hide()
 
         self.setCentralWidget(MainPage())
+
+#== Customize Field Page ==#
+class FieldPage(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self): 
+        # create the heading
+        self.heading = QLabel(self)
+        self.heading.setText('Customize Field')
+        self.heading.setAlignment(Qt.AlignVCenter) 
+        self.heading.setStyleSheet(headingStyle)
+
+        # read json configs
+        with open('../configs.json') as json_file:
+            data = json.load(json_file)
+            self.VIDEO_PATH = '../ImageProcessingUnit/' + data["video_path"]
+            self.EXTERNAL_CAMERA = data["external_camera"]
+            self.CAMERA_INDEX = data["camera_index"]
+            self.MODE = data["mode"]
+            self.GOALS = data["goals"]
+            self.FIELD_DELIMITERS = data["field_delimiters"]
+            self.FIELD_COORDINATES = data["field_coordinates"]
+
+        # read a frame
+        capture = self.initialize_capture()
+        ret, self.frame = capture.read()
+        self.initial_field_path = 'initial_field.jpg'
+        cv2.imwrite(self.initial_field_path, self.frame)
+        capture.release()
+        self.field_path = 'field.jpg'
+
+        #TODO: if no field.jpg was created - display a label of "Failed to capture a field" 
+
+        self.draw_goals()
+        self.draw_field_corners()
+
+        # update field.jpg
+        cv2.imwrite(self.field_path, self.frame)
+
+        # embed a frame to the view
+        self.field_image = QLabel(self)
+        self.setCentralWidget(self.field_image)
+        self.pixmap = QPixmap(self.field_path)
+        if not self.pixmap.isNull():
+            self.field_image.setPixmap(self.pixmap)
+            self.field_image.setScaledContents(True)
+        else:
+            print(f"Failed to load image from {self.field_path}")
+
+        # create an "update field" button
+        self.buttonFieldCorners = QPushButton('Update Field', self) 
+        self.buttonFieldCorners.clicked.connect(self.update_field)
+        self.buttonFieldCorners.setFixedSize(200, 50)
+        self.buttonFieldCorners.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonFieldCorners.setStyleSheet(buttonStyle)
+
+        # create an "update gates" button
+        self.buttonGatesCorners = QPushButton('Update Gates', self) 
+        self.buttonGatesCorners.clicked.connect(self.update_goals)
+        self.buttonGatesCorners.setFixedSize(200, 50)
+        self.buttonGatesCorners.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonGatesCorners.setStyleSheet(buttonStyle)
+
+        # create an "update delimeters" button
+        self.buttonDelimeters = QPushButton('Update Delimeters', self) 
+        self.buttonDelimeters.clicked.connect(self.show_main_window_page)
+        self.buttonDelimeters.setFixedSize(200, 50)
+        self.buttonDelimeters.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonDelimeters.setStyleSheet(buttonStyle)
+
+        # create a "save" button
+        self.buttonSave = QPushButton('Save', self) 
+        self.buttonSave.clicked.connect(self.show_main_window_page)
+        self.buttonSave.setFixedSize(200, 50)
+        self.buttonSave.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonSave.setStyleSheet(buttonStyle)
+
+        # create a "back" button
+        self.buttonBack = QPushButton('Back', self) 
+        self.buttonBack.clicked.connect(self.show_main_window_page)
+        self.buttonBack.setFixedSize(200, 50)
+        self.buttonBack.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonBack.setStyleSheet(buttonStyle)
+
+        # create a vertical layout and add the widgets to it
+        layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.heading)
+        layout.addSpacing(40)
+        layout.addWidget(self.field_image)
+        layout.addSpacing(40)
+        layout.addWidget(self.buttonFieldCorners)
+        layout.addSpacing(10)
+        layout.addWidget(self.buttonGatesCorners)
+        layout.addSpacing(10)
+        layout.addWidget(self.buttonDelimeters)
+        layout.addSpacing(40)
+        layout.addWidget(self.buttonSave)
+        layout.addSpacing(20)
+        layout.addWidget(self.buttonBack)
+
+        # create a central widget and set the layout on it
+        self.central_widget = QWidget()
+        self.central_widget.setLayout(layout)
+        
+        # set the central widget on the main window
+        self.setCentralWidget(self.central_widget)    
+
+    def initialize_capture(self):
+        if (self.MODE == 'video'):
+            capture = cv2.VideoCapture(self.VIDEO_PATH) 
+        elif (self.MODE == 'realtime'):
+            capture = cv2.VideoCapture(self.CAMERA_INDEX)
+            # capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H264'))
+            capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+
+            if (self.EXTERNAL_CAMERA):
+                capture.set(3, 1280)  # width (max - 3840)
+                capture.set(4, 720)  # height (max - 2160)
+        else: 
+            raise ValueError('MODE constant must contain "realtime" or "video" value')
+        
+        return capture
+    
+    def update_field_image(self):
+        cv2.imwrite(self.field_path, self.frame)
+
+        self.pixmap = QPixmap(self.field_path)
+
+        if not self.pixmap.isNull():
+            self.field_image.setPixmap(self.pixmap)
+            self.field_image.setScaledContents(True)
+        else:
+            print(f"Failed to load image from {self.field_path}")
+
+    def draw_field_corners(self):
+        if len(self.FIELD_COORDINATES) < 4:
+            return
+
+        corners = [
+            (self.FIELD_COORDINATES[0]['x'], self.FIELD_COORDINATES[0]['y']),
+            (self.FIELD_COORDINATES[1]['x'], self.FIELD_COORDINATES[1]['y']),
+            (self.FIELD_COORDINATES[2]['x'], self.FIELD_COORDINATES[2]['y']),
+            (self.FIELD_COORDINATES[3]['x'], self.FIELD_COORDINATES[3]['y'])
+        ]
+
+        for corner in corners:
+            cv2.circle(self.frame, corner, 3, (0, 0, 255), -1)
+
+    def draw_goals(self):
+        if len(self.GOALS) < 2:
+            return
+
+        goals = [
+            [(self.GOALS[0]['x1'], self.GOALS[0]['y1']), (self.GOALS[0]['x2'], self.GOALS[0]['y2'])],
+            [(self.GOALS[1]['x1'], self.GOALS[1]['y1']), (self.GOALS[1]['x2'], self.GOALS[1]['y2'])]
+        ]
+
+        for goal in goals:
+            cv2.line(self.frame, goal[0], goal[1], (0, 0, 255), 1)
+
+    def update_field(self):
+        # clear the field corners
+        self.FIELD_COORDINATES = []
+        self.frame = cv2.imread(self.initial_field_path)
+        self.draw_goals()
+        self.update_field_image()
+
+        # handle click events
+        self.field_image.mousePressEvent = self.mouse_click_event_update_field
+
+    def mouse_click_event_update_field(self, event):
+        if len(self.FIELD_COORDINATES) >= 4:
+            return
+
+        # get mouse click coordinates
+        x, y = event.pos().x(), event.pos().y()
+
+        # add the new coordinate to the field corners list
+        self.FIELD_COORDINATES.append({"x": x, "y": y})
+
+        # update the coordinate on the image
+        cv2.circle(self.frame, (x, y), 3, (0, 0, 255), -1)
+        self.update_field_image()
+
+    def update_goals(self):
+        # clear the goals
+        self.GOALS = []
+        self.frame = cv2.imread(self.initial_field_path)
+        self.draw_field_corners()
+        self.update_field_image()
+
+        # handle click events
+        self.field_image.mousePressEvent = self.mouse_click_event_update_goals
+
+    def mouse_click_event_update_goals(self, event):
+        goals_number = len(self.GOALS)
+
+        if len(self.GOALS) >= 2 and self.isGoalComplete(self.GOALS[1]):
+            return
+
+        # get mouse click coordinates
+        x, y = event.pos().x(), event.pos().y()
+
+        if goals_number == 0:
+            self.GOALS.append({"x1": x, "y1": y})
+            cv2.circle(self.frame, (x, y), 1, (0, 0, 255), -1)
+
+        elif goals_number == 1 and not self.isGoalComplete(self.GOALS[0]):
+            self.GOALS[0]["x2"] = x
+            self.GOALS[0]["y2"] = y
+            goal_point1 = (self.GOALS[0]["x1"], self.GOALS[0]["y1"])
+            goal_point2 = (self.GOALS[0]["x2"], self.GOALS[0]["y2"])
+            cv2.line(self.frame, goal_point1, goal_point2, (0, 0, 255), 1)
+
+        elif goals_number == 1:
+            self.GOALS.append({"x1": x, "y1": y})
+            cv2.circle(self.frame, (x, y), 1, (0, 0, 255), -1)
+
+        elif goals_number == 2:
+            self.GOALS[1]["x2"] = x
+            self.GOALS[1]["y2"] = y
+            goal_point1 = (self.GOALS[1]["x1"], self.GOALS[1]["y1"])
+            goal_point2 = (self.GOALS[1]["x2"], self.GOALS[1]["y2"])
+            cv2.line(self.frame, goal_point1, goal_point2, (0, 0, 255), 1)
+
+        self.update_field_image()
+
+    def isGoalComplete(self, goal):
+        return ("x1" in goal) and ("y1" in goal) and ("x2" in goal) and ("y2" in goal)
+
+    def show_main_window_page(self):
+        self.heading.hide()
+        self.buttonBack.hide()
+
+        self.setCentralWidget(MainPage())
+
+        

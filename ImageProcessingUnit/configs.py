@@ -3,13 +3,6 @@ import platform
 # some constants
 APPEND_PATH = 'yolov7'
 MAX_PLAYERS_NUMBER = 10
-EXTERNAL_CAMERA = True
-
-# realtime/video
-MODE = 'video'
-
-# Camera index for realtime: 0-webcam, 4/0 - camera
-CAMERA_INDEX = 0
 
 #colors id
 PINK_COLOR = 0

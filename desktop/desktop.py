@@ -28,7 +28,7 @@ def create_games():
     api_url = "https://sense-eye-backend.onrender.com/api/games"
 
     # Uncomment to delete all the games from db
-    client = pymongo.MongoClient(os.environ['DB_HOST'])
+    # client = pymongo.MongoClient(os.environ['DB_HOST'])
     # db = client["sense-eye"]
     # collection = db["games"]
     # collection.delete_many({})

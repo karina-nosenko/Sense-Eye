@@ -1,4 +1,59 @@
 {
     "game_mode": 3,
-    "video_path": "yolov7/videos/two_players_orange_yellow.mp4"
+    "video_path": "yolov7/videos/two_players_orange_yellow.mp4",
+    "external_camera": false,
+    "mode": "video",
+    "camera_index": 0,
+    "goals": [
+        {
+            "x1": 473,
+            "y1": 428,
+            "x2": 573,
+            "y2": 428
+        },
+        {
+            "x1": 530,
+            "y1": 60,
+            "x2": 625,
+            "y2": 60
+        }
+    ],
+    "field_delimiters": [
+        {
+            "x1": 473,
+            "y1": 428,
+            "x2": 573,
+            "y2": 428
+        },
+        {
+            "x1": 473,
+            "y1": 428,
+            "x2": 573,
+            "y2": 428
+        },
+        {
+            "x1": 473,
+            "y1": 428,
+            "x2": 573,
+            "y2": 428
+        }
+    ],
+    "field_coordinates": [
+        {
+            "x": 440,
+            "y": 64
+        },
+        {
+            "x": 710,
+            "y": 55
+        },
+        {
+            "x": 335,
+            "y": 425
+        },
+        {
+            "x": 700,
+            "y": 440
+        }
+    ]
 }

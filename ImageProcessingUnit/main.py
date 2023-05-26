@@ -3,7 +3,7 @@ import cv2
 import torch
 import itertools
 import os
-from configs import EXTERNAL_CAMERA, APPEND_PATH, MODE, CAMERA_INDEX, options, PINK_COLOR, ORANGE_COLOR, SHOW_RECOMMENDATION_ARROW, MAX_PLAYERS_NUMBER
+from configs import APPEND_PATH, PINK_COLOR, SHOW_RECOMMENDATION_ARROW, MAX_PLAYERS_NUMBER
 import colors_detection as cd
 from datetime import datetime
 import math
@@ -23,6 +23,9 @@ with open('../configs.json') as json_file:
     data = json.load(json_file)
 GAME_MODE = data["game_mode"]
 VIDEO_PATH = data["video_path"]
+EXTERNAL_CAMERA = data["external_camera"]
+CAMERA_INDEX = data["camera_index"]
+MODE = data["mode"]
 
 # Some constants
 CURRENT_TIMESTAMP = datetime.now()
