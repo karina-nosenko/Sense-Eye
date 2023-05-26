@@ -466,8 +466,9 @@ class FieldPage(QMainWindow):
             self.CAMERA_INDEX = data["camera_index"]
             self.MODE = data["mode"]
             self.GOALS = data["goals"]
-            self.FIELD_DELIMITERS = data["field_delimiters"]
             self.FIELD_COORDINATES = data["field_coordinates"]
+            self.SINGLE_ALERT_LINES = data["single_alert_lines"]
+            self.DOUBLE_ALERT_LINES = data["double_alert_lines"]
 
         # read a frame
         capture = self.initialize_capture()
@@ -481,6 +482,8 @@ class FieldPage(QMainWindow):
 
         self.draw_goals()
         self.draw_field_corners()
+        self.draw_single_alert_lines()
+        self.draw_double_alert_lines()
 
         # update field.jpg
         cv2.imwrite(self.field_path, self.frame)
@@ -509,12 +512,19 @@ class FieldPage(QMainWindow):
         self.buttonGatesCorners.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.buttonGatesCorners.setStyleSheet(buttonStyle)
 
-        # create an "update delimeters" button
-        self.buttonDelimeters = QPushButton('Update Delimeters', self) 
-        self.buttonDelimeters.clicked.connect(self.show_main_window_page)
-        self.buttonDelimeters.setFixedSize(200, 50)
-        self.buttonDelimeters.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        self.buttonDelimeters.setStyleSheet(buttonStyle)
+        # create an "update single alert" button
+        self.buttonSingleAlert = QPushButton('Update Single Alert', self) 
+        self.buttonSingleAlert.clicked.connect(self.update_single_alert_lines)
+        self.buttonSingleAlert.setFixedSize(200, 50)
+        self.buttonSingleAlert.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonSingleAlert.setStyleSheet(buttonStyle)
+
+        # create an "update double alert" button
+        self.buttonDoubleAlert = QPushButton('Update Double Alert', self) 
+        self.buttonDoubleAlert.clicked.connect(self.update_double_alert_lines)
+        self.buttonDoubleAlert.setFixedSize(200, 50)
+        self.buttonDoubleAlert.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonDoubleAlert.setStyleSheet(buttonStyle)
 
         # create a "save" button
         self.buttonSave = QPushButton('Save', self) 
@@ -541,7 +551,9 @@ class FieldPage(QMainWindow):
         layout.addSpacing(10)
         layout.addWidget(self.buttonGatesCorners)
         layout.addSpacing(10)
-        layout.addWidget(self.buttonDelimeters)
+        layout.addWidget(self.buttonSingleAlert)
+        layout.addSpacing(10)
+        layout.addWidget(self.buttonDoubleAlert)
         layout.addSpacing(40)
         layout.addWidget(self.buttonSave)
         layout.addSpacing(20)
@@ -607,11 +619,46 @@ class FieldPage(QMainWindow):
         for goal in goals:
             cv2.line(self.frame, goal[0], goal[1], (0, 0, 255), 1)
 
+    def draw_single_alert_lines(self):
+        for line in self.SINGLE_ALERT_LINES:
+            point1 = (line["x1"], line["y1"])
+            point2 = (line["x2"], line["y2"])
+            self.draw_dashed_line(point1, point2, (0, 255, 0))
+
+    def draw_double_alert_lines(self):
+        for line in self.DOUBLE_ALERT_LINES:
+            point1 = (line["x1"], line["y1"])
+            point2 = (line["x2"], line["y2"])
+            self.draw_dashed_line(point1, point2, (255, 255, 0))
+
+    def draw_dashed_line(self, point1, point2, color, thickness=1, dash_length=5, gap_length=5):
+        # Calculate the direction vector of the line
+        dx = point2[0] - point1[0]
+        dy = point2[1] - point1[1]
+        line_length = max(abs(dx), abs(dy))
+        dx = dx / line_length
+        dy = dy / line_length
+        
+        # Draw the dashes
+        distance = 0
+        draw_dash = True
+        while distance < line_length:
+            if draw_dash:
+                x1 = int(point1[0] + distance * dx)
+                y1 = int(point1[1] + distance * dy)
+                x2 = int(point1[0] + (distance + dash_length) * dx)
+                y2 = int(point1[1] + (distance + dash_length) * dy)
+                cv2.line(self.frame, (x1, y1), (x2, y2), color, thickness)
+            distance += dash_length + gap_length
+            draw_dash = not draw_dash
+
     def update_field(self):
         # clear the field corners
         self.FIELD_COORDINATES = []
         self.frame = cv2.imread(self.initial_field_path)
         self.draw_goals()
+        self.draw_single_alert_lines()
+        self.draw_double_alert_lines()
         self.update_field_image()
 
         # handle click events
@@ -636,6 +683,8 @@ class FieldPage(QMainWindow):
         self.GOALS = []
         self.frame = cv2.imread(self.initial_field_path)
         self.draw_field_corners()
+        self.draw_single_alert_lines()
+        self.draw_double_alert_lines()
         self.update_field_image()
 
         # handle click events
@@ -644,7 +693,7 @@ class FieldPage(QMainWindow):
     def mouse_click_event_update_goals(self, event):
         goals_number = len(self.GOALS)
 
-        if len(self.GOALS) >= 2 and self.isGoalComplete(self.GOALS[1]):
+        if len(self.GOALS) >= 2 and self.isLineComplete(self.GOALS[1]):
             return
 
         # get mouse click coordinates
@@ -654,7 +703,7 @@ class FieldPage(QMainWindow):
             self.GOALS.append({"x1": x, "y1": y})
             cv2.circle(self.frame, (x, y), 2, (0, 0, 255), -1)
 
-        elif goals_number == 1 and not self.isGoalComplete(self.GOALS[0]):
+        elif goals_number == 1 and not self.isLineComplete(self.GOALS[0]):
             self.GOALS[0]["x2"] = x
             self.GOALS[0]["y2"] = y
             goal_point1 = (self.GOALS[0]["x1"], self.GOALS[0]["y1"])
@@ -674,8 +723,72 @@ class FieldPage(QMainWindow):
 
         self.update_field_image()
 
-    def isGoalComplete(self, goal):
-        return ("x1" in goal) and ("y1" in goal) and ("x2" in goal) and ("y2" in goal)
+    def update_single_alert_lines(self):
+        # clear single alert lines
+        self.SINGLE_ALERT_LINES = []
+        self.frame = cv2.imread(self.initial_field_path)
+        self.draw_field_corners()
+        self.draw_goals()
+        self.draw_double_alert_lines()
+        self.update_field_image()
+
+        # handle click events
+        self.field_image.mousePressEvent = self.mouse_click_event_update_single_alert_lines
+
+    def mouse_click_event_update_single_alert_lines(self, event):
+        # get mouse click coordinates
+        x, y = event.pos().x(), event.pos().y()
+
+        if self.SINGLE_ALERT_LINES:
+            last_alert_line = self.SINGLE_ALERT_LINES[-1]
+
+            if not self.isLineComplete(last_alert_line):
+                self.SINGLE_ALERT_LINES[-1]["x2"] = x
+                self.SINGLE_ALERT_LINES[-1]["y2"] = y
+                point1 = (self.SINGLE_ALERT_LINES[-1]["x1"], self.SINGLE_ALERT_LINES[-1]["y1"])
+                point2 = (self.SINGLE_ALERT_LINES[-1]["x2"], self.SINGLE_ALERT_LINES[-1]["y2"])
+                self.draw_dashed_line(point1, point2, (0, 255, 0))
+                self.update_field_image()
+                return
+            
+        self.SINGLE_ALERT_LINES.append({"x1": x, "y1": y})
+        cv2.circle(self.frame, (x, y), 1, (0, 255, 0), -1)
+        self.update_field_image()
+
+    def update_double_alert_lines(self):
+        # clear double alert lines
+        self.DOUBLE_ALERT_LINES = []
+        self.frame = cv2.imread(self.initial_field_path)
+        self.draw_field_corners()
+        self.draw_goals()
+        self.draw_single_alert_lines()
+        self.update_field_image()
+
+        # handle click events
+        self.field_image.mousePressEvent = self.mouse_click_event_update_double_alert_lines
+
+    def mouse_click_event_update_double_alert_lines(self, event):
+        # get mouse click coordinates
+        x, y = event.pos().x(), event.pos().y()
+
+        if self.DOUBLE_ALERT_LINES:
+            last_alert_line = self.DOUBLE_ALERT_LINES[-1]
+
+            if not self.isLineComplete(last_alert_line):
+                self.DOUBLE_ALERT_LINES[-1]["x2"] = x
+                self.DOUBLE_ALERT_LINES[-1]["y2"] = y
+                point1 = (self.DOUBLE_ALERT_LINES[-1]["x1"], self.DOUBLE_ALERT_LINES[-1]["y1"])
+                point2 = (self.DOUBLE_ALERT_LINES[-1]["x2"], self.DOUBLE_ALERT_LINES[-1]["y2"])
+                self.draw_dashed_line(point1, point2, (255, 255, 0))
+                self.update_field_image()
+                return
+            
+        self.DOUBLE_ALERT_LINES.append({"x1": x, "y1": y})
+        cv2.circle(self.frame, (x, y), 1, (255, 255, 0), -1)
+        self.update_field_image()
+
+    def isLineComplete(self, line):
+        return ("x1" in line) and ("y1" in line) and ("x2" in line) and ("y2" in line)
     
     def save(self):
         # load the configs file
@@ -685,6 +798,8 @@ class FieldPage(QMainWindow):
         # update the values in the data object
         data["goals"] = self.GOALS
         data["field_coordinates"] = self.FIELD_COORDINATES
+        data["single_alert_lines"] = self.SINGLE_ALERT_LINES
+        data["double_alert_lines"] = self.DOUBLE_ALERT_LINES
 
         # write the updated data back to the configs file
         with open('../configs.json', 'w') as json_file:
