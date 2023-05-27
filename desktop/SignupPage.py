@@ -2,17 +2,18 @@ from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QCursor, QPixmap
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QLineEdit, QPushButton, QWidget, QApplication
 from PyQt5 import QtCore
-from mainWindow import LoginPage
 import pymongo
-
 from pymongo import MongoClient
 from styles import labelStyle, inputStyle, buttonStyle
+from mainWindow import LoginPage
+
 # MongoDB connection string
 connection_string = "mongodb+srv://yosef:sense111@cluster0.bmxfx.mongodb.net/sense-eye"
 # MongoDB database name
 db_name = "sense-eye"
 # MongoDB collection name
 collection_name = "organizations"
+
 class SignupPage(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -71,6 +72,14 @@ class SignupPage(QMainWindow):
         self.buttonSignup.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.buttonSignup.setStyleSheet(buttonStyle)
 
+        # create a "back" button
+        self.buttonBack = QPushButton('Back', self)
+        self.buttonBack.clicked.connect(self.back)
+        self.buttonBack.setFixedWidth(window_width * 0.3)
+        self.buttonBack.setFixedHeight(window_height * 0.15)
+        self.buttonBack.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonBack.setStyleSheet(buttonStyle)
+
         # create a vertical layout and add the widgets to it
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
@@ -81,6 +90,7 @@ class SignupPage(QMainWindow):
         layout.addWidget(self.passwordLabel)
         layout.addWidget(self.passwordInput)
         layout.addWidget(self.buttonSignup)
+        layout.addWidget(self.buttonBack)
         layout.addStretch()
 
         # create a central widget and set the layout on it
@@ -104,20 +114,24 @@ class SignupPage(QMainWindow):
             db = client[db_name]
             collection = db[collection_name]
 
-            # Insert the organization data into the collection
-            collection.insert_one(organization)
-
-            # Perform any additional signup functionality
-
-            self.main_window = LoginPage()
-            self.main_window.show()
-            self.close()
-
-        except pymongo.errors.ConnectionFailure:
-            print("Could not connect to MongoDB.")
+            # Check if organization already exists
+            existing_organization = collection.find_one({"name": org_name})
+            if existing_organization:
+                print("Organization already exists.")
+            else:
+                # Insert the organization data into the collection
+                collection.insert_one(organization)
+                print("Organization signed up successfully.")
+                self.back()
 
         except pymongo.errors.ConnectionFailure:
             print("Could not connect to MongoDB.")
+
+    def back(self):
+        self.main_window = LoginPage()
+        self.main_window.show()
+        self.close()
+
 if __name__ == '__main__':
     app = QApplication([])
     signup_page = SignupPage()
