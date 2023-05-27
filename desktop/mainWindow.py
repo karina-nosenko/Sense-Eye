@@ -63,7 +63,7 @@ class LoginPage(QMainWindow):
         self.organizationInput = QLineEdit(self)
         self.organizationInput.setStyleSheet(inputStyle + "background-color: white;")
         self.organizationInput.setFixedWidth(width * 0.3)
-        self.organizationInput.setFixedHeight(height * 0.05)
+        self.organizationInput.setFixedHeight(height * 0.06)
         self.organizationInput.setAlignment(Qt.AlignVCenter)
 
         # create password input
@@ -75,7 +75,7 @@ class LoginPage(QMainWindow):
         self.passwordInput = QLineEdit(self)
         self.passwordInput.setStyleSheet(inputStyle + "background-color: white;")
         self.passwordInput.setFixedWidth(width * 0.3)
-        self.passwordInput.setFixedHeight(height * 0.05)
+        self.passwordInput.setFixedHeight(height * 0.06)
         self.passwordInput.setEchoMode(QLineEdit.Password)
         self.passwordInput.setAlignment(Qt.AlignVCenter)
 
@@ -83,10 +83,16 @@ class LoginPage(QMainWindow):
         self.buttonLogin = QPushButton('Login', self)
         self.buttonLogin.clicked.connect(self.login)
         self.buttonLogin.setFixedWidth(width * 0.3)
-        self.buttonLogin.setFixedHeight(height * 0.05)
+        self.buttonLogin.setFixedHeight(height * 0.07)
         self.buttonLogin.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.buttonLogin.setStyleSheet(buttonStyle)
-
+        # create a "signup" button
+        self.buttonSignup = QPushButton('Signup', self)
+        self.buttonSignup.clicked.connect(self.signup)
+        self.buttonSignup.setFixedWidth(width * 0.3)
+        self.buttonSignup.setFixedHeight(height * 0.07)
+        self.buttonSignup.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonSignup.setStyleSheet(buttonStyle)
         # create a vertical layout and add the widgets to it
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
@@ -97,6 +103,7 @@ class LoginPage(QMainWindow):
         layout.addWidget(self.passwordLabel)
         layout.addWidget(self.passwordInput)
         layout.addWidget(self.buttonLogin)
+        layout.addWidget(self.buttonSignup)
         layout.addStretch()
 
         # create a central widget and set the layout on it
@@ -124,6 +131,13 @@ class LoginPage(QMainWindow):
         self.main_window = MainPage()
         self.main_window.show()
         self.close()
+
+    def signup(self):
+        from SignupPage import SignupPage
+        self.main_window = SignupPage()
+        self.main_window.show()
+        self.close()
+
 
         # # if result is not None, the organization name and password are valid
         # if result is not None:
