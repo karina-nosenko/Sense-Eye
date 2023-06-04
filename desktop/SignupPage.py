@@ -6,9 +6,14 @@ import pymongo
 from pymongo import MongoClient
 from styles import labelStyle, inputStyle, buttonStyle
 from mainWindow import LoginPage
+from dotenv import load_dotenv
+import os
+
+# Load the .env file
+load_dotenv()
 
 # MongoDB connection string
-connection_string = "mongodb+srv://yosef:sense111@cluster0.bmxfx.mongodb.net/sense-eye"
+connection_string = os.environ['DB_HOST']
 # MongoDB database name
 db_name = "sense-eye"
 # MongoDB collection name
