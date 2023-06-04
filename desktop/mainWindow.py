@@ -362,6 +362,7 @@ class MainPage(QMainWindow):
         self.setCentralWidget(FieldPage())
 
 
+#== History Page ==#
 class HistoryPage(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -487,9 +488,6 @@ class HistoryPage(QMainWindow):
         self.buttonBack.hide()
 
         self.setCentralWidget(MainPage())
-
-
-
 
 #== Customize Field Page ==#
 class FieldPage(QMainWindow):
@@ -659,16 +657,10 @@ class FieldPage(QMainWindow):
             cv2.circle(self.frame, corner, 3, (0, 0, 255), -1)
 
     def draw_goals(self):
-        if len(self.GOALS) < 2:
-            return
-
-        goals = [
-            [(self.GOALS[0]['x1'], self.GOALS[0]['y1']), (self.GOALS[0]['x2'], self.GOALS[0]['y2'])],
-            [(self.GOALS[1]['x1'], self.GOALS[1]['y1']), (self.GOALS[1]['x2'], self.GOALS[1]['y2'])]
-        ]
-
-        for goal in goals:
-            cv2.line(self.frame, goal[0], goal[1], (0, 0, 255), 1)
+        for goal in self.GOALS:
+            point1 = (goal['x1'], goal['y1'])
+            point2 = (goal['x2'], goal['y2'])
+            cv2.line(self.frame, point1, point2, (0, 0, 255), 1)
 
     def draw_single_alert_lines(self):
         for line in self.SINGLE_ALERT_LINES:
