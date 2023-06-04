@@ -1,6 +1,6 @@
 {
-    "game_mode": 3,
-    "video_path": "yolov7/videos/two_players_orange_yellow.mp4",
+    "game_mode": 1,
+    "video_path": "yolov7/videos/single_player_yellow.mp4",
     "external_camera": false,
     "mode": "video",
     "camera_index": 0,
