@@ -509,7 +509,8 @@ class FieldPage(QMainWindow):
             self.EXTERNAL_CAMERA = data["external_camera"]
             self.CAMERA_INDEX = data["camera_index"]
             self.MODE = data["mode"]
-            self.GOALS = data["goals"]
+            self.GOAL1 = data["goals"][0]
+            self.GOAL2 = data["goals"][1]
             self.FIELD_COORDINATES = data["field_coordinates"]
             self.SINGLE_ALERT_LINES = data["single_alert_lines"]
             self.DOUBLE_ALERT_LINES = data["double_alert_lines"]
@@ -539,6 +540,7 @@ class FieldPage(QMainWindow):
         if not self.pixmap.isNull():
             self.field_image.setPixmap(self.pixmap)
             self.field_image.setScaledContents(True)
+            self.field_image.setFixedSize(self.pixmap.size())
         else:
             print(f"Failed to load image from {self.field_path}")
 
@@ -549,12 +551,19 @@ class FieldPage(QMainWindow):
         self.buttonFieldCorners.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
         self.buttonFieldCorners.setStyleSheet(buttonCustomizeStyle)
 
-        # create an "update gates" button
-        self.buttonGatesCorners = QPushButton('Update Gates', self) 
-        self.buttonGatesCorners.clicked.connect(self.update_goals)
-        self.buttonGatesCorners.setFixedSize(200, 50)
-        self.buttonGatesCorners.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        self.buttonGatesCorners.setStyleSheet(buttonCustomizeStyle)
+        # create an "update gate 1" button
+        self.buttonGate1Corners = QPushButton('Update Gate 1', self) 
+        self.buttonGate1Corners.clicked.connect(self.update_goal1)
+        self.buttonGate1Corners.setFixedSize(200, 50)
+        self.buttonGate1Corners.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonGate1Corners.setStyleSheet(buttonCustomizeStyle)
+
+        # create an "update gate 2" button
+        self.buttonGate2Corners = QPushButton('Update Gate 2', self) 
+        self.buttonGate2Corners.clicked.connect(self.update_goal2)
+        self.buttonGate2Corners.setFixedSize(200, 50)
+        self.buttonGate2Corners.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonGate2Corners.setStyleSheet(buttonCustomizeStyle)
 
         # create an "update single alert" button
         self.buttonSingleAlert = QPushButton('Update Single Alert', self) 
@@ -589,7 +598,9 @@ class FieldPage(QMainWindow):
         horizontal_layout.setAlignment(Qt.AlignCenter)
         horizontal_layout.addWidget(self.buttonFieldCorners)
         horizontal_layout.addSpacing(10)
-        horizontal_layout.addWidget(self.buttonGatesCorners)
+        horizontal_layout.addWidget(self.buttonGate1Corners)
+        horizontal_layout.addSpacing(10)
+        horizontal_layout.addWidget(self.buttonGate2Corners)
         horizontal_layout.addSpacing(10)
         horizontal_layout.addWidget(self.buttonSingleAlert)
         horizontal_layout.addSpacing(10)
@@ -657,10 +668,12 @@ class FieldPage(QMainWindow):
             cv2.circle(self.frame, corner, 3, (0, 0, 255), -1)
 
     def draw_goals(self):
-        for goal in self.GOALS:
-            point1 = (goal['x1'], goal['y1'])
-            point2 = (goal['x2'], goal['y2'])
-            cv2.line(self.frame, point1, point2, (0, 0, 255), 1)
+        goals = [self.GOAL1, self.GOAL2]
+        for goal in goals:
+            if self.isLineComplete(goal):
+                point1 = (goal['x1'], goal['y1'])
+                point2 = (goal['x2'], goal['y2'])
+                cv2.line(self.frame, point1, point2, (0, 0, 255), 1)
 
     def draw_single_alert_lines(self):
         for line in self.SINGLE_ALERT_LINES:
@@ -723,49 +736,75 @@ class FieldPage(QMainWindow):
         cv2.circle(self.frame, (x, y), 3, (0, 0, 255), -1)
         self.update_field_image()
 
-    def update_goals(self):
-        # clear the goals
-        self.GOALS = []
+    def update_goal1(self):
+        # clear the goal
+        self.GOAL1 = {}
         self.frame = cv2.imread(self.initial_field_path)
         self.draw_field_corners()
         self.draw_single_alert_lines()
         self.draw_double_alert_lines()
+        self.draw_goals()
         self.unselect_buttons()
-        self.buttonGatesCorners.setStyleSheet(buttonSelectedCustomizeStyle)
+        self.buttonGate1Corners.setStyleSheet(buttonSelectedCustomizeStyle)
         self.update_field_image()
 
         # handle click events
-        self.field_image.mousePressEvent = self.mouse_click_event_update_goals
+        self.field_image.mousePressEvent = self.mouse_click_event_update_goal1
 
-    def mouse_click_event_update_goals(self, event):
-        goals_number = len(self.GOALS)
+    def update_goal2(self):
+        # clear the goal
+        self.GOAL2 = {}
+        self.frame = cv2.imread(self.initial_field_path)
+        self.draw_field_corners()
+        self.draw_single_alert_lines()
+        self.draw_double_alert_lines()
+        self.draw_goals()
+        self.unselect_buttons()
+        self.buttonGate2Corners.setStyleSheet(buttonSelectedCustomizeStyle)
+        self.update_field_image()
 
-        if len(self.GOALS) >= 2 and self.isLineComplete(self.GOALS[1]):
+        # handle click events
+        self.field_image.mousePressEvent = self.mouse_click_event_update_goal2
+
+    def mouse_click_event_update_goal1(self, event):
+        if self.isLineComplete(self.GOAL1):
             return
 
         # get mouse click coordinates
         x, y = event.pos().x(), event.pos().y()
 
-        if goals_number == 0:
-            self.GOALS.append({"x1": x, "y1": y})
+        print(x, y)
+        print(self.GOAL1)
+
+        if self.GOAL1 == {}:
+            self.GOAL1 = {"x1": x, "y1": y}
             cv2.circle(self.frame, (x, y), 2, (0, 0, 255), -1)
 
-        elif goals_number == 1 and not self.isLineComplete(self.GOALS[0]):
-            self.GOALS[0]["x2"] = x
-            self.GOALS[0]["y2"] = y
-            goal_point1 = (self.GOALS[0]["x1"], self.GOALS[0]["y1"])
-            goal_point2 = (self.GOALS[0]["x2"], self.GOALS[0]["y2"])
+        else:
+            self.GOAL1["x2"] = x
+            self.GOAL1["y2"] = y
+            goal_point1 = (self.GOAL1["x1"], self.GOAL1["y1"])
+            goal_point2 = (self.GOAL1["x2"], self.GOAL1["y2"])
             cv2.line(self.frame, goal_point1, goal_point2, (0, 0, 255), 2)
 
-        elif goals_number == 1:
-            self.GOALS.append({"x1": x, "y1": y})
+        self.update_field_image()
+
+    def mouse_click_event_update_goal2(self, event):
+        if self.isLineComplete(self.GOAL2):
+            return
+
+        # get mouse click coordinates
+        x, y = event.pos().x(), event.pos().y()
+
+        if self.GOAL2 == {}:
+            self.GOAL2 = {"x1": x, "y1": y}
             cv2.circle(self.frame, (x, y), 2, (0, 0, 255), -1)
 
-        elif goals_number == 2:
-            self.GOALS[1]["x2"] = x
-            self.GOALS[1]["y2"] = y
-            goal_point1 = (self.GOALS[1]["x1"], self.GOALS[1]["y1"])
-            goal_point2 = (self.GOALS[1]["x2"], self.GOALS[1]["y2"])
+        else:
+            self.GOAL2["x2"] = x
+            self.GOAL2["y2"] = y
+            goal_point1 = (self.GOAL2["x1"], self.GOAL2["y1"])
+            goal_point2 = (self.GOAL2["x2"], self.GOAL2["y2"])
             cv2.line(self.frame, goal_point1, goal_point2, (0, 0, 255), 2)
 
         self.update_field_image()
@@ -850,7 +889,7 @@ class FieldPage(QMainWindow):
             data = json.load(json_file)
         
         # update the values in the data object
-        data["goals"] = self.GOALS
+        data["goals"] = [self.GOAL1, self.GOAL2]
         data["field_coordinates"] = self.FIELD_COORDINATES
         data["single_alert_lines"] = self.SINGLE_ALERT_LINES
         data["double_alert_lines"] = self.DOUBLE_ALERT_LINES
@@ -870,7 +909,8 @@ class FieldPage(QMainWindow):
 
     def unselect_buttons(self):
         self.buttonFieldCorners.setStyleSheet(buttonCustomizeStyle)
-        self.buttonGatesCorners.setStyleSheet(buttonCustomizeStyle)
+        self.buttonGate1Corners.setStyleSheet(buttonCustomizeStyle)
+        self.buttonGate2Corners.setStyleSheet(buttonCustomizeStyle)
         self.buttonSingleAlert.setStyleSheet(buttonCustomizeStyle)
         self.buttonDoubleAlert.setStyleSheet(buttonCustomizeStyle)
 
