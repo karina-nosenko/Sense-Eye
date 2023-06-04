@@ -246,10 +246,11 @@ def create_players_heatmap(game_path, data):
     img = Image.open(game_path + '/first_frame.jpg')
 
     # Create a figure and axis objects with a larger size
-    fig, ax = plt.subplots(figsize=(16, 8))
-    # Set the aspect ratio of the image to match the dimensions of the plot
-    aspect = img.width / float(img.height)
-    ax.set_aspect(aspect)
+    fig, ax = plt.subplots(figsize=(img.width/100, img.height/100))
+
+    # Set the x and y limits of the axis to match the dimensions of the image
+    ax.set_xlim([0, img.width])
+    ax.set_ylim([img.height, 0])
 
     # Plot the background image
     ax.imshow(img)

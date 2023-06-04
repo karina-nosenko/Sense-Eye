@@ -8,6 +8,7 @@ import subprocess
 import os
 import signal
 import psutil
+import datetime
 import time
 import subprocess
 import platform
@@ -277,7 +278,7 @@ class MainPage(QMainWindow):
             self.statusLabel.setText('Attempting to connect to the components...')
             QApplication.processEvents()
             self.process1 = subprocess.Popen(['sudo', 'python3','main.py'],cwd='../') 
-            # time.sleep(10)
+            time.sleep(10)
             self.statusLabel.setText('Please wait! The video window will pop up in a minute.')
 
             self.process2 = subprocess.Popen(['npm','run','dev'],cwd='../RecommendationsUnit/')
@@ -361,13 +362,12 @@ class MainPage(QMainWindow):
         self.setCentralWidget(FieldPage())
 
 
-#== History Page ==#
 class HistoryPage(QMainWindow):
     def __init__(self):
         super().__init__()
         self.initUI()
 
-    def initUI(self): 
+    def initUI(self):
         # create the heading
         self.heading = QLabel(self)
         self.heading.setText('My Camera History')
@@ -408,14 +408,40 @@ class HistoryPage(QMainWindow):
         self.buttonBack = QPushButton('Back', self) 
         self.buttonBack.clicked.connect(self.show_main_window_page)
         self.buttonBack.setFixedSize(200, 50)
-        self.buttonBack.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        self.buttonBack.setCursor(QCursor(Qt.PointingHandCursor))
         self.buttonBack.setStyleSheet(buttonStyle)
+
+        # create a date range input
+        self.dateFromLabel = QLabel("From:", self)
+        self.dateFromEdit = QDateEdit(self)
+        self.dateFromEdit.setCalendarPopup(True)
+        self.dateFromEdit.setDate(datetime.date.today())  # Set default date to today
+        self.dateToLabel = QLabel("To:", self)
+        self.dateToEdit = QDateEdit(self)
+        self.dateToEdit.setCalendarPopup(True)
+        self.dateToEdit.setDate(datetime.date.today())  # Set default date to today
+
+        # create a filter button
+        self.filterButton = QPushButton("Filter", self)
+        self.filterButton.setStyleSheet(buttonStyle)
+        self.filterButton.clicked.connect(self.filterVideos)
+
+        # create a layout for the date range input and filter button
+        filterLayout = QHBoxLayout()
+        filterLayout.addWidget(self.dateFromLabel)
+        filterLayout.addWidget(self.dateFromEdit,stretch=1)
+        #TODO
+        filterLayout.addWidget(self.dateToLabel)
+        filterLayout.addWidget(self.dateToEdit,stretch=1)
+        filterLayout.addWidget(self.filterButton,stretch=1)
 
         # create a vertical layout and add the widgets to it
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.heading)
         layout.addSpacing(40)
+        layout.addLayout(filterLayout)
+        layout.addSpacing(20)
         layout.addLayout(self.videosLayout)
         layout.addSpacing(40)
         layout.addWidget(self.buttonBack)
@@ -427,6 +453,30 @@ class HistoryPage(QMainWindow):
         # set the central widget on the main window
         self.setCentralWidget(central_widget)
 
+    def filterVideos(self):
+        # Get the selected date range
+        dateFrom = self.dateFromEdit.date().toPyDate()
+        dateTo = self.dateToEdit.date().toPyDate()
+
+        # Clear the videos layout
+        for i in reversed(range(self.videosLayout.count())): 
+            self.videosLayout.itemAt(i).widget().setParent(None)
+
+        # Filter and display videos within the selected date range
+        video_folder = "../output_videos"
+        videos_list = sorted(os.listdir(video_folder))
+        for filename in videos_list:
+            if filename.endswith(".ogv"):
+                video_date_str = filename.split(".")[0]  # Extract the date portion from the filename
+                video_date = datetime.datetime.strptime(video_date_str, "%Y-%m-%d %H_%M_%S").date()
+                if dateFrom <= video_date <= dateTo:
+                    video_path = os.path.join(video_folder, filename)
+                    button = QPushButton(filename[:-4], self)
+                    #TODO
+                    button.setStyleSheet(buttonStyle)
+                    button.clicked.connect(lambda checked, path=video_path: self.open_video_window(path))
+                    button.setFixedSize(500, 50)
+                    self.videosLayout.addWidget(button)
 
     def open_video_window(self, video_path):
         self.w = VideoWindow(video_path)
@@ -437,6 +487,9 @@ class HistoryPage(QMainWindow):
         self.buttonBack.hide()
 
         self.setCentralWidget(MainPage())
+
+
+
 
 #== Customize Field Page ==#
 class FieldPage(QMainWindow):
@@ -843,4 +896,3 @@ class FieldPage(QMainWindow):
 
         if os.path.exists(self.initial_field_path):
             os.remove(self.initial_field_path)
-        
