@@ -35,11 +35,10 @@ def create_personalized_frames():
         create_players_traces(game_path, data)
         create_holds_the_ball_traces(game_path, data)
         create_ball_holders_percentages(data).savefig(game_path + '/ball_holders_percentages.png')
-        create_correlations(data).savefig(game_path + '/correlations.png')
-        create_ball_movement_pattern(data).savefig(game_path + '/ball_movement.png')   #todo: flip vertically
-        create_player_movement_pattern(game_path, data).savefig(game_path + '/players_movement.png')   #todo: flip vertically
-        create_players_heatmap(game_path, data).savefig(game_path + '/players_heatmap.png')   #todo: flip vertically
-        create_ball_heatmap(game_path, data).savefig(game_path + '/ball_heatmap.png')   #todo: flip vertically
+        create_ball_movement_pattern(data).savefig(game_path + '/ball_movement.png')
+        create_player_movement_pattern(game_path, data).savefig(game_path + '/players_movement.png')
+        create_players_heatmap(game_path, data).savefig(game_path + '/players_heatmap.png')
+        create_ball_heatmap(game_path, data).savefig(game_path + '/ball_heatmap.png')
 
         # Delete unused files
         os.remove(os.path.join(game_path, "traces.json"))
@@ -180,37 +179,6 @@ def create_ball_holders_percentages(data):
         plt.tight_layout()
 
         return plt
-
-def create_correlations(data):
-    plt.figure()
-
-    # Fiter the df to include only players
-    filtered_data = [obj for obj in data if obj.get('class') == 'person' and 'properties' in obj and all(key in obj['properties'] for key in ['holdsBall', 'x', 'y', 'sightDirection', 'center_y', 'id', 'team'])]
-    filtered_df = pd.DataFrame(filtered_data)
-
-    # Create a DataFrame from the filtered data
-    df = pd.DataFrame(filtered_df)
-
-    # Select the relevant numeric fields for correlation analysis
-    numeric_fields = ['x', 'y', 'sightDirection', 'id', 'team'] 
-    subset_df = df['properties'].apply(lambda x: pd.Series({field: x[field] for field in numeric_fields}))
-
-    # Calculate the correlation matrix
-    corr_matrix = subset_df.corr()
-
-    # Rename the 'id' label to 'color' in the correlation matrix
-    corr_matrix = corr_matrix.rename(columns={'id': 'color'})
-    corr_matrix = corr_matrix.rename(index={'id': 'color'})
-
-    # Create a mask for the upper triangular portion
-    mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
-
-    # Plot the correlation heatmap with triangular mask
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', mask=mask)
-    plt.title('Correlation Heatmap')
-
-    return plt
 
 def create_ball_movement_pattern(data):
     plt.figure()

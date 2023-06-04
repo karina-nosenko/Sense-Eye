@@ -25,9 +25,6 @@ import os
 # Load the .env file
 load_dotenv()
 
-# Access the environment variables
-# DB_HOST = os.getenv('DB_HOST')
-
 # == Login Page ==#
 class LoginPage(QMainWindow):
     def __init__(self):
@@ -112,31 +109,27 @@ class LoginPage(QMainWindow):
         password = self.passwordInput.text()
 
         # connect to MongoDB
-        # client = MongoClient('mongodb+srv://yosef:sense111@cluster0.bmxfx.mongodb.net/sense-eye')
-        # db = client["sense-eye"]
-        # collection = db["organizations"]
-        # query = {"name": org_name, "password": password}
-        # result = collection.find_one(query)
+        client = MongoClient(os.environ['DB_HOST'])
+        db = client["sense-eye"]
+        collection = db["organizations"]
+        query = {"name": org_name, "password": password}
+        result = collection.find_one(query)
 
         # close the MongoDB connection
-        # client.close()
+        client.close()
 
-        self.main_window = MainPage()
-        self.main_window.show()
-        self.close()
-
-        # # if result is not None, the organization name and password are valid
-        # if result is not None:
-        #     # connect to main window or do something else
-        #     print("Valid organization name and password")
-        #     # Connect the user to the main window
-        #     self.main_window = MainPage()
-        #     self.main_window.show()
-        #     self.close()
-        # else:
-        #     # display error message or do something else
-        #     print("Invalid organization name or password")
-        #     QMessageBox.warning(self, "Error", "Invalid organization name or password.")
+        # if result is not None, the organization name and password are valid
+        if result is not None:
+            # connect to main window or do something else
+            print("Valid organization name and password")
+            # Connect the user to the main window
+            self.main_window = MainPage()
+            self.main_window.show()
+            self.close()
+        else:
+            # display error message or do something else
+            print("Invalid organization name or password")
+            QMessageBox.warning(self, "Error", "Invalid organization name or password.")
 
 #== Main Page ==#
 class MainPage(QMainWindow):
@@ -284,7 +277,7 @@ class MainPage(QMainWindow):
             self.statusLabel.setText('Attempting to connect to the components...')
             QApplication.processEvents()
             self.process1 = subprocess.Popen(['sudo', 'python3','main.py'],cwd='../') 
-            time.sleep(10)
+            # time.sleep(10)
             self.statusLabel.setText('Please wait! The video window will pop up in a minute.')
 
             self.process2 = subprocess.Popen(['npm','run','dev'],cwd='../RecommendationsUnit/')
