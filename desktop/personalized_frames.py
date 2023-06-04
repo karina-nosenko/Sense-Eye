@@ -232,12 +232,12 @@ def create_player_movement_pattern(game_path, data):
             coords = np.array(coords)
             # Set the extent of the heatmap to match the image dimensions
             im = ax.hist2d(coords[:, 0], coords[:, 1], bins=30, cmap=plt.cm.jet)[3]
-        plt.colorbar(im, ax=ax)
-        ax.set_title(f"Players Location Heatmap")
-        ax.set_xlabel("X")
-        ax.set_ylabel("Y")
+            plt.colorbar(im, ax=ax)
+            ax.set_title(f"Players Location Heatmap")
+            ax.set_xlabel("X")
+            ax.set_ylabel("Y")
 
-        return plt
+            return plt
     
 def create_players_heatmap(game_path, data):
     plt.figure()
