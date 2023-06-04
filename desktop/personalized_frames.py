@@ -159,7 +159,6 @@ def create_ball_holders_percentages(data):
         plt.bar(labels, percentages, color=[defined_strings.get(id_value, default_color) for id_value in ids])
         plt.xlabel('Cap Color')
         plt.ylabel('Percentage')
-        plt.title(f"Percentages of Ball Holders")
 
         # Display the percentage on top of each bar
         for i, percentage in enumerate(percentages):
@@ -195,7 +194,6 @@ def create_ball_movement_pattern(data):
         plt.hist2d(coords[:, 0], coords[:, 1], bins=30, cmap=plt.cm.jet)
 
     plt.colorbar()
-    plt.title("Ball Location Heatmap")
     plt.xlabel("X")
     plt.ylabel("Y")
 
@@ -233,7 +231,6 @@ def create_player_movement_pattern(game_path, data):
             # Set the extent of the heatmap to match the image dimensions
             im = ax.hist2d(coords[:, 0], coords[:, 1], bins=30, cmap=plt.cm.jet)[3]
             plt.colorbar(im, ax=ax)
-            ax.set_title(f"Players Location Heatmap")
             ax.set_xlabel("X")
             ax.set_ylabel("Y")
 
@@ -270,7 +267,6 @@ def create_players_heatmap(game_path, data):
             coords = np.array(coords)
             # Set the range of the heatmap to match the image dimensions
             im, _, _, _ = ax.hist2d(coords[:, 0], coords[:, 1], bins=30, cmap=plt.cm.Reds, alpha=0.4, range=[[0, img.width], [0, img.height]])
-        ax.set_title(f"Players Location Heatmap")
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
 
@@ -307,7 +303,6 @@ def create_ball_heatmap(game_path, data):
             coords = np.array(coords)
             # Set the range of the heatmap to match the image dimensions
             im, _, _, _ = ax.hist2d(coords[:, 0], coords[:, 1], bins=30, cmap=plt.cm.Reds, alpha=0.4, range=[[0, img.width], [0, img.height]])
-        ax.set_title(f"Ball's Location Heatmap")
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
 

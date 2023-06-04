@@ -181,9 +181,9 @@ def syncronize():
         if is_internet_connection():
             print('Ping to server successful!')
 
-            # create_games() 
-            # send_recommendations_to_db()
-            # send_statistics_to_db()
+            create_games() 
+            send_recommendations_to_db()
+            send_statistics_to_db()
 
         else:
             print('No ping response from the server.')
