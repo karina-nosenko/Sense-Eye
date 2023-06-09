@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 
 from mainWindow import *
 from personalized_frames import create_personalized_frames
+from session import get_session_data
 
 load_dotenv()
 
@@ -37,6 +38,8 @@ def create_games():
     if not os.path.exists(path):
         return
     
+    orgname = get_session_data("orgname")
+    
     with open(path, "r+") as f:
         d = f.readlines()
         f.seek(0)
@@ -45,7 +48,7 @@ def create_games():
             request_body = {
                 "timestamp": game_id,
                 "mode": game_mode,
-                "orgName": "shenkar"
+                "orgName": orgname
             }
 
             response = requests.post(api_url, json=request_body)
@@ -89,11 +92,13 @@ def send_recommendations_to_db():
 
             image_url = upload.response_metadata.raw['url']
 
+            orgname = get_session_data("orgname")
+
             # Save the recommendation object to db
             request_body = {
                 "status": 0,
                 "frame": image_url,
-                "orgName": "shenkar",
+                "orgName": orgname,
                 "gameID": foldername
             }
 
@@ -145,10 +150,12 @@ def send_statistics_to_db():
 
             image_url = upload.response_metadata.raw['url']
 
+            orgname = get_session_data("orgname")
+
             # Save the recommendation object to db
             request_body = {
                 "frame": image_url,
-                "orgName": "shenkar",
+                "orgName": orgname,
                 "gameID": foldername
             }
 

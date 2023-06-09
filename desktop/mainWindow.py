@@ -19,6 +19,7 @@ import itertools
 from videoWindow import *
 from styles import *
 from desktop import start_sending_materials_process, start_creating_frames_process
+from session import save_session_data, get_session_data
 
 from dotenv import load_dotenv
 import os
@@ -130,6 +131,9 @@ class LoginPage(QMainWindow):
         if result is not None:
             # connect to main window or do something else
             print("Valid organization name and password")
+
+            save_session_data("orgname", org_name)
+
             # Connect the user to the main window
             self.main_window = MainPage()
             self.main_window.show()
