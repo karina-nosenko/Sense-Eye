@@ -193,9 +193,9 @@ def create_ball_movement_pattern(data):
         coords = np.array(coords)
         plt.hist2d(coords[:, 0], coords[:, 1], bins=30, cmap=plt.cm.jet)
 
-    plt.colorbar()
-    plt.xlabel("X")
-    plt.ylabel("Y")
+        plt.colorbar()
+        plt.xlabel("X")
+        plt.ylabel("Y")
 
     return plt
 
@@ -241,13 +241,14 @@ def create_players_heatmap(game_path, data):
 
     # Load the background image
     img = Image.open(game_path + '/first_frame.jpg')
+    img = img.rotate(180)
 
     # Create a figure and axis objects with a larger size
     fig, ax = plt.subplots(figsize=(img.width/100, img.height/100))
 
-    # Set the x and y limits of the axis to match the dimensions of the image
-    ax.set_xlim([0, img.width])
-    ax.set_ylim([img.height, 0])
+    # Set the aspect ratio of the image to match the dimensions of the plot
+    aspect = img.width / float(img.height)
+    ax.set_aspect(aspect)
 
     # Plot the background image
     ax.imshow(img)
@@ -265,10 +266,15 @@ def create_players_heatmap(game_path, data):
     for gameId, coords in groups.items():
         if len(coords) > 0:
             coords = np.array(coords)
+
+            # Rotate the coordinates by 180 degrees
+            rotated_coords = np.array([[img.width - x, img.height - y] for x, y in coords])
+
             # Set the range of the heatmap to match the image dimensions
-            im, _, _, _ = ax.hist2d(coords[:, 0], coords[:, 1], bins=30, cmap=plt.cm.Reds, alpha=0.4, range=[[0, img.width], [0, img.height]])
-        ax.set_xlabel("X")
-        ax.set_ylabel("Y")
+            im, _, _, _ = ax.hist2d(rotated_coords[:, 0], img.height - rotated_coords[:, 1], bins=30, cmap=plt.cm.Reds, alpha=0.4, range=[[0, rotated_coords.width], [0, rotated_coords.height]])
+            
+            ax.set_xlabel("X")
+            ax.set_ylabel("Y")
 
         return plt
     
@@ -277,6 +283,7 @@ def create_ball_heatmap(game_path, data):
 
     # Load the background image
     img = Image.open(game_path + '/first_frame.jpg')
+    img = img.rotate(180)
 
     # Create a figure and axis objects with a larger size
     fig, ax = plt.subplots(figsize=(16, 8))
@@ -301,9 +308,13 @@ def create_ball_heatmap(game_path, data):
     for gameId, coords in groups.items():
         if len(coords) > 0:
             coords = np.array(coords)
+
+            # Swap X and Y coordinates
+            coords[:, 0], coords[:, 1] = img.width - coords[:, 0], img.height - coords[:, 1]
+
             # Set the range of the heatmap to match the image dimensions
             im, _, _, _ = ax.hist2d(coords[:, 0], coords[:, 1], bins=30, cmap=plt.cm.Reds, alpha=0.4, range=[[0, img.width], [0, img.height]])
-        ax.set_xlabel("X")
-        ax.set_ylabel("Y")
+            ax.set_xlabel("X")
+            ax.set_ylabel("Y")
 
         return plt
