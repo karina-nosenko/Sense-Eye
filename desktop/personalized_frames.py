@@ -271,7 +271,7 @@ def create_players_heatmap(game_path, data):
             rotated_coords = np.array([[img.width - x, img.height - y] for x, y in coords])
 
             # Set the range of the heatmap to match the image dimensions
-            im, _, _, _ = ax.hist2d(rotated_coords[:, 0], img.height - rotated_coords[:, 1], bins=30, cmap=plt.cm.Reds, alpha=0.4, range=[[0, rotated_coords.width], [0, rotated_coords.height]])
+            im, _, _, _ = ax.hist2d(rotated_coords[:, 0], img.height - rotated_coords[:, 1], bins=30, cmap=plt.cm.Reds, alpha=0.4, range=[[0, img.width], [0, img.height]])
             
             ax.set_xlabel("X")
             ax.set_ylabel("Y")

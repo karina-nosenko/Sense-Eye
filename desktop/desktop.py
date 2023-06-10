@@ -148,7 +148,12 @@ def send_statistics_to_db():
                 file_name = filename
             )
 
-            image_url = upload.response_metadata.raw['url'] + f"?name={filename.rstrip('.png')}"
+            if filename.endswith('.png'):
+                header = f"?name={filename[:-4]}"
+            else:
+                header = f"?name={filename}"
+
+            image_url = upload.response_metadata.raw['url'] + header       
 
             orgname = get_session_data("orgname")
 

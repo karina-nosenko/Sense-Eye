@@ -2,7 +2,7 @@
     "game_mode": 3,
     "video_path": "yolov7/videos/two_players_orange_yellow.mp4",
     "external_camera": false,
-    "mode": "realtime",
+    "mode": "video",
     "camera_index": 0,
     "goals": [
         {
