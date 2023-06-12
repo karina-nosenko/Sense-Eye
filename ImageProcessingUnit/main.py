@@ -8,8 +8,7 @@ import colors_detection as cd
 from datetime import datetime
 import math
 import json
-import json
-
+ret = True
 # Settings
 sys.path.append(APPEND_PATH)
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
@@ -78,7 +77,16 @@ def initialize_capture():
         if (MODE == 'video'):
             capture = cv2.VideoCapture(VIDEO_PATH) 
         elif (MODE == 'realtime'):
-            capture = cv2.VideoCapture(CAMERA_INDEX)
+            # capture = cv2.VideoCapture(-1, cv2.CAP_V4L2)
+
+            capture = None
+            for i in range(10):  # assuming maximum 10 camera devices
+                cap = cv2.VideoCapture(i, cv2.CAP_V4L2)
+                if cap.isOpened():
+                    capture = cap
+                    break
+            if capture is None:
+                raise Exception("No valid camera index found")       
             # capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H264'))
             capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
@@ -92,6 +100,7 @@ def initialize_capture():
 
 def initialize_output(capture):
     fps = int(capture.get(cv2.CAP_PROP_FPS))
+    print(fps)
     w = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
     CURRENT_TIMESTAMP = datetime.now()
@@ -134,6 +143,8 @@ with torch.no_grad():
         if not ret:
             break
 
+        player_caps_index = cd.detect_colors(frame) 
+
         (player_with_the_ball_center_point,
         prev_person_center_points,
         players_list,
@@ -161,8 +172,6 @@ with torch.no_grad():
         ball_prev_indexes = []
         if(len(ball_indexes)>0):
             ball_prev_indexes = ball_indexes
-
-        player_caps_index = cd.detect_colors(frame) 
 
         # Single player
         if (GAME_MODE == 1):

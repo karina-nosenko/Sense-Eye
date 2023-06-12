@@ -165,7 +165,8 @@ def create_ball_holders_percentages(data):
             plt.text(i, percentage + 1, f"{percentage}%", ha='center', va='bottom')
         
         # Set the x-axis ticks to display only whole numbers
-        plt.xticks(range(min(ids), max(ids) + 1))
+        if len(ids) > 0:
+            plt.xticks(range(min(ids), max(ids) + 1))
 
         # Adjust the y-axis limit to accommodate the highest bar
         plt.ylim(top=max_percentage + 10)  # Increase the limit by 10 units 
@@ -218,7 +219,8 @@ def create_player_movement_pattern(game_path, data):
     # Group the data by gameId
     groups = {}
     for d in data:
-        gameId = d["gameId"]
+        if "gameId" in d:
+            gameId = d["gameId"]
         if gameId not in groups:
             groups[gameId] = []
         if d["class"] == "person":

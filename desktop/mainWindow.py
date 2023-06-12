@@ -276,9 +276,9 @@ class MainPage(QMainWindow):
         new_mode = int(mode) + 1
         data["game_mode"] = new_mode
         if new_mode == 1:
-            data["video_path"] = "yolov7/videos/single_player_yellow.mp4"
+            data["video_path"] = "yolov7/videos/single_player_pink.mp4"
         else:
-            data["video_path"] = "yolov7/videos/two_players_orange_yellow.mp4"
+            data["video_path"] = "yolov7/videos/two_players_orange_pink.mp4"
 
         with open('../configs.json', 'w') as json_file:
             json.dump(data, json_file, indent=4)
@@ -663,7 +663,17 @@ class FieldPage(QMainWindow):
         if (self.MODE == 'video'):
             capture = cv2.VideoCapture(self.VIDEO_PATH) 
         elif (self.MODE == 'realtime'):
-            capture = cv2.VideoCapture(self.CAMERA_INDEX)
+            # capture = cv2.VideoCapture(self.CAMERA_INDEX, cv2.CAP_V4L2)
+
+            capture = None
+            for i in range(10):  # assuming maximum 10 camera devices
+                cap = cv2.VideoCapture(i, cv2.CAP_V4L2)
+                if cap.isOpened():
+                    capture = cap
+                    break
+            if capture is None:
+                raise Exception("No valid camera index found")
+
             # capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H264'))
             capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 

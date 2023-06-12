@@ -29,18 +29,15 @@ def detect_colors(frame):
 
     # Set range for orange color and
     # define mask
-    orange_lower = np.array([5, 100, 100], np.uint8)
+    orange_lower = np.array([0, 150, 150], np.uint8)
     orange_upper = np.array([20, 255, 255], np.uint8)
     orange_mask = cv2.inRange(hsvFrame, orange_lower, orange_upper)
 
     # Set range for pink color and
     # define mask
-    pink_lower = np.array([20, 70, 200], np.uint8)
-    pink_upper = np.array([35, 255, 255], np.uint8)
+    pink_lower =  np.array([140, 50, 180], np.uint8)
+    pink_upper =  np.array([170, 255, 255], np.uint8)
     pink_mask = cv2.inRange(hsvFrame, pink_lower, pink_upper)
-    # pink_lower = np.array( [140, 50, 180], np.uint8)
-    # pink_upper = np.array( [170, 255, 255], np.uint8)
-    # pink_mask = cv2.inRange(hsvFrame, pink_lower, pink_upper)
 
     # Set range for blue color and
     # define mask
@@ -73,23 +70,23 @@ def detect_colors(frame):
                                mask=blue_mask)
 
     # Creating contour to track red color
-    contours, hierarchy = cv2.findContours(red_mask,
-                                           cv2.RETR_TREE,
-                                           cv2.CHAIN_APPROX_SIMPLE)
+    # contours, hierarchy = cv2.findContours(red_mask,
+    #                                        cv2.RETR_TREE,
+    #                                        cv2.CHAIN_APPROX_SIMPLE)
 
-    for pic, contour in enumerate(contours):
-        area = cv2.contourArea(contour)
-        if (area > 0 and area < 120):
-            x, y, w, h = cv2.boundingRect(contour)
+    # for pic, contour in enumerate(contours):
+    #     area = cv2.contourArea(contour)
+    #     if (area > 0 and area < 120):
+    #         x, y, w, h = cv2.boundingRect(contour)
 
-            if SHOW_COLORS:
-                frame = cv2.rectangle(frame, (x, y),
-                                    (x + w, y + h),
-                                    (0, 0, 255), 2)
+    #         if SHOW_COLORS:
+    #             frame = cv2.rectangle(frame, (x, y),
+    #                                 (x + w, y + h),
+    #                                 (0, 0, 255), 2)
                 
-            moments = cv2.moments(contour)
-            x1 = int(moments["m10"] / moments["m00"])
-            y1 = int(moments["m01"] / moments["m00"])
+    #         moments = cv2.moments(contour)
+    #         x1 = int(moments["m10"] / moments["m00"])
+    #         y1 = int(moments["m01"] / moments["m00"])
 
     # Creating contour to track orange color
     contours, hierarchy = cv2.findContours(orange_mask,
@@ -98,7 +95,7 @@ def detect_colors(frame):
 
     for pic, contour in enumerate(contours):
         area = cv2.contourArea(contour)
-        if (area > 0 and area < 120):
+        if (area > 130):
             x, y, w, h = cv2.boundingRect(contour)
 
             if SHOW_COLORS:
@@ -125,7 +122,7 @@ def detect_colors(frame):
 
     for pic, contour in enumerate(contours):
         area = cv2.contourArea(contour)
-        if (area > 0 and area < 120):
+        if (area > 120):
             x, y, w, h = cv2.boundingRect(contour)
 
             if SHOW_COLORS:
