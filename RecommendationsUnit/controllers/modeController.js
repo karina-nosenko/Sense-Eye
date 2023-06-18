@@ -428,7 +428,7 @@ exports.modeController = {
         let singleAlertLines = body.singleAlertLines
         let doubleAlertLines = body.doubleAlertLines
 
-        let shift = (bottomGoalY - topGoalY)/20
+        let shift = Math.abs((bottomGoalY - topGoalY)/20)
 
         result = ''
         idsAlerted = []

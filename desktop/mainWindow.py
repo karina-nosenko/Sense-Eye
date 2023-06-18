@@ -27,11 +27,11 @@ import os
 # Load the .env file
 load_dotenv()
 
-def rescale_frame(frame, scale):
-    width = int(frame.shape[1] * scale)
-    height = int(frame.shape[0] * scale)
-    dimensions = (width, height)
-    return cv2.resize(frame, dimensions, interpolation=cv2.INTER_AREA)
+# def rescale_frame(frame, scale):
+#     width = int(frame.shape[1] * scale)
+#     height = int(frame.shape[0] * scale)
+#     dimensions = (width, height)
+#     return cv2.resize(frame, dimensions, interpolation=cv2.INTER_AREA)
 
 # == Login Page ==#
 class LoginPage(QMainWindow):
@@ -120,61 +120,40 @@ class LoginPage(QMainWindow):
 
     def login(self):
         # get organization name and password from inputs
-        # org_name = self.organizationInput.text()
-        # password = self.passwordInput.text()
+        org_name = self.organizationInput.text()
+        password = self.passwordInput.text()
 
-        # # connect to MongoDB
-        # client = MongoClient(os.environ['DB_HOST'])
-        # db = client["sense-eye"]
-        # collection = db["organizations"]
-        # query = {"name": org_name, "password": password}
-        # result = collection.find_one(query)
+        # connect to MongoDB
+        client = MongoClient(os.environ['DB_HOST'])
+        db = client["sense-eye"]
+        collection = db["organizations"]
+        query = {"name": org_name, "password": password}
+        result = collection.find_one(query)
 
-        # # close the MongoDB connection
-        # client.close()
+        # close the MongoDB connection
+        client.close()
 
-        # # if result is not None, the organization name and password are valid
-        # if result is not None:
-        #     # connect to main window or do something else
-        #     print("Valid organization name and password")
+        # if result is not None, the organization name and password are valid
+        if result is not None:
+            # connect to main window or do something else
+            print("Valid organization name and password")
 
-        #     save_session_data("orgname", org_name)
+            save_session_data("orgname", org_name)
 
-        #     # Connect the user to the main window
-        #     self.main_window = MainPage()
-        #     self.main_window.show()
-        #     self.close()
-        # else:
-        #     # display error message or do something else
-        #     print("Invalid organization name or password")
-        #     QMessageBox.warning(self, "Error", "Invalid organization name or password.")
-
-        save_session_data("orgname", "shenkar")
-
-        # Connect the user to the main window
-        self.main_window = MainPage()
-        self.main_window.show()
-        self.close()
+            # Connect the user to the main window
+            self.main_window = MainPage()
+            self.main_window.show()
+            self.close()
+        else:
+            # display error message or do something else
+            print("Invalid organization name or password")
+            QMessageBox.warning(self, "Error", "Invalid organization name or password.")
 
     def signup(self):
         from SignupPage import SignupPage
         self.main_window = SignupPage()
         self.main_window.show()
         self.close()
-
-
-        # # if result is not None, the organization name and password are valid
-        # if result is not None:
-        #     # connect to main window or do something else
-        #     print("Valid organization name and password")
-        #     # Connect the user to the main window
-        #     self.main_window = MainPage()
-        #     self.main_window.show()
-        #     self.close()
-        # else:
-        #     # display error message or do something else
-        #     print("Invalid organization name or password")
-        #     QMessageBox.warning(self, "Error", "Invalid organization name or password.")
 
 #== Main Page ==#
 class MainPage(QMainWindow):
@@ -581,11 +560,11 @@ class FieldPage(QMainWindow):
         # read a frame
         capture = self.initialize_capture()
         ret, self.frame = capture.read()
-        self.frame = cv2.rotate(self.frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        if self.MODE == 'video':
-            self.frame = rescale_frame(self.frame, 0.4)
-        else:
-            self.frame = rescale_frame(self.frame, 1)
+        # self.frame = cv2.rotate(self.frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        # if self.MODE == 'video':
+        #     self.frame = rescale_frame(self.frame, 0.4)
+        # else:
+        #     self.frame = rescale_frame(self.frame, 1)
         self.initial_field_path = 'initial_field.jpg'
         cv2.imwrite(self.initial_field_path, self.frame)
         capture.release()
@@ -698,8 +677,6 @@ class FieldPage(QMainWindow):
         if (self.MODE == 'video'):
             capture = cv2.VideoCapture(self.VIDEO_PATH) 
         elif (self.MODE == 'realtime'):
-            # capture = cv2.VideoCapture(self.CAMERA_INDEX, cv2.CAP_V4L2)
-
             capture = None
             for i in range(10):  # assuming maximum 10 camera devices
                 cap = cv2.VideoCapture(i, cv2.CAP_V4L2)
@@ -709,7 +686,6 @@ class FieldPage(QMainWindow):
             if capture is None:
                 raise Exception("No valid camera index found")
 
-            # capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H264'))
             capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
             if (self.EXTERNAL_CAMERA):
