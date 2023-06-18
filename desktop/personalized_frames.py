@@ -33,16 +33,31 @@ def create_personalized_frames():
 
         # Create the frames with insights
         create_players_traces(game_path, data)
+
         create_holds_the_ball_traces(game_path, data)
-        create_ball_holders_percentages(data).savefig(game_path + '/ball_holders_percentages.png')
-        create_ball_movement_pattern(data).savefig(game_path + '/ball_movement.png')
-        create_player_movement_pattern(game_path, data).savefig(game_path + '/players_movement.png')
-        create_players_heatmap(game_path, data).savefig(game_path + '/players_heatmap.png')
-        create_ball_heatmap(game_path, data).savefig(game_path + '/ball_heatmap.png')
+
+        figure = create_ball_holders_percentages(data)
+        figure.savefig(game_path + '/ball_holders_percentages.png') if figure is not None else None
+
+        figure = create_ball_movement_pattern(data)
+        figure.savefig(game_path + '/ball_movement.png') if figure is not None else None
+
+        figure = create_player_movement_pattern(game_path, data)
+        figure.savefig(game_path + '/players_movement.png') if figure is not None else None
+
+        figure = create_players_heatmap(game_path, data)
+        figure.savefig(game_path + '/players_heatmap.png') if figure is not None else None
+
+        figure = create_ball_heatmap(game_path, data)
+        figure.savefig(game_path + '/ball_heatmap.png') if figure is not None else None
 
         # Delete unused files
-        os.remove(os.path.join(game_path, "traces.json"))
-        os.remove(os.path.join(game_path, "first_frame.jpg"))
+        traces_path = os.path.join(game_path, "traces.json")
+        first_frame_path = os.path.join(game_path, "first_frame.jpg")
+        if os.path.exists(traces_path):
+            os.remove(traces_path)
+        if os.path.exists(first_frame_path):
+            os.remove(first_frame_path)
 
 def create_players_traces(game_path, trace_data):    
         # Read the first frame image for this game
@@ -107,7 +122,8 @@ def create_ball_holders_percentages(data):
 
     # Load content into dataframe
     df = pd.DataFrame.from_dict(data, orient='columns')
-    df = df.dropna(subset=['gameId'])
+    if 'gameId' in df.columns:
+        df = df.dropna(subset=['gameId'])
 
     # Create a copy of the original DataFrame
     players_df = df.copy()
@@ -204,7 +220,10 @@ def create_player_movement_pattern(game_path, data):
     plt.figure()
 
     # Load the background image
-    img = Image.open(game_path + '/first_frame.jpg')
+    frame_file_path = game_path + '/first_frame.jpg'
+    if not os.path.exists(frame_file_path):
+            return
+    img = Image.open(frame_file_path)
 
     # Create a figure and axis objects with the same size as the background image
     fig, ax = plt.subplots(figsize=(img.width/100, img.height/100))
@@ -242,7 +261,10 @@ def create_players_heatmap(game_path, data):
     plt.figure()
 
     # Load the background image
-    img = Image.open(game_path + '/first_frame.jpg')
+    frame_file_path = game_path + '/first_frame.jpg'
+    if not os.path.exists(frame_file_path):
+            return
+    img = Image.open(frame_file_path)
     img = img.rotate(180)
 
     # Create a figure and axis objects with a larger size
@@ -284,7 +306,10 @@ def create_ball_heatmap(game_path, data):
     plt.figure()
 
     # Load the background image
-    img = Image.open(game_path + '/first_frame.jpg')
+    frame_file_path = game_path + '/first_frame.jpg'
+    if not os.path.exists(frame_file_path):
+            return
+    img = Image.open(frame_file_path)
     img = img.rotate(180)
 
     # Create a figure and axis objects with a larger size

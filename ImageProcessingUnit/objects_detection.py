@@ -308,6 +308,8 @@ def _detect_players_moving_direction(frame, prev_players_center_points, curr_pla
         return prev_players_center_points, prev_angles, frames_counter    # PROBLEM IS HERE, I'M RETURNING 000000
 
     # Find the index of the closest point in the first vector for each point in the second vector
+    if prev_players_center_points == []:
+        return curr_players_center_points, [0] * len(curr_players_center_points), frames_counter
     closest_indices = np.argmin(
         cdist(prev_players_center_points, curr_players_center_points), axis=0)
 

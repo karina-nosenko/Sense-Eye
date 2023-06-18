@@ -110,7 +110,7 @@ def send_recommendations_to_db():
                 return  # Unsuccessful insert - stop iterating
         
         # Delete the folder after sending its contents (if the folder is empty)
-        if len(os.listdir(os.path.join(path, foldername))) == 0:
+        if os.path.exists(os.path.join(path, foldername)) and len(os.listdir(os.path.join(path, foldername))) == 0:
             os.rmdir(os.path.join(path, foldername))
 
 def send_statistics_to_db():
@@ -172,7 +172,7 @@ def send_statistics_to_db():
                 return  # Unsuccessful insert - stop iterating
         
         # Delete the folder after sending its contents (if the folder is empty)
-        if len(os.listdir(os.path.join(path, foldername))) == 0:
+        if os.path.exists(os.path.join(path, foldername)) and len(os.listdir(os.path.join(path, foldername))) == 0:
             os.rmdir(os.path.join(path, foldername))
 
 def is_internet_connection():

@@ -27,6 +27,12 @@ import os
 # Load the .env file
 load_dotenv()
 
+def rescale_frame(frame, scale):
+    width = int(frame.shape[1] * scale)
+    height = int(frame.shape[0] * scale)
+    dimensions = (width, height)
+    return cv2.resize(frame, dimensions, interpolation=cv2.INTER_AREA)
+
 # == Login Page ==#
 class LoginPage(QMainWindow):
     def __init__(self):
@@ -114,34 +120,41 @@ class LoginPage(QMainWindow):
 
     def login(self):
         # get organization name and password from inputs
-        org_name = self.organizationInput.text()
-        password = self.passwordInput.text()
+        # org_name = self.organizationInput.text()
+        # password = self.passwordInput.text()
 
-        # connect to MongoDB
-        client = MongoClient(os.environ['DB_HOST'])
-        db = client["sense-eye"]
-        collection = db["organizations"]
-        query = {"name": org_name, "password": password}
-        result = collection.find_one(query)
+        # # connect to MongoDB
+        # client = MongoClient(os.environ['DB_HOST'])
+        # db = client["sense-eye"]
+        # collection = db["organizations"]
+        # query = {"name": org_name, "password": password}
+        # result = collection.find_one(query)
 
-        # close the MongoDB connection
-        client.close()
+        # # close the MongoDB connection
+        # client.close()
 
-        # if result is not None, the organization name and password are valid
-        if result is not None:
-            # connect to main window or do something else
-            print("Valid organization name and password")
+        # # if result is not None, the organization name and password are valid
+        # if result is not None:
+        #     # connect to main window or do something else
+        #     print("Valid organization name and password")
 
-            save_session_data("orgname", org_name)
+        #     save_session_data("orgname", org_name)
 
-            # Connect the user to the main window
-            self.main_window = MainPage()
-            self.main_window.show()
-            self.close()
-        else:
-            # display error message or do something else
-            print("Invalid organization name or password")
-            QMessageBox.warning(self, "Error", "Invalid organization name or password.")
+        #     # Connect the user to the main window
+        #     self.main_window = MainPage()
+        #     self.main_window.show()
+        #     self.close()
+        # else:
+        #     # display error message or do something else
+        #     print("Invalid organization name or password")
+        #     QMessageBox.warning(self, "Error", "Invalid organization name or password.")
+
+        save_session_data("orgname", "shenkar")
+
+        # Connect the user to the main window
+        self.main_window = MainPage()
+        self.main_window.show()
+        self.close()
 
     def signup(self):
         from SignupPage import SignupPage
@@ -446,25 +459,47 @@ class HistoryPage(QMainWindow):
         self.dateFromLabel = QLabel("From:", self)
         self.dateFromEdit = QDateEdit(self)
         self.dateFromEdit.setCalendarPopup(True)
-        self.dateFromEdit.setDate(datetime.date.today())  # Set default date to today
+        # self.dateFromEdit.setDate(datetime.date.today())  # Set default date to today
+        self.dateFromEdit.setDate(QDate())
+        self.dateFromEdit.setMinimumDate(QDate(1900, 1, 1))  # Set minimum date to 1900-01-01
         self.dateToLabel = QLabel("To:", self)
         self.dateToEdit = QDateEdit(self)
         self.dateToEdit.setCalendarPopup(True)
-        self.dateToEdit.setDate(datetime.date.today())  # Set default date to today
-
+        # self.dateToEdit.setDate(datetime.date.today())  # Set default date to today
+        self.dateToEdit.setDate(datetime.date.today())
+        self.dateToEdit.setMinimumDate(QDate(1900, 1, 1))  # Set minimum date to 1900-01-01
         # create a filter button
         self.filterButton = QPushButton("Filter", self)
-        self.filterButton.setStyleSheet(buttonStyle)
-        self.filterButton.clicked.connect(self.filterVideos)
+        # self.filterButton.setStyleSheet(buttonStyle)
+        self.filterButton.setStyleSheet("""
+    QPushButton {
+        background-color: white;
+        color: black;
+        font-size: 16px;
+        border: 2px solid black;
+        padding: 10px 20px;
+        border-radius: 4px;
+    }
 
+    QPushButton:hover {
+        background-color: #f0f0f0;
+        cursor: pointer;
+    }
+
+    QPushButton:pressed {
+        background-color: #d0d0d0;
+    }
+""")
+
+        self.filterButton.clicked.connect(self.filterVideos)
+        self.filterButton.setFixedSize(100, 40)
         # create a layout for the date range input and filter button
         filterLayout = QHBoxLayout()
         filterLayout.addWidget(self.dateFromLabel)
-        filterLayout.addWidget(self.dateFromEdit,stretch=1)
-        #TODO
+        filterLayout.addWidget(self.dateFromEdit, stretch=3)
         filterLayout.addWidget(self.dateToLabel)
-        filterLayout.addWidget(self.dateToEdit,stretch=1)
-        filterLayout.addWidget(self.filterButton,stretch=1)
+        filterLayout.addWidget(self.dateToEdit, stretch=3)
+        filterLayout.addWidget(self.filterButton, stretch=1)
 
         # create a vertical layout and add the widgets to it
         layout = QVBoxLayout()
@@ -472,7 +507,7 @@ class HistoryPage(QMainWindow):
         layout.addWidget(self.heading)
         layout.addSpacing(40)
         layout.addLayout(filterLayout)
-        layout.addSpacing(20)
+        layout.addSpacing(10)
         layout.addLayout(self.videosLayout)
         layout.addSpacing(40)
         layout.addWidget(self.buttonBack)
@@ -480,7 +515,7 @@ class HistoryPage(QMainWindow):
         # create a central widget and set the layout on it
         central_widget = QWidget()
         central_widget.setLayout(layout)
-        
+
         # set the central widget on the main window
         self.setCentralWidget(central_widget)
 
@@ -499,11 +534,10 @@ class HistoryPage(QMainWindow):
         for filename in videos_list:
             if filename.endswith(".ogv"):
                 video_date_str = filename.split(".")[0]  # Extract the date portion from the filename
-                video_date = datetime.datetime.strptime(video_date_str, "%Y-%m-%d %H_%M_%S").date()
+                video_date = datetime.datetime.strptime(video_date_str, "%Y-%m-%d %H:%M:%S").date()
                 if dateFrom <= video_date <= dateTo:
                     video_path = os.path.join(video_folder, filename)
                     button = QPushButton(filename[:-4], self)
-                    #TODO
                     button.setStyleSheet(buttonStyle)
                     button.clicked.connect(lambda checked, path=video_path: self.open_video_window(path))
                     button.setFixedSize(500, 50)
@@ -518,10 +552,6 @@ class HistoryPage(QMainWindow):
         self.buttonBack.hide()
 
         self.setCentralWidget(MainPage())
-
-
-
-
 #== Customize Field Page ==#
 class FieldPage(QMainWindow):
     def __init__(self):
@@ -551,6 +581,11 @@ class FieldPage(QMainWindow):
         # read a frame
         capture = self.initialize_capture()
         ret, self.frame = capture.read()
+        self.frame = cv2.rotate(self.frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        if self.MODE == 'video':
+            self.frame = rescale_frame(self.frame, 0.4)
+        else:
+            self.frame = rescale_frame(self.frame, 1)
         self.initial_field_path = 'initial_field.jpg'
         cv2.imwrite(self.initial_field_path, self.frame)
         capture.release()
