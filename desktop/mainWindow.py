@@ -14,7 +14,6 @@ import subprocess
 import platform
 import json
 import cv2
-import itertools
 
 from videoWindow import *
 from styles import *
@@ -307,7 +306,6 @@ class MainPage(QMainWindow):
             self.process2 = subprocess.Popen(['npm','run','dev'],cwd='../RecommendationsUnit/')
             self.process3 = subprocess.Popen(['sudo', 'python3','main.py'],cwd='../ImageProcessingUnit/')
         else:
-            # TODO: make sure it works on Windows
             # release ports
             os.system("fuser -k 5000/tcp")
             os.system("fuser -k 8080/tcp")
@@ -570,8 +568,6 @@ class FieldPage(QMainWindow):
         capture.release()
         self.field_path = 'field.jpg'
 
-        #TODO: if no field.jpg was created - display a label of "Failed to capture a field" 
-
         self.draw_goals()
         self.draw_field_corners()
         self.draw_single_alert_lines()
@@ -826,9 +822,6 @@ class FieldPage(QMainWindow):
 
         # get mouse click coordinates
         x, y = event.pos().x(), event.pos().y()
-
-        print(x, y)
-        print(self.GOAL1)
 
         if self.GOAL1 == {}:
             self.GOAL1 = {"x1": x, "y1": y}
