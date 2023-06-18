@@ -34,7 +34,6 @@ SHOW_CENTER_POINTS = True
 SHOW_DIRECTION_ARROW = True
 SHOW_DIRECTION_LABEL = False
 SHOW_CLASS_LABEL = False
-SHOW_RECOMMENDATION_ARROW = False # (still in progress, not working well)
 
 
 

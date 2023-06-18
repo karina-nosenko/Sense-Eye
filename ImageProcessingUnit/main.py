@@ -3,7 +3,7 @@ import cv2
 import torch
 import itertools
 import os
-from configs import APPEND_PATH, PINK_COLOR, SHOW_RECOMMENDATION_ARROW, MAX_PLAYERS_NUMBER
+from configs import APPEND_PATH, PINK_COLOR, MAX_PLAYERS_NUMBER
 import colors_detection as cd
 from datetime import datetime
 import math
@@ -87,7 +87,6 @@ def initialize_capture():
                     break
             if capture is None:
                 raise Exception("No valid camera index found")       
-            # capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H264'))
             capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
             if (EXTERNAL_CAMERA):
@@ -100,7 +99,6 @@ def initialize_capture():
 
 def initialize_output(capture):
     fps = int(capture.get(cv2.CAP_PROP_FPS))
-    print(fps)
     w = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
     CURRENT_TIMESTAMP = datetime.now()
@@ -161,7 +159,6 @@ with torch.no_grad():
             model,
             stride,
             names,
-            classes,
             frames_counter,
             angles,
             FIRST_FRAME_SAVED,
@@ -231,20 +228,6 @@ with torch.no_grad():
                 PLAYERS_GOT_ALERT[id] = True
             
             alert_result = {}
-
-        # Output recommendation arrow
-        if SHOW_RECOMMENDATION_ARROW:
-            if output_state_recommendation != '':
-                arrow_angle = (int(output_state_recommendation) / 12) * 360
-                start_arrow = (int(player_with_the_ball_center_point[0]), int(player_with_the_ball_center_point[1]))
-                arrow_length = 40
-                delta_x = arrow_length * math.cos(math.radians(arrow_angle))
-                delta_y = arrow_length * math.sin(math.radians(arrow_angle))
-                x2 = int(player_with_the_ball_center_point[0] + delta_x)
-                y2 = int(player_with_the_ball_center_point[1] - delta_y)
-                end_arrow = (x2, y2)
-                color = (255, 191, 0) if color_recommendation == 'pink' else (5, 100, 100)
-                cv2.arrowedLine(frame, start_arrow, end_arrow, color, thickness = 2, tipLength = 0.5)
 
         # Save the frame with the recommendation to materials
         if recommendation_label != previous_recommendation_label:

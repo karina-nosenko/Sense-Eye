@@ -66,7 +66,6 @@ def detect_objects(
         model,
         stride,
         names,
-        classes,
         frames_counter,
         prev_angles,
         FIRST_FRAME_SAVED,
@@ -78,6 +77,7 @@ def detect_objects(
 
     Args:
     - frame (numpy.ndarray): The frame to detect objects in.
+    - prev_person_center_points (list of tuples of int): The center points of the person objects from previous frame.
     - player_with_the_ball_center_point (tuple of int): The center point of the player with the ball.
     - img_size (int): The size of the input image for the model.
     - device (str): The device to use for inference.
@@ -85,10 +85,21 @@ def detect_objects(
     - model (torch.nn.Module): The PyTorch model to use for object detection.
     - stride (int): The stride used for adjusting the image shape.
     - names (list of str): The class names of the objects to detect.
-    - classes (list of int): The class IDs of the objects to detect.
+    - frames_counter (int): Counter of the current frame.
+    - prev_angles (list of lists): List of angles of movement direction of players from the previous frame.
+    - FIRST_FRAME_SAVED (bool): Boolean that represents whether the first frame of the game was saved.
+    - CURRENT_TIMESTAMP (str): Timestamp unique for each game.
+    - FIELD_COORDINATES (list of objects): List of 4 objects that represent coordinates of field corners.
+    - GOALS (list of objects): List of 2 objects that represent coordinates of two goals. 
 
     Returns:
-        None
+    - player_with_the_ball_center_point (tuple of int): The center point of the player with the ball.
+    - prev_person_center_points (list of tuples of int): The center points of the person objects from previous frame.
+    - players_list_indexes_direction_playerWithTheBall (list of lists):Coordinates of player with the ball.
+    - ball_indexes (list): Coordinates of the ball.
+    - frames_counter (int): Counter of the current frame.
+    - angles (list of lists): List of angles of movement direction of players.
+    - FIRST_FRAME_SAVED (bool): Boolean that represents whether the first frame of the game was saved.
 
     Raises:
         None
@@ -185,7 +196,6 @@ def detect_objects(
                     x2 = int(center_x + delta_x)
                     y2 = int(center_y - delta_y)
                     end_arrow = (x2, y2)
-                    print(end_arrow)
                     cv2.arrowedLine(frame, start_arrow, end_arrow, (0, 0, 255), 1)
 
             # Create text label and display it on the frame

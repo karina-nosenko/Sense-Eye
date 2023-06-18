@@ -16,6 +16,7 @@ def recommendation_single_player(color_id, player_x, player_y, holds_ball, direc
     - direction (float): The direction the player is facing (in degrees).
     - ball_x (float): The x-coordinate of the ball.
     - ball_y (float): The y-coordinate of the ball.
+    - goals (list): Coordinates of the goals.
     
     Returns:
     - dict: The JSON response from the API call containing the recommendation.
@@ -57,6 +58,7 @@ def recommendation_two_players_same_team(player1, player2, ball_x, ball_y, goals
                       the color_id and direction of the second player.
     - ball_x (int): The x position of the ball.
     - ball_y (int): The y position of the ball.
+    - goals (list): Coordinates of the goals.
     
     Returns:
     - dict: The JSON response from the API call containing the recommendation for the player that holds the ball.
@@ -92,6 +94,7 @@ def recommendation_two_players_different_teams(player1, player2, ball_x, ball_y,
                       the color_id and direction of the second player.
     - ball_x (int): The x position of the ball.
     - ball_y (int): The y position of the ball.
+    - goals (list): Coordinates of the goals.
     
     Returns:
     - dict: The JSON response from the API call containing the recommendation for the player that holds the ball.
