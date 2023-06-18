@@ -15,7 +15,7 @@ def recommend():
     current_player_with_the_ball_ip = mapping_color_to_ip[color]
     print('http://'+current_player_with_the_ball_ip+'/recommend/'+ state + '/' + output_state)
     requests.get('http://'+current_player_with_the_ball_ip+'/recommend/'+ state + '/' + output_state)
-    # Do something with the received data
+
     return "Data received"
 
 
@@ -27,7 +27,7 @@ def save_id():
     mapping_ip_to_color[ip] = color_band
     print("ip is = " + ip)
     print("color_band is = " + color_band)
-    # Do something with the received data
+
     return "Data received"
 
 

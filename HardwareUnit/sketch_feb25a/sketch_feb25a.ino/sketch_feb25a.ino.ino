@@ -24,7 +24,6 @@ DFPlayer - A Mini MP3 Player For Arduino
 #include "SoftwareSerial.h"
 #include "DFRobotDFPlayerMini.h"
 
-////////////////////////////////////////
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 const char* ssid = "Redmi Note 9 Pro";
@@ -47,7 +46,6 @@ unsigned long previousTime = 0;
 const long timeoutTime = 2000;
 String url;
 
-////////////////////////////////////////
 SoftwareSerial mySoftwareSerial(4, 5);  // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
@@ -66,9 +64,6 @@ void setup() {
   }
   Serial.println(F("DFPlayer Mini online."));
 
-  // myDFPlayer.volume(30);  //Set volume value. From 0 to 30
-  // myDFPlayer.play(1);     //Play the first mp3
-    ////////////////////////////////////////////////
   pinMode(input13, INPUT_PULLUP);
   WiFi.begin(ssid, password);
    while (WiFi.status() != WL_CONNECTED) {
@@ -92,7 +87,7 @@ void setup() {
   } else {
     Serial.println("Connection to server failed");
   }
-// We now create a URI for the request
+  // We now create a URI for the request
   url = "/save_id?color_band=orange&ip="+WiFi.localIP().toString();
   // Send request
   Serial.print("Requesting URL: ");
@@ -141,7 +136,6 @@ void setup() {
   server.on("/recommend/pass/11", pass_11);
   server.on("/recommend/pass/12", pass_12);
   server.begin();
-  ////////////////////////////////////////////
 }
 
 void loop() {
@@ -149,14 +143,12 @@ void loop() {
 
   if (millis() - timer > 3000) {
     timer = millis();
-    //myDFPlayer.next();  //Play next mp3 every 3 second.
   }
 
   if (myDFPlayer.available()) {
     printDetail(myDFPlayer.readType(), myDFPlayer.read());  //Print the detail message from DFPlayer to handle different errors and states.
   }
 
-  /////////////////////
   server.handleClient();
   bool currentState = digitalRead(input13);
   if(currentState == pressed) {
@@ -166,355 +158,169 @@ void loop() {
       // Do nothing
     }
   }
-  /////////////////////
 }
 
 void kick_1() {
     recommend = 1;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 
 void kick_2() {
     recommend = 2;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 
 void kick_3() {
     recommend = 3;
-    server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
+    server.send(200, "text/html", "hello from esp8266!");    
 }
 void kick_4() {
     recommend = 4;
-    server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
+    server.send(200, "text/html", "hello from esp8266!");  
 }
 void kick_5() {
     recommend = 5;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 void kick_6() {
     recommend = 6;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 void kick_7() {
     recommend = 7;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 void kick_8() {
     recommend = 8;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 void kick_9() {
     recommend = 9;
-    server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
+    server.send(200, "text/html", "hello from esp8266!");  
 }
 void kick_10() {
     recommend = 10;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 void kick_11() {
     recommend = 11;
-    server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
+    server.send(200, "text/html", "hello from esp8266!");    
 }
 void kick_12() {
     recommend = 12;
-    server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
+    server.send(200, "text/html", "hello from esp8266!");  
 }
 
 void pass_1() {
     recommend = 13;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 void pass_2() {
     recommend = 14;
-    server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
+    server.send(200, "text/html", "hello from esp8266!");    
 }
 void pass_3() {
     recommend = 15;
-    server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
+    server.send(200, "text/html", "hello from esp8266!");   
 }
 void pass_4() {
     recommend = 16;
-    server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
+    server.send(200, "text/html", "hello from esp8266!");   
 }
 void pass_5() {
     recommend = 17;
-    server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
+    server.send(200, "text/html", "hello from esp8266!");   
 }
 void pass_6() {
     recommend = 18;
-    server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
+    server.send(200, "text/html", "hello from esp8266!");   
 }
 void pass_7() {
     recommend = 19;
-    server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
+    server.send(200, "text/html", "hello from esp8266!");    
 }
 void pass_8() {
     recommend = 20;
-    server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
+    server.send(200, "text/html", "hello from esp8266!");   
 }
 void pass_9() {
     recommend = 21;
-    server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
+    server.send(200, "text/html", "hello from esp8266!");    
 }
 void pass_10() {
     recommend = 22;
-    server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
+    server.send(200, "text/html", "hello from esp8266!");    
 }
 void pass_11() {
     recommend = 23;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 void pass_12() {
     recommend = 24;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 void move_0() {
     recommend = 37;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 void move_1() {
     recommend = 25;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 
 void move_2() {
     recommend = 26;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 
 void move_3() {
     recommend = 27;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 
 void move_4() {
     recommend = 28;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 
 void move_5() {
     recommend = 29;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 
 void move_6() {
     recommend = 30;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 
 void move_7() {
     recommend = 31;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 
 void move_8() {
     recommend = 32;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 
 void move_9() {
     recommend = 33;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 
 void move_10() {
     recommend = 34;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 
 void move_11() {
     recommend = 35;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 
 void move_12() {
     recommend = 36;
     server.send(200, "text/html", "hello from esp8266!"); 
-    // output0State = "on";
-    // digitalWrite(output0, HIGH);
-    // delay(1000);
-    // output5State = "off";
-    // digitalWrite(output0, LOW);
 }
 
 

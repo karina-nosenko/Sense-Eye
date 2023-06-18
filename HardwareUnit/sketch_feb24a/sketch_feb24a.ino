@@ -35,8 +35,6 @@ void setup() {
   Serial.println(F("DFRobot DFPlayer Mini Demo"));
   Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
 
-
-
 void printDetail(uint8_t type, int value) {
   switch (type) {
     case TimeOut:

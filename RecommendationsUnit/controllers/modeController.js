@@ -73,20 +73,6 @@ const calculateDistanceToGoal = (player, goals) => {
     return calculateEuclideanDistance(goalCenterX, goalCenterY, player.x, player.y);
 }
 
-//TODO return true if the ball_holder is close to goal
-const is_close_to_goal = (player, goals) => {
-    const goalIndex = player.team;
-    const goalCenterX = (goals[goalIndex].x1 + goals[goalIndex].x2) / 2;
-    const goalCenterY = (goals[goalIndex].y1 + goals[goalIndex].y2) / 2;
-    const wrongGoalCenterX = (goals[!goalIndex].x1 + goals[!goalIndex].x2) / 2;
-    const wrongGoalWrongCenterY = (goals[!goalIndex].y1 + goals[!goalIndex].y2) / 2;
-    const distance_player_from_goal = calculateEuclideanDistance(goalCenterX, goalCenterY, player.x, player.y);
-    const distance_player_from_wrong_goal = calculateEuclideanDistance(wrongGoalCenterX, wrongGoalWrongCenterY, player.x, player.y);
-    if (distance_player_from_goal < distance_player_from_wrong_goal)
-        return true;
-    else return false;
-}
-
 const isPlayerInsideTriangle = (player, point1, point2, point3) => {
     // Calculate the areas of the main triangle and three sub-triangles
     const mainTriangleArea = Math.abs(
@@ -155,7 +141,6 @@ const playerInSightRange = (ballHolder, player) => {
 }
 
 const sortByDistance = (teammatesDistance) => {
-    // TODO
     return teammatesDistance;
 }
 
@@ -196,7 +181,7 @@ const recommendMovingAwayFromGoal = (res, ballHolder, goal) => {
         })
 }
 
-const recommendMovingAwayFromOpponent = (res, ballHolder, opponent) => { //TODO yuval
+const recommendMovingAwayFromOpponent = (res, ballHolder, opponent) => {
     let output_state = getClockDirection(ballHolder, opponent.x, opponent.y);
     const color = getColorNameById(ballHolder.id);
 
@@ -348,7 +333,7 @@ exports.modeController = {
             goalInSightRange(ballHolder, body.goals[goalIndex])) {
             return recommendDirectShotOnGoal(res, ballHolder, body.goals[goalIndex]);
         } else {
-            sortedTeammates = sortByDistance(teammatesDistance) // TODO - fix calculateDistanceBetweenPlayers
+            sortedTeammates = sortByDistance(teammatesDistance)
             sortedTeammates.forEach(teammate => {
                 if (playerInSightRange(ballHolder, teammate)) {
                     return recommendPassToTeammate(res, ballHolder, teammate);
