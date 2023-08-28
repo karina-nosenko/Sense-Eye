@@ -20,6 +20,7 @@ The SenseEye System comprises several components, each contributing to the overa
 4. <b>Desktop Application</b>: The desktop application offers coaches and trainers a user-friendly interface to analyze and validate the system's recommendations, as well as gain insights into player performance.
 <br />
 <br />
+![Untitled](https://github.com/karina-nosenko/Sense-Eye/assets/77194094/8060a724-5f26-458d-8621-f795b5762f26)
 
 
 
