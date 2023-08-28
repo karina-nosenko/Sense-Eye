@@ -11,19 +11,15 @@ Paralympic 5-a-side football was revealed as an event with the highest incidence
 ## Purpose
 The purpose of the Sense-Eye project is to help impaired vision 5-a-side football players become more independent during training and games by providing real-time assistance and feedback to improve their performance. The system is designed to provide recommendations for passing or kicking the ball in real-time, and also alerts the players about the distance to the goal. The system also allows for post-training analysis, providing detailed feedback about the player's performance at the end of the game or training session. This feedback can be used by the coach to confirm if the system's recommendation was good, and by the players to make adjustments to improve their performance. In summary, The project main goal is to help visually impaired players to play football more independently and improve their performance.
 ## Scope
-The system will specialise in making the game/training more accessible to impaired vision players by providing the ability to ask for a recommendation for the direction of passing/kicking the ball in real time including post training which the coach will confirm for each event if it was a good recommendation or not. Providing a real-time alert about the distance to the gate. In addition, the system will provide detailed feedback about the player’s performance at the end of the game or training.
-## Definitions and Acronyms
-5-a-side football - an adaptation of football for athletes with visual impairments including blindness.
-5-a-side ball - a ball that releases a sound that allows every player to know where the ball is at any given moment during the movement of the ball.
-"Sixth sense" - the blind players have a "sixth sense" in that they were able to develop the ability to distinguish who is next to them using the sense of hearing, and the ability to get an orientation during the game by advanced orientation.
-Defence mode -The ball is currently with the opposing players and the gate needs to be defended.
-Attack mode - The ball is currently with players from our team needing to move forward to score to the opposing team.
-Blackout eye shades - an eye cover designed to make sure that all players will be in the same visual condition equally.
-Headband - a headband that contains a unique ID  and buzzers which will communicate with our system.
-Buzzer - audio signalling device. 
-The language of beeps - This is a designed language where the player will understand what to do according to the sound the sensor makes. For example, as the player gets closer to the goal, the system will make more beeps.
+The system specialises in making the game/training more accessible to impaired vision players by providing the ability to ask for a recommendation for the direction of passing/kicking the ball in real time including post training which the coach will confirm for each event if it was a good recommendation or not. Providing a real-time alert about the distance to the gate. In addition, the system will provide detailed feedback about the player’s performance at the end of the game or training.
+## Repository Overview
+The SenseEye System comprises several components, each contributing to the overall functionality of the project. This repository is organized into the following main sections:
+1. <b>Hardware Unit</b>: This section contains the code and documentation related to the hardware components of the SenseEye System. The hardware unit includes the smart caps equipped with audio signals for real-time feedback and recommendations.
+2. <b>Image Processing Unit</b>: In this section, you will find the implementation and details of the image processing unit of the SenseEye System. This unit is responsible for player and ball tracking using computer vision techniques.
+3. <b>Recommendations Unit</b>: The recommendations unit is a vital component of the SenseEye System. It provides real-time guidance to visually impaired players by calculating and delivering optimal directions for passing and kicking the ball.
+4. <b>Desktop Application</b>: The desktop application offers coaches and trainers a user-friendly interface to analyze and validate the system's recommendations, as well as gain insights into player performance.
 <br />
 <br />
-![Sense-Eye](https://github.com/yuvalBerghaus/react_native_sense-eye/assets/65304080/d6b788de-0148-403e-ba5f-5b3138c85b7d)
+
 
 
